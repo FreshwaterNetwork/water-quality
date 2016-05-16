@@ -22,6 +22,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 			// Comment out the infoGraphic property below to make that annoying popup go away when you start the app
 			//infoGraphic: "plugins/water-quality/images/infoGraphic.jpg",
 			// First function called when the user clicks the pluging icon. 
+			// test comment
 			initialize: function (frameworkParameters) {
 				// Access framework parameters
 				declare.safeMixin(this, frameworkParameters);
