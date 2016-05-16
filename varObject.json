@@ -1,0 +1,20 @@
+{
+    "url": "http://cirrus-web-adapter-241060755.us-west-1.elb.amazonaws.com/arcgis/rest/services/FN_Louisiana/NRCS_Water_Quality/MapServer",
+	"visibleLayers": [2],
+	"huc8Selected": [],
+	"sel": "",
+	"section": "",
+	"extent": "",
+	"sliderVal": 3,
+	"supLyrId": "",
+	"supLayer": "",
+	"stateSet": "no",
+	"spAtts": [],
+	"val": "",
+	"year": "",
+	"trait": "",
+	"traits": [],
+	"tid": "",
+	"mean": "",
+	"graphOpen": ""
+}

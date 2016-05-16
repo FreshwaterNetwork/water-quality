@@ -1,0 +1,213 @@
+﻿<!--This HTML is used in the render function to build the elements within the plugin. The render function first creats a 
+Dijit ContentPane to hold all the elements. The ContentPane is assigned a dynamic id upon creation. The render function 
+takes the ContentPane id and prepends it to every element with a declared id in this HTML before the elements are created. 
+The unique ContentPane id makes all the element ids unique and prevents duplicate id errors in split screen mode.-->
+
+<!--Table for print functionality. Kept hidden by pt class until print is called-->
+<table id='myPrintTable' class='pt'> 
+	<thead> 
+		<tr> 
+			<th>Map ID</th> 
+			<th>Parcel ID</th>
+			<th>Deed Book / Page</th>
+			<th>OSP Eligible Acreage</th>
+			<th>OSP Points</th>
+			<th>NFOS Eligible Acreage</th>
+			<th>NFOS points</th>
+			<th>NFOS Description</th>
+		</tr> 
+	</thead> 
+	<tbody> 		
+	</tbody> 
+</table>
+<!--Opening view of the app. Give a little background and instructions to get started-->
+<div class='home' id='home'>
+	<div class='homeHeader'>What would you like to do?</div>
+	<div class='startButton ready' id='spatial'>Explore Spatial Trends</div>
+	<div class='startButton ready' id='temporal'>Temporal</div>
+	<div class='startButton comingSoon' id='impWatersheds'>Impaired Watersheds</div>
+</div>
+<div class='topWrapper' id='topWrapper'> 
+
+	<div class='navBtn bbar bbarL intNavBtn' id='spaBtn'>Spatial</div>
+	<div class='navBtn bbar bbarR intNavBtn' id='temBtn'>Temporal</div> 
+	<div class='navBtn bbar bbarR intNavBtn' id='clearBtn'>Clear</div>
+	<div class='borderDiv'></div>	
+</div>	
+
+
+<div class='mainDivWrapper selectDivs topPad' id='hucWrapper'>
+	<div id='chartHeader' class='fakeAccordHeader bottomRightSm'>
+		Please choose a HUC8
+	</div>
+	<div id='selectDivs' class='selectDivs1 bottomRightSm'>
+		<!--The value of each option refers to the layer name and the text is what is used for the layers definition query-->
+		<div id='huc8Wrapper'>
+			<select id='ch-HUC8' data-placeholder="Select a HUC8" class="chosen-crs" tabindex="16">
+				<option value=""></option>
+				<option value="Boeu_08050001">Boeuf</option>
+				<option value="Merm_08080202">Mermentau</option>
+				<option value="Tang_08070205">Tangipahoa</option>
+			</select>
+		</div>
+		<div id='spatialWrapper'>
+			<!--The value of each option refers to the layer name and the text is what is used for the layers definition query-->
+			<div id='ch-traitsDiv' class='ch-divs'>
+				<select id='ch-traits' data-placeholder="Select a water quality trait" class="chosen-crs" tabindex="16">
+					<option value=""></option>
+				</select>
+			</div>	
+			<div id='ch-yearsDiv' class='ch-divs'>
+				<select id='ch-years' data-placeholder="Show data by year" class="chosen-crs" tabindex="16">
+					<option value=""></option>
+				</select>
+			</div>
+			<div id='ch-pointsDiv' class='ch-divs' >
+				<label class='radioLabels samplePoints'><input name='supDataRadio' type='checkbox' id='ch-points'  value='Show Sample Points'><span>Show Sample Points</span></label>
+			</div>
+		</div>
+		<div class='temporalWrapper' id='temporalWrapper'>
+			<div id='showGraphText'> Click on Water Quality Station to show graph</div>
+			<div id='graphShow' class='graphShow navBtn navBtnSmall graphToggle'>Show graph</div>
+			<div id='graphHide' class='graphHide navBtn navBtnSmall graphToggle'>Hide</div>
+			<div id='graphDiv' class='graphDiv' >
+				<div id='chartContent' class='chartDiv'>
+					<div class='summaryDiv'>
+						<div id='traitBar' class='buttonBar bottomRight'>
+						   <label class='buttonBar__item'>
+							 <input type='radio'>
+							 <button id='-generated_stations_DOmean' class='buttonBar__button' title='Dissloved Oxygen'>DO</button>
+						   </label>
+						   <label class='buttonBar__item'>
+							 <input type='radio'>
+							 <button id='-generated_stations_Nmean' class='buttonBar__button' title='Nitrogen'>N</button>
+						   </label>
+						   <label class='buttonBar__item'>
+							 <input type='radio'>
+							 <button id='-generated_stations_Pmean' class='buttonBar__button' title='Total Phosphorus'>P</button>
+						   </label>
+						   <label class='buttonBar__item'>
+							 <input type='radio'>
+							 <button id='-generated_stations_TDSmean' class='buttonBar__button' title='Total Dissloved Solids'>TDS</button>
+						   </label>
+						   <label class='buttonBar__item'>
+							 <input type='radio'>
+							 <button id='-generated_stations_TSSmean' class='buttonBar__button' title='Total Suspended Solids'>TSS</button>
+						   </label>
+						   <label class='buttonBar__item'>
+							 <input type='radio'>
+							 <button id='-generated_stations_TURmean' class='buttonBar__button' title='Turbidity'>TUR</button>
+						   </label>
+						   <label class='buttonBar__item'>
+							 <input type='radio'>
+							 <button id='-generated_stations_PHOmean' class='buttonBar__button' title='Phosphate'>PHOS</button>
+						   </label>
+						   <label class='buttonBar__item'>
+							 <input type='radio'>
+							 <button id='-generated_stations_IONmean' class='buttonBar__button' title='Inorganic Nitrogen'>ION</button>
+						   </label>
+						   <label class='buttonBar__item'>
+							 <input type='radio'>
+							 <button id='-generated_stations_AMMmean' class='buttonBar__button' title='Ammonia'>AMM</button>
+						   </label>
+						   <label class='buttonBar__item'>
+							 <input type='radio'>
+							 <button id='-generated_stations_NITmean' class='buttonBar__button' title='Nitrate'>NNN</button>
+						   </label>
+						</div>
+						<div id='barChartTitle' class='chartTitles' style='margin-top:10px; margin-bottom:10px;'>Average Readings by Year (Click bars or years for monthly readings by year)</div>
+						<div class='hp'>
+							<div id='hLbl' class='hLbl'></div>
+							<div id='mLbl' class='mLbl'></div>
+							<div id='lLbl' class='lLbl'></div>
+							<div id='uLbl' class='uLbl'></div>
+						</div>
+						<div class='hpLines'>
+							<div class='lClass hLine'></div>
+							<div class='lClass mLine'></div>
+							<div class='lClass lLine'></div>
+							<div class='lClass uLine'></div>		
+						</div>	
+						<div id='meanBarDiv' class='barHolder'>
+							<div class='meanBars' style='left:3px;'   id='mean1995'></div>
+							<div class='meanBars' style='left:29px;'  id='mean1996'></div>
+							<div class='meanBars' style='left:55px;'  id='mean1997'></div>
+							<div class='meanBars' style='left:81px;'  id='mean1998'></div>
+							<div class='meanBars' style='left:107px;' id='mean1999'></div>
+							<div class='meanBars' style='left:133px;' id='mean2000'></div>
+							<div class='meanBars' style='left:159px;' id='mean2001'></div>
+							<div class='meanBars' style='left:185px;' id='mean2002'></div>
+							<div class='meanBars' style='left:211px;' id='mean2003'></div>
+							<div class='meanBars' style='left:237px;' id='mean2004'></div>
+							<div class='meanBars' style='left:263px;' id='mean2005'></div>
+							<div class='meanBars' style='left:289px;' id='mean2006'></div>
+							<div class='meanBars' style='left:315px;' id='mean2007'></div>
+							<div class='meanBars' style='left:341px;' id='mean2008'></div>
+							<div class='meanBars' style='left:367px;' id='mean2009'></div>
+							<div class='meanBars' style='left:393px;' id='mean2010'></div>
+							<div class='meanBars' style='left:419px;' id='mean2011'></div>
+							<div class='meanBars' style='left:445px;' id='mean2012'></div>
+							<div class='meanBars' style='left:470px;' id='mean2013'></div>
+							<div class='meanBars' style='left:496px;' id='mean2014'></div>
+						</div>
+						<div id='smLabelDiv' style='width:520px; height:35px' class='bottomRight'>
+							<div class='smallLabels'><div class='slText'>1995</div></div>
+							<div class='smallLabels'><div class='slText'>1996</div></div>
+							<div class='smallLabels'><div class='slText'>1997</div></div>
+							<div class='smallLabels'><div class='slText'>1998</div></div>
+							<div class='smallLabels'><div class='slText'>1999</div></div>
+							<div class='smallLabels'><div class='slText'>2000</div></div>
+							<div class='smallLabels'><div class='slText'>2001</div></div>
+							<div class='smallLabels'><div class='slText'>2002</div></div>
+							<div class='smallLabels'><div class='slText'>2003</div></div>
+							<div class='smallLabels'><div class='slText'>2004</div></div>
+							<div class='smallLabels'><div class='slText'>2005</div></div>
+							<div class='smallLabels'><div class='slText'>2006</div></div>
+							<div class='smallLabels'><div class='slText'>2007</div></div>
+							<div class='smallLabels'><div class='slText'>2008</div></div>
+							<div class='smallLabels'><div class='slText'>2009</div></div>
+							<div class='smallLabels'><div class='slText'>2010</div></div>
+							<div class='smallLabels'><div class='slText'>2011</div></div>
+							<div class='smallLabels'><div class='slText'>2012</div></div>
+							<div class='smallLabels'><div class='slText'>2013</div></div>
+							<div class='smallLabels'><div class='slText'>2014</div></div>
+						</div>
+						<div id='lineChartTitle' class='chartTitles' style='margin-top:15px; margin-bottom:-10px;'></div>
+						<div id='lineChart' class='ct-chart' style='margin-left:-50px;'></div>
+					</div>						
+				</div>
+			</div>
+		</div>
+	</div>	
+</div>
+<!--Supporting data-->
+<div id='supData' class='supData'>
+	<div class='dlAccord' id='dlAccord'>	
+		<h3 class='bottomRightSm'>Supporting Data</h3>
+		<div>
+			<div id='supDataDiv' class='supDataDiv'>
+				<label class='radioLabels'><input name='supDataRadio' type='radio' id='cb-huc12' value='HUC 12s'><span>HUC 12s</span></label>
+				<label class='radioLabels'><input name='supDataRadio' type='radio' id='cb-soils' value='Soils Data'><span>Soils Data</span></label>
+				<label class='radioLabels'><input name='supDataRadio' type='radio' id='cb-land' value='Land Cover'><span>Land Cover</span></label>
+				<label class='radioLabels'><input name='supDataRadio' type='radio' id='cb-none' value='None' checked="checked"><span>None</span></label>
+			</div>
+			<div id='clickAttributes' class='clickAttributes'></div>
+		</div>
+		
+	</div>
+</div>
+
+<!--Bottom bar with slider and print/csv buttons-->
+<div id='bottomDiv' class='bottomDiv'>
+	<div id='sliderDiv' class='sliderDiv'>
+		<div class='leftSliderLabel'>
+			Opaque
+		</div>
+		<div id='slider' class='slider'>
+		</div>
+		<div class='rightSliderLabel'>
+			Transparent
+		</div>
+	</div>
+</div>	
+
