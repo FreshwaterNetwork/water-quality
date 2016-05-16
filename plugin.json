@@ -1,11 +1,11 @@
 {
     "css": [
 		"//cdn.sencha.io/ext-4.1.1-gpl/resources/css/ext-all.css",
-        "plugins/community-rating-system/js/jquery-ui-1.11.2/jquery-ui.css",
-		"plugins/community-rating-system/css/prism.css",
-		"plugins/community-rating-system/css/chosen.css",
-		"plugins/community-rating-system/chartist/chartist.min.css",
-		"plugins/community-rating-system/css/main.css"
+        "plugins/water-quality/js/jquery-ui-1.11.2/jquery-ui.css",
+		"plugins/water-quality/css/prism.css",
+		"plugins/water-quality/css/chosen.css",
+		"plugins/water-quality/chartist/chartist.min.css",
+		"plugins/water-quality/css/main.css"
     ],
     "use": {
         "underscore": { "attach": "_" },

@@ -8,9 +8,9 @@ define([
 	"esri/symbols/PictureMarkerSymbol", "dijit/TooltipDialog", "dijit/popup",
 	"dojo/_base/declare", "framework/PluginBase", "esri/layers/FeatureLayer", "esri/symbols/SimpleLineSymbol", "esri/symbols/SimpleFillSymbol", "esri/lang", "esri/tasks/Geoprocessor",
 	"esri/symbols/SimpleMarkerSymbol", "esri/graphic", "dojo/_base/Color", 	"dijit/layout/ContentPane", "dijit/form/HorizontalSlider", "dojo/dom", 
-	"dojo/dom-class", "dojo/dom-style", "dojo/dom-construct", "dojo/dom-geometry", "dojo/_base/lang", "dojo/on", "dojo/parser", 'plugins/community-rating-system/js/ConstrainedMoveable',
-	"dojo/text!./varObject.json", "jquery", "dojo/text!./html/legend.html", "dojo/text!./html/content.html", 'plugins/community-rating-system/js/jquery-ui-1.11.2/jquery-ui', "esri/renderers/SimpleRenderer", 
-	"plugins/community-rating-system/chartist/chartist"
+	"dojo/dom-class", "dojo/dom-style", "dojo/dom-construct", "dojo/dom-geometry", "dojo/_base/lang", "dojo/on", "dojo/parser", 'plugins/water-quality/js/ConstrainedMoveable',
+	"dojo/text!./varObject.json", "jquery", "dojo/text!./html/legend.html", "dojo/text!./html/content.html", 'plugins/water-quality/js/jquery-ui-1.11.2/jquery-ui', "esri/renderers/SimpleRenderer", 
+	"plugins/water-quality/chartist/chartist"
 ],
 function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryTask, PictureMarkerSymbol, TooltipDialog, dijitPopup,
 	declare, PluginBase, FeatureLayer, SimpleLineSymbol, SimpleFillSymbol, esriLang, Geoprocessor, SimpleMarkerSymbol, Graphic, Color,
@@ -20,14 +20,14 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 			toolbarName: "Water Quality", showServiceLayersInLegend: true, allowIdentifyWhenActive: false, rendered: false, resizable: false,
 			hasCustomPrint: true, usePrintPreviewMap: true, previewMapSize: [1000, 550], height:"200", width:"350",
 			// Comment out the infoGraphic property below to make that annoying popup go away when you start the app
-			//infoGraphic: "plugins/community-rating-system/images/infoGraphic.jpg",
+			//infoGraphic: "plugins/water-quality/images/infoGraphic.jpg",
 			// First function called when the user clicks the pluging icon. 
 			initialize: function (frameworkParameters) {
 				// Access framework parameters
 				declare.safeMixin(this, frameworkParameters);
 				// Set initial app size based on split screen state
-				this.con = dom.byId('plugins/community-rating-system-0');
-				this.con1 = dom.byId('plugins/community-rating-system-1');
+				this.con = dom.byId('plugins/water-quality-0');
+				this.con1 = dom.byId('plugins/water-quality-1');
 				if (this.con1 != undefined){
 					domStyle.set(this.con1, "width", "350px");
 					domStyle.set(this.con1, "height", "200px");
@@ -508,13 +508,13 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				});
 				this.dialog.startup();
 				// Enable jquery plugin 'chosen'
-				require(["jquery", "plugins/community-rating-system/js/chosen.jquery"],lang.hitch(this,function($) {
+				require(["jquery", "plugins/water-quality/js/chosen.jquery"],lang.hitch(this,function($) {
 					var configCrs =  { '.chosen-crs' : {allow_single_deselect:true, width:"200px", disable_search:true}}
 					for (var selector in configCrs)  { $(selector).chosen(configCrs[selector]); }
 				}));
 				// Use selections on chosen menus 
 				var p = ""
-				require(["jquery", "plugins/community-rating-system/js/chosen.jquery"],lang.hitch(this,function($) {					
+				require(["jquery", "plugins/water-quality/js/chosen.jquery"],lang.hitch(this,function($) {					
 					//Select Huc8
 					$('#' + this.id + 'ch-HUC8').chosen().change(lang.hitch(this,function(c, p){
 						// clear traits value if huc 8 dropdown menu was cleared
