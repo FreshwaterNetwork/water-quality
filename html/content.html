@@ -23,9 +23,9 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
 <!--Opening view of the app. Give a little background and instructions to get started-->
 <div class='home' id='home'>
 	<div class='homeHeader'>What would you like to do?</div>
-	<div class='startButton ready' id='spatial'>Explore Spatial Trends</div>
-	<div class='startButton ready' id='temporal'>Temporal</div>
-	<div class='startButton comingSoon' id='impWatersheds'>Impaired Watersheds</div>
+	<div class='startButton ready' id='spatial'>Explore Spatial Concentrations</div>
+	<div class='startButton ready' id='temporal'>Explore Temporal Trends</div>
+	<div class='startButton ready' id='impWatersheds'>Explore Impaired Watersheds</div>
 </div>
 <div class='topWrapper' id='topWrapper'> 
 
@@ -33,12 +33,15 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
 	<div class='navBtn bbar bbarR intNavBtn' id='temBtn'>Temporal</div> 
 	<div class='navBtn bbar bbarR intNavBtn' id='clearBtn'>Clear</div>
 	<div class='borderDiv'></div>	
-</div>	
-
-
+</div>
+<div class='clearWrapper' id='clearWrapper'> 
+	<div class='navBtn bbar bbarR intNavBtn' id='clearWaterBtn'>Clear</div>
+	<div class='borderDiv'></div>	
+</div>
+<!-- The main wrapper that contains all the data besides sup data -->
 <div class='mainDivWrapper selectDivs topPad' id='hucWrapper'>
 	<div id='chartHeader' class='fakeAccordHeader bottomRightSm'>
-		Please choose a HUC8
+		Please choose or click on a HUC8
 	</div>
 	<div id='selectDivs' class='selectDivs1 bottomRightSm'>
 		<!--The value of each option refers to the layer name and the text is what is used for the layers definition query-->
@@ -178,6 +181,18 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
 				</div>
 			</div>
 		</div>
+		<div id='waterAttributes' class='waterAttributes'>
+			<div id='waterID'>Watershed ID: </div>
+			<div id='waterName' >Watershed Name: </div>
+			<div id='waterDesc'>Watershed Description: </div>
+		</div>
+		<div id='impWaterWrapper' class='impWaterWrapper'>
+			<div style='display:block; margin-top:65px'>
+				<table id='tableTest' class='tableTest' style= "width:100%;">
+				  
+				</table>
+			</div>
+		</div>
 	</div>	
 </div>
 <!--Supporting data-->
@@ -187,11 +202,14 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
 		<div>
 			<div id='supDataDiv' class='supDataDiv'>
 				<label class='radioLabels'><input name='supDataRadio' type='radio' id='cb-huc12' value='HUC 12s'><span>HUC 12s</span></label>
+				<div id='clickHuc12' class='clickHuc12' style= "display:none;">test huc12</div>
 				<label class='radioLabels'><input name='supDataRadio' type='radio' id='cb-soils' value='Soils Data'><span>Soils Data</span></label>
+				<div id='clickSoils' class='clickSoils'></div>
 				<label class='radioLabels'><input name='supDataRadio' type='radio' id='cb-land' value='Land Cover'><span>Land Cover</span></label>
+				<div id='clickLand' class='clickLand'></div>
 				<label class='radioLabels'><input name='supDataRadio' type='radio' id='cb-none' value='None' checked="checked"><span>None</span></label>
 			</div>
-			<div id='clickAttributes' class='clickAttributes'></div>
+			<div id='clickSoils' class='clickSoils'></div>
 		</div>
 		
 	</div>
