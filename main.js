@@ -180,55 +180,143 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 						new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
 						new Color([0,0,255]), 3),
 						new Color([206,200,58,0]));
+				// huc 8 highlight symbol
 				var huc8highlightSymbol = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
 						new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
-						new Color([13,172,252]), 2),
+						new Color([0,46,115]), 3),
 						new Color([236,239,222,0]));
 
-				// HUC 8 zoom
-				this.huc8 = new FeatureLayer(this.obj.url + "/2", { mode: esri.layers.FeatureLayer.MODE_SNAPSHOT, outFields: "*"});
+				// set all feature layers and set selection symbols
+				// huc8
+				this.huc8 = new FeatureLayer(this.obj.url + "/2", { mode: esri.layers.FeatureLayer.MODE_SELECTION, outFields: "*"});
+				this.huc8_click = new FeatureLayer(this.obj.url + "/2", { mode: esri.layers.FeatureLayer.MODE_SELECTION, outFields: "*"});
+				this.huc8.setSelectionSymbol(huc8highlightSymbol);
+				// impaired watershed
+				this.impWater = new FeatureLayer(this.obj.url + "/3", { mode: esri.layers.FeatureLayer.MODE_SELECTION, outFields: "*"});
+				this.huc12 = new FeatureLayer(this.obj.url + "/1", { mode: esri.layers.FeatureLayer.MODE_SELECTION, outFields: "*"});
+				// soils data
+				this.soils = new FeatureLayer(this.obj.url + "/10000", { mode: esri.layers.FeatureLayer.MODE_SELECTION, outFields: "*"});
+				this.soils.setSelectionSymbol(this.soilsSym);
+				// land cover data
+				this.land = new FeatureLayer(this.obj.url + "/10", { mode: esri.layers.FeatureLayer.MODE_SELECTION, outFields: "*"}); ;
+				// sample points layer
+				this.samplePoints = new FeatureLayer(this.obj.url + "/14", { mode: esri.layers.FeatureLayer.MODE_SNAPSHOT, outFields: "*"});
+				this.samplePoints.setRenderer(new SimpleRenderer(this.pntSym));
+				//sampling stations layer
+				this.samplingStations = new FeatureLayer(this.obj.url + "/0", { mode: esri.layers.FeatureLayer.MODE_ONDEMAND, outFields: "*"});
+				this.sSelected = 'map';
+				// on selection complete of the huc8 
 				this.huc8.on("selection-complete", lang.hitch(this,function(f){
-					var huc8Extent = f.features[0].geometry.getExtent().expand(1.5);
-					this.map.setExtent(huc8Extent, true);
+					if(f.features.length > 0){
+						var huc8Extent = f.features[0].geometry.getExtent().expand(1.3);
+						this.map.setExtent(huc8Extent, true);
+					} 
 				}));
+				// build the secend huc 8 selection complete here
+				// on selection complete of the huc8 click
+				this.huc8_click.on("selection-complete", lang.hitch(this,function(f){
+					if(f.features.length > 0){
+						// only allow a trigger of the dropdown menu if it has not been selected
+						if(f.features[0].attributes.Abbr == this.obj.huc8Selected[0]){
+							console.log('this huc8 has already been selected');
+						}else{
+							var huc8ClickVal = f.features[0].attributes.Abbr + '_' + f.features[0].attributes.HUC_8;
+							$('#' + id + 'ch-HUC8').val(huc8ClickVal).trigger('chosen:updated').trigger('change');
+						}
+					} else{
+						console.log('you did not click on a huc8 and did not activate a huc 8 click');
+					}
+				}));
+				// on selection complete for huc 12.
+				this.huc12.on("selection-complete", lang.hitch(this,function(f){
+					if(f.features.length > 0){
+						$('#' + this.id + 'clickHuc12').show();
+						var acres = numberWithCommas(f.features[0].attributes.ACRES);
+						var t = "<div style='padding:6px;'>HUC 12: <b>${HUC_12}</b><br>Acres: <b>" + acres + "</b><br>Subwatershed: <b>${SUBWATERSHED}</b></div>";
+						var content = esriLang.substitute(f.features[0].attributes,t);
+						$('#' + this.id + 'clickHuc12').html(content);
+					}else{
+						var query = new esri.tasks.Query();
+						query.geometry = this.hQuery.geometry;
+						this.huc8_click.selectFeatures(query,esri.layers.FeatureLayer.SELECTION_NEW);
+					}
+				}));
+				// this.soils.on("selection-complete", lang.hitch(this,function(f){
+					// if (f.features.length > 0){
+						// $('#' + this.id + 'clickSoils').show();
+						// var t = "<div style='padding:6px;'>Soil Type: <b>${Map_unit_n}</b></div>";
+						// var content = esriLang.substitute(f.features[0].attributes,t);
+						// $('#' + this.id + 'clickSoils').html(content);
+					// }else{
+						// var query = new esri.tasks.Query();
+						// query.geometry = this.hQuery.geometry;
+						// this.huc8_click.selectFeatures(query,esri.layers.FeatureLayer.SELECTION_NEW);
+					// }
+				// }));
+				// this.samplingStations.on("selection-complete", lang.hitch(this,function(f){
+					// console.log('sampling stations click');
+					// console.log(f.features[0]);
+					// console.log(f);
+					// var x = String(f.target.attributes[10]);
+					// this.map.graphics.clear();
+					// this.obj.spAtts = f.graphic.attributes;
+					// $('#' + this.id + 'chartHeader').text("Station ID " + this.obj.spAtts.generated_stations_old_ID);
+					// this.checkTraits(this.obj.spAtts);
+					// this.map.graphics.add(spHlGraphic);
+					// $('#' + this.id + 'graphShow, #' + this.id + 'showGraphText, #' + this.id + 'supData, #' + this.id + 'huc8Wrapper, #'  + this.id + 'bottomDiv').hide();
+					// $('#' + this.id + 'graphDiv').slideDown('slow');
+					// $(this.con).animate({ height: '520px', width: '630px' }, 250,
+						// lang.hitch(this,function(){
+							// this.resize();
+							// $('#' + this.id + 'graphHide' ).show();
+						// })
+					// );
+
+				// }));
+				
+				// this.land.on("selection-complete", lang.hitch(this,function(f){
+					
+				// }));
+				// this.impWater.on("selection-complete", lang.hitch(this,function(f){
+				// }));
+				//$('#' + id + 'ch-HUC8').val(huc8ClickVal).trigger('chosen:updated').trigger('change');
 				// HUC 8 mouse over
-				var map = this.map
-				this.huc8.on("mouse-over", lang.hitch(this,function(evt){
-					this.map.setMapCursor("pointer");
-					var huc8highlightSymbol = new Graphic(evt.graphic.geometry,huc8highlightSymbol);
-					map.graphics.add(huc8highlightSymbol);
-				}));
-				this.huc8.on("mouse-out", lang.hitch(this,function(evt){
-					this.map.setMapCursor("default");
-				}));
-				// create the impaired watersheds layer.
-				this.impWater = new FeatureLayer(this.obj.url + "/3", { mode: esri.layers.FeatureLayer.MODE_SNAPSHOT, outFields: "*"});
-				// HUC12
-				this.huc12 = new FeatureLayer(this.obj.url + "/1", { mode: esri.layers.FeatureLayer.MODE_SNAPSHOT, outFields: "*"});
-				this.huc12.setRenderer(new SimpleRenderer(this.hucSym));
+				// this.huc8.on("mouse-over", lang.hitch(this,function(evt){
+					// this.map.setMapCursor("pointer");
+					// var huc8highlightSymbol = new Graphic(evt.graphic.geometry,huc8highlightSymbol);
+					// this.map.graphics.add(huc8highlightSymbol);
+				// }));
+				// this.huc8.on("mouse-out", lang.hitch(this,function(evt){
+					// this.map.setMapCursor("default");
+				// }));
+				this.map.addLayer(this.huc8); // add layer to map for querying purposes
+				this.map.addLayer(this.huc12); // add layer to map for querying purposes
+				//this.map.addLayer(this.soils); // add layer to map for querying purposes
+				// this.map.addLayer(this.samplingStations); // add layer to map for querying purposes
+				// this.map.addLayer(this.land); // add layer to map for querying purposes
+				
+				// handle on click of map to query out attributes
+				// this.map.on("click", lang.hitch(this, function(evt) {
+					// console.log(this.sSelected, 'map');
+					// var pnt = evt.mapPoint;
+					// this.hQuery = new esri.tasks.Query();
+					// this.hQuery.geometry = pnt;
+					// if (this.obj.sel == 'tm' && this.sSelected == 'map'){
+						// this.supDataFunction();
+					// }
+					// if (this.obj.sel == 'sp'){
+						// this.supDataFunction();
+					// }
+					// this.sSelected = 'map';
+				// }));
 				this.map.infoWindow.resize(245,125);
 				hucDialog = new TooltipDialog({
 				  style: "position: absolute; max-width: 500px; font: normal normal normal 10pt Helvetica; z-index:100;"
 				});
-				// soils data
-				this.soils = new FeatureLayer(this.obj.url + "/1000", { mode: esri.layers.FeatureLayer.MODE_SNAPSHOT, outFields: "*"});
-
-				// land cover data
-				this.land = new FeatureLayer(this.obj.url + "/1000", { mode: esri.layers.FeatureLayer.MODE_SNAPSHOT, outFields: "*"}); ;
-				// sample points layer
-				this.samplePoints = new FeatureLayer(this.obj.url + "/14", { mode: esri.layers.FeatureLayer.MODE_SNAPSHOT, outFields: "*"});
-				this.samplePoints.setRenderer(new SimpleRenderer(this.pntSym));
-
-				//sampling stations layer
-				this.samplingStations = new FeatureLayer(this.obj.url + "/0", { mode: esri.layers.FeatureLayer.MODE_SNAPSHOT, outFields: "*"});
-				this.samplingStations.on("mouse-over", lang.hitch(this,function(evt){
-					this.map.setMapCursor("pointer");
-				}));
-				this.samplingStations.on("mouse-out", lang.hitch(this,function(evt){
-					this.map.setMapCursor("default");
-				}));
 				this.samplingStations.on("click", lang.hitch(this,function(evt){
 					var x = String(evt.target.attributes[10]);
+					this.sSelected = 'ss';
+					console.log(this.sSelected, 'points');
 					this.map.graphics.clear();
 					this.obj.spAtts = evt.graphic.attributes;
 					$('#' + this.id + 'chartHeader').text("Station ID " + this.obj.spAtts.generated_stations_old_ID);
@@ -254,10 +342,21 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 							$('#' + this.id + 'graphHide' ).show();
 						})
 					);
-
 				}));
-				// Declare all the dynamic map service layers
-				//this.huc8Dynamic = new ArcGISDynamicMapServiceLayer(this.obj.url + '/2', {opacity: 1 - this.obj.sliderVal/10});
+				// handle on click of map to query out attributes
+				this.map.on("click", lang.hitch(this, function(evt) {
+					console.log(this.sSelected, 'map');
+					var pnt = evt.mapPoint;
+					this.hQuery = new esri.tasks.Query();
+					this.hQuery.geometry = pnt;
+					if (this.obj.sel == 'tm' && this.sSelected == 'map'){
+						this.supDataFunction();
+					}
+					if (this.obj.sel == 'sp'){
+						this.supDataFunction();
+					}
+					this.sSelected = 'map';
+				}));
 				// handle clicks on the graph show button
 				$('#' + this.id + 'graphShow').on('click',lang.hitch(this,function(e){
 					$('#' + this.id + 'graphDiv').show();
@@ -273,13 +372,13 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				}));
 				// handle clicks on the graph hide button
 				$('#' + this.id + 'graphHide').on('click',lang.hitch(this,function(e){
-					$('#' + this.id + 'chartHeader').text("Please choose a HUC8");
+					$('#' + this.id + 'chartHeader').text("Please choose or click on a HUC8");
 					$('#' + this.id + 'graphDiv').hide();
 					// write an if statement to see if anything has been selected.
 					if (this.obj.huc8Selected[0] == undefined || this.obj.huc8Selected[0] == ''){
-						console.log('there is no huc8 selected')
+						//console.log('there is no huc8 selected')
 					} else{
-						console.log('there is a huc 8 selected')
+						//console.log('there is a huc 8 selected')
 						$('#' + this.id + 'supData').slideDown();
 					}
 					$('#' + this.id + 'huc8Wrapper, #' + this.id + 'bottomDiv').show();
@@ -360,13 +459,30 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				// handle clicks on internal spatial button
 				$('#' + this.id + 'spaBtn').on('click',lang.hitch(this,function(){
 					this.obj.sel = 'sp';
-					// logic to see if a trait has been chosen or not,
-					if (this.obj.huc8Selected[0] != '' && this.obj.traitSelected == undefined ){
-						this.obj.sel = 'sp';
-						$('#' + this.id + 'ch-HUC8').val(this.obj.huc8Sel).trigger('chosen:updated').trigger('change');
+					// remove water quality sample station points when click on internal spatial.
+					var index = this.obj.spatialLayerArray.indexOf(0);
+					if(index > -1){
+						this.obj.spatialLayerArray.splice(index,1);
 					}
+					// remove sampling stations when internal spatial is clicked.
+					this.map.removeLayer(this.samplingStations);
+					// push year is to spatial array if year has been selected.
+					if (this.obj.yearSelected != undefined){
+						this.obj.spatialLayerArray.push(this.obj.yearSelected)
+					}
+					this.obj.spatialLayerArray = unique(this.obj.spatialLayerArray);
+					console.log(this.obj.spatialLayerArray, 'vis layers spatial');
+					this.obj.visibleLayers = this.obj.spatialLayerArray;
+					this.dynamicLayer.setVisibleLayers(this.obj.visibleLayers);
+					// we made not need the below code anymore, but keeping it for now.
+					// logic to see if a trait has been chosen or not,
+					// if (this.obj.huc8Selected[0] != '' && this.obj.traitSelected == undefined ){
+						// this.obj.sel = 'sp';
+						// $('#' + this.id + 'ch-HUC8').val(this.obj.huc8Sel).trigger('chosen:updated').trigger('change');
+					// }
+					// show and hide elements
 					$('#' + this.id + 'graphHide').trigger('click');
-					$('#' + this.id + 'chartHeader').text("Please choose a HUC8");
+					$('#' + this.id + 'chartHeader').text("Please choose or click on a HUC8");
 					// update css to show that it is clicked
 					$('#' + this.id + 'spaBtn').addClass('navBtnSel');
 					$('#' + this.id + 'temBtn').removeClass('navBtnSel');
@@ -375,20 +491,12 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					$('#' + this.id + 'temporalWrapper').slideUp();
 					$('#' + this.id + 'graphHide, #' + this.id + 'graphShow').hide();
 					$('#' + this.id + 'spatialWrapper, #' + this.id + 'huc8Wrapper').slideDown();
-					console.log(this.obj.yearSelected);
-					if (this.obj.yearSelected != undefined){
-						this.obj.visibleLayers = [2, this.obj.yearSelected];
-					}else{
-						this.obj.visibleLayers = [2]
-					}
-					this.dynamicLayer.setVisibleLayers(this.obj.visibleLayers);
 					$(this.con).animate({ height: '515px', width: '350px' }, 250,
 						lang.hitch(this,function(){
 							this.resize();
 						})
 					);
 				}));
-
 				// handle clicks on internal temporal button
 				$('#' + this.id + 'temBtn').on('click',lang.hitch(this,function(){
 					// update css to show that it is clicked
@@ -398,14 +506,17 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					$('#' + this.id + 'spatialWrapper, #' + this.id + 'graphDiv').hide();
 					$('#' + this.id + 'temporalWrapper, #' + this.id + 'showGraphText').show();
 					// remove spatial raster layer when internal temporal button is clicked
-					//this.map.addLayer(this.samplingStations);
-					console.log(this.obj.huc8Selected);
-					if(this.obj.huc8Selected[0] != undefined){
-						this.obj.visibleLayers = [2, 0];
-					}else{
-						this.obj.visibleLayers = [2];
+					var stationIndex = this.obj.visibleLayers.indexOf(0);
+					// if there is a huc 8 selected. show water quality sample points.
+					if(this.obj.huc8Selected.length > 1){
+						//this.obj.visibleLayers.push(0)
+						this.map.addLayer(this.samplingStations);
 					}
-					
+					var yearIndex = this.obj.visibleLayers.indexOf(this.obj.yearSelected);
+					if(yearIndex > -1){
+						// this.obj.visibleLayers = [2,0];
+						this.obj.visibleLayers.splice(yearIndex,1);
+					}
 					this.dynamicLayer.setVisibleLayers(this.obj.visibleLayers);
 					$(this.con).animate({ height: '430px', width: '350px' }, 250,
 						lang.hitch(this,function(){
@@ -456,8 +567,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				}));
 				// handle clicks on Impaired watersheds button
 				$('#' + this.id + 'impWatersheds').on('click',lang.hitch(this,function(){
-					console.log('Impaired watersheds click');
-					//this.map.addLayer(this.impWater);
 					this.obj.visibleLayers = [3];
 					this.dynamicLayer.setVisibleLayers(this.obj.visibleLayers);
 					$('#' + this.id + 'home, #' + this.id + 'spatialWrapper, #' + this.id + 'huc8Wrapper').slideUp();
@@ -472,7 +581,10 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 
 				// clear button clicks
 				$('#' + this.id + 'clearBtn').on('click',lang.hitch(this,function(){
+					// remove graphics when clearing
 					this.map.graphics.clear();
+					this.soils.clear();
+					this.huc12.clear();
 					$('#' + this.id + 'cb-none, #' + this.id + 'graphHide').trigger("click");
 					$('#' + this.id + 'graphShow').hide();
 					$('#' + this.id + 'ch-traitsDiv, #' + this.id + 'ch-yearsDiv').slideUp();
@@ -484,6 +596,8 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					$('#' + this.id + 'bottomDiv').hide();
 					$('#' + this.id + 'home').slideDown();
 					this.obj.traitSelected = undefined;
+					this.map.removeLayer(this.land);
+					this.map.removeLayer(this.soils);
 					this.map.removeLayer(this.samplingStations);
 					this.map.removeLayer(this.huc8);
 					this.map.removeLayer(this.impWater);
@@ -565,85 +679,47 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					$('#' + this.id + 'ch-HUC8').chosen().change(lang.hitch(this,function(c, p){
 						// clear traits value if huc 8 dropdown menu was cleared
 						p = $('#' + this.id + 'ch-HUC8').val()
-						console.log(p, 'p');
 						this.obj.traitSelected = undefined;
 						this.obj.huc8Selected[0] = '';
-						var traitArray = [];
+						//this.obj.traitArray = [];
 						$('#' + this.id + 'ch-traits').val('').trigger('chosen:updated').trigger('change');
 						$('#' + this.id + 'cb-none').trigger("click");
-						this.map.setExtent(this.dynamicLayer.initialExtent, true);
 						$('#' + this.id + 'ch-traits').empty();
+						// if something was selected in the huc 8 dropdown
 						if(p){
+							this.obj.spatialLayerArray = [2];
 							this.obj.visibleLayers = [2];
 							this.dynamicLayer.setVisibleLayers(this.obj.visibleLayers);
-							console.log(this.layersArray.name)
 							$('#' + this.id + 'ch-traits').val('').trigger('chosen:updated');
 							var val = $('#' + this.id + 'ch-HUC8').val();
 							$('#' + this.id + 'ch-traitsDiv').show();
 							this.obj.huc8Selected = c.currentTarget.value.split("_");
+							if(this.obj.huc8Sel == c.currentTarget.value){
+								this.obj.inHuc8 = 'yes';
+							}else{
+								this.obj.inHuc8 = 'no';
+							}
 							this.obj.huc8Sel = c.currentTarget.value;
+							// if we are in the spatial side
 							if(this.obj.sel == "sp"){
+								this.traitPopulate();
 								$('#' + this.id + 'supData, #' + this.id + 'spatialWrapper').slideDown();
-								// something was selected
-								$.each(this.layersArray, lang.hitch(this,function(i,v){
-									var splitStr = v.name.split("_");
-									if (this.obj.huc8Selected[0] == splitStr[0]){
-										traitArray.push(splitStr[1]);
-									}
-								}));
-								//clear the text var
-								traitArray = unique(traitArray);
-								//append intital empty option
-								$('#' + this.id + 'ch-traits').append('<option value=""></option>');
-								//use lang.hitch so the 'this' object is available for the append
-								$.each(traitArray, lang.hitch(this, function(i,v){
-									var traitText = '';
-									if (v == "TUR"){
-										traitText = "Turbitity";
-									}
-									if (v == "TSS"){
-										traitText = "Total Suspended Solids";
-									}
-									if (v == "TDS"){
-										traitText = "Total Dissolved Solids";
-									}
-									if (v == "P"){
-										traitText = "Phosphorus";
-									}
-									if (v == "N"){
-										traitText = "Nitrogen";
-									}
-									if(v == "Phos"){
-										traitText = "Phosphate";
-									}
-									if(v == "NNN"){
-										traitText = "Nitrate";
-									}
-									if(v == "NH3"){
-										traitText = "Ammonia";
-									}
-									if(v == "ION"){
-										traitText = "Inorganic Nitrogen";
-									}
-									if (traitText != ''){
-										//you have to use this.id to get the element (won't work without lang.hitch above
-										$('#' + this.id + 'ch-traits').append('<option value="' + v + '">' + traitText + '</option>');
-									}
-								}));
-								//after the loop trigger an update to the select menu
-								$('#' + this.id + 'ch-traits').trigger("chosen:updated");
 								$('#' + this.id + 'ch-traitsDiv').slideDown();
 								$('#' + this.id + 'graphHide, #' + this.id + 'graphShow').hide();
 							};
+							// if we are in the temporal side
 							if(this.obj.sel == "tm"){
+								this.traitPopulate();
 								$('#' + this.id + "supData").slideDown();
-								this.obj.visibleLayers = [2, 0];
+								this.obj.visibleLayers = [2];
 								this.dynamicLayer.setVisibleLayers(this.obj.visibleLayers);
+								this.map.addLayer(this.samplingStations);
 							}
 							this.selectHuc8 = new Query();
 							this.selectHuc8.where = "HUC_8 = '" + this.obj.huc8Selected[1] + "'";
 							this.huc8.selectFeatures(this.selectHuc8, FeatureLayer.SELECTION_NEW);
 						} else{
+							this.map.setExtent(this.dynamicLayer.initialExtent, true);
 							$('#' + this.id + 'supData').slideUp();
 							var ch = $('#' + this.id + 'spatialWrapper').find('.ch-divs');
 							$.each(ch, lang.hitch(this, function(i, v){
@@ -657,8 +733,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 						$('#' + this.id + 'ch-years').val('').trigger('chosen:updated').trigger('change');
 						// something was selected from traits dropdown.
 						if(t) {
-							this.obj.visibleLayers = [2];
-							this.dynamicLayer.setVisibleLayers(this.obj.visibleLayers);
 							// append empty option as first value
 							$('#' + this.id + 'ch-years').append('<option value=""></option>');
 							// assign traitSelected to the huc 8 + t.selected
@@ -683,8 +757,10 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 						if(v){
 							$('#' + this.id + 'ch-pointsDiv').slideDown();
 							this.obj.yearSelected = v.selected;
-							this.obj.visibleLayers = [2, this.obj.yearSelected];
+							this.obj.spatialLayerArray.push(this.obj.yearSelected);
+							this.obj.visibleLayers.push(this.obj.yearSelected);
 							this.dynamicLayer.setVisibleLayers(this.obj.visibleLayers);
+							console.log('years click')
 							var lyrName = '';
 							$.each(this.layersArray, lang.hitch(this,function(i,v){
 								if(v.id == this.obj.yearSelected){
@@ -696,14 +772,23 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 						} else{
 							$('#' + this.id + 'ch-years').empty();
 							$('#' + this.id + 'ch-pointsDiv').hide();
+							
+							var index = this.obj.spatialLayerArray.indexOf(this.obj.yearSelected);
+							if(index > -1){
+								this.obj.spatialLayerArray.splice(index,1);
+							}
+							var index = this.obj.visibleLayers.indexOf(this.obj.yearSelected);
+							if(index > -1){
+								this.obj.visibleLayers.splice(index,1);
+							}
 							this.obj.yearSelected = undefined;
-							this.obj.visibleLayers = [2, this.obj.yearSelected];
 							this.dynamicLayer.setVisibleLayers(this.obj.visibleLayers);
 							$('#' + this.id + 'ch-points').prop( "checked", false ).trigger('change');
 
 						}
 					}));
 					// work with sample points checkbox
+					this.map = this.map
 					$('#' + this.id + 'ch-points').on('change',lang.hitch(this,function(v){
 						var lyrName = '';
 						if(v.currentTarget.checked == true){
@@ -731,12 +816,10 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					var waterDesc = evt.graphic.attributes.DESCRIPTIO;
 					var waterID = evt.graphic.attributes.SUBSEGME_1;
 					var allUse = evt.graphic.attributes.AllUse;
-					console.log(allUse);
 					var splitAllUse = allUse.split('],');
 					for (i = 0; i < splitAllUse.length; i++) { 
 						var item = splitAllUse[i];
 						item = item.split(/['']/);
-						console.log(i, item);
 						$('#' + id + 'tableTest').append('<tr><td>' + item[1] + '</td> <td>' + item[3] + '</td> <td>' + item[5] + '</td></tr>');
 					}
 					$('#' + id + 'waterAttributes').slideDown();
@@ -745,142 +828,79 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					var html = $('#' + id + 'waterDesc').html("<b>Watershed Description:</b> " + waterDesc);
 					var html = $('#' + id + 'waterID').html("<b>Watershed ID:</b> " + waterID);
 				}));
-
 				// work with sup radio buttons
 				$('#' + this.id + 'supDataDiv input:radio').on('click', lang.hitch(this,function(c){
-					var map = this.map
+					//var map = this.map
 					// write a function here to see if the layers exist, if they do remove them
-					this.map.removeLayer(this.huc12);
-					this.map.removeLayer(this.soils);
-					// this.map.removeLayer(this.land);
 					$('#' + this.id + 'clickHuc12').hide();
 					$('#' + this.id + 'clickHuc12').html('');
 					$('#' + this.id + 'clickSoils').hide();
 					$('#' + this.id + 'clickSoils').html('');
-					map.graphics.clear();
+					this.map.graphics.clear();
+					this.soils.clear();
+					this.huc12.clear();
+					// make an array to loop through soils layers
+					var supDataArray = [1,8,9,10,11,12,13] 
+					$.each(supDataArray, lang.hitch(this, function(i,v){
+						var index = this.obj.spatialLayerArray.indexOf(v);
+						if(index > -1){
+							this.obj.spatialLayerArray.splice(index,1);
+						}
+						var index = this.obj.visibleLayers.indexOf(v);
+						if(index > -1){
+							this.obj.visibleLayers.splice(index,1);
+						}
+					}));
 					// if value is Huc 12 set the layer to on
 					if (c.currentTarget.value == "HUC 12s"){
-						this.huc12.setDefinitionExpression("HUC_8 = '" + this.obj.huc8Selected[1] + "'");
-						this.map.addLayer(this.huc12, this.samplingStations);
+						this.obj.spatialLayerArray.push(1);
+						this.obj.visibleLayers.push(1);
+						this.obj.supLayer = "huc12";
+						this.obj.layerDefs[1] = "HUC_8 = '" + this.obj.huc8Selected[1] +"'";
+						this.dynamicLayer.setLayerDefinitions(this.obj.layerDefs);
 						if (this.obj.visibleLayers.length < 2 ){
 							$('#' + this.id + 'bottomDiv').hide();
 						}
 					}
-					// work with the huc12 popup
-					// huc12 popup
-					this.huc12.on("mouse-over", lang.hitch(this,function(evt){
-						this.map.setMapCursor("pointer");
-						console.log(evt)
-					}));
-					this.huc12.on("mouse-out", lang.hitch(this,function(evt){
-						this.map.setMapCursor("default");
-					}));
-					this.huc12.on("click", lang.hitch(this,function(evt){
-						$('#' + this.id + 'clickHuc12').show();
-						atts = evt.graphic.attributes;
-						this.map.graphics.clear();
-						this.huc12Graphic = new Graphic(evt.graphic.geometry,this.huc12Sym);
-						this.map.graphics.add(this.huc12Graphic);
-						var acres = numberWithCommas(evt.graphic.attributes.ACRES)
-						var t = "<div style='padding:6px;'>HUC 12: <b>${HUC_12}</b><br>Acres: <b>" + acres + "</b><br>Subwatershed: <b>${SUBWATERSHED}</b></div>";
-						var content = esriLang.substitute(evt.graphic.attributes,t);
-						console.log(content);
-						$('#' + this.id + 'clickHuc12').html(content);
-
-					}));
 					// if value is soils set the layer to on
 					if (c.currentTarget.value == "Soils Data"){
-						var soilID = '';
-						var soilLayer = this.obj.huc8Selected[0] + '_soils' + "_web"
+						this.obj.supLayer = "soils"
+						this.soilID = '';
+						var soilLayer = this.obj.huc8Selected[0] + '_soils' + "_web";
 						$.each(this.layersArray, lang.hitch(this,function(i,v){
-							var layerName = v.name
+							var layerName = v.name;
 							if (this.obj.huc8Selected[0] + '_soils' + "_web" == layerName){
-								soilID = v.id;
+								this.soilID = v.id;
+								this.obj.spatialLayerArray.push(this.soilID);
+								this.obj.visibleLayers.push(this.soilID);
 								return false;
 							}
 						}));
-						this.soils = new FeatureLayer(this.obj.url + "/" + soilID, { mode: esri.layers.FeatureLayer.MODE_SNAPSHOT, outFields: "*"});
-						this.soils.setRenderer(new SimpleRenderer(this.soilsSym));
-						console.log(this.map)
-						this.map.removeLayer(this.huc8);
-						this.map.addLayer(this.soils, this.samplingStations);
-						this.map.addLayer(this.huc8);
 						if (this.obj.visibleLayers.length < 2 ){
 							$('#' + this.id + 'bottomDiv').hide();
 						}
 					}
-					// work with the soils popup
-					// soils popup
-					this.soils.on("mouse-over", lang.hitch(this,function(evt){
-						this.map.setMapCursor("pointer");
-					}));
-					this.soils.on("mouse-out", lang.hitch(this,function(evt){
-						this.map.setMapCursor("default");
-					}));
-					this.soils.on("click", lang.hitch(this,function(evt){
-						$('#' + this.id + 'clickSoils').show();
-						atts = evt.graphic.attributes;
-						this.map.graphics.clear();
-						this.soilsGraphic = new Graphic(evt.graphic.geometry,this.soilsSym);
-						this.map.graphics.add(this.soilsGraphic);
-						var t = "<div style='padding:6px;'>Soil Type: <b>${Map_unit_n}</b></div>";
-						var content = esriLang.substitute(evt.graphic.attributes,t);
-						console.log(content);
-						$('#' + this.id + 'clickSoils').html(content);
-
-					}));
 					if (c.currentTarget.value == "Land Cover"){
+						this.obj.supLayer = 'landCover';
 						var landID = '';
 						$.each(this.layersArray, lang.hitch(this,function(i,v){
 							if (this.obj.huc8Selected[0] + ' Land Cover' == v.name){
 								landID = v.id;
+								this.obj.spatialLayerArray.push(landID);
+								this.obj.visibleLayers.push(landID);
 								return false;
 							}
 						}));
-						console.log(landID);
-						this.land = new FeatureLayer(this.obj.url + "/" + landID, { mode: esri.layers.FeatureLayer.MODE_SNAPSHOT, outFields: "*"});
-						this.land.setRenderer(new SimpleRenderer(this.hucSym));
-						this.map.addLayer(this.land);
-						console.log(this.land)
-						// this.land.setVisibleLayers([landID])
-						// this.map.addLayer(this.land);
 						$('#' + this.id + 'bottomDiv').show();
 					}
 					if (c.currentTarget.value == "None"){
+						this.obj.supLayer = 'none';
 						if (this.obj.visibleLayers.length < 2 ){
 							$('#' + this.id + 'bottomDiv').hide();
 						}
 					}
+					this.dynamicLayer.setVisibleLayers(this.obj.visibleLayers);
 				}));
-				// work with the soils popup
-					// soils popup
-					soilsDialog = new TooltipDialog({
-					  style: "position: absolute; max-width: 250px; font: normal normal normal 10pt Helvetica; z-index:100;"
-					});
-					soilsDialog.startup();
-					this.soils.on("mouse-over", lang.hitch(this,function(evt){
-						this.map.setMapCursor("pointer");
-					}));
-					this.soils.on("mouse-out", lang.hitch(this,function(evt){
-						this.map.setMapCursor("default");
-					}));
-					this.soils.on("click", lang.hitch(this,function(evt){
-						$('#' + this.id + 'clickSoils').show();
-						atts = evt.graphic.attributes;
-						this.map.graphics.clear();
-						this.soilsGraphic = new Graphic(evt.graphic.geometry,this.soilsSym);
-						this.map.graphics.add(this.soilsGraphic);
-						var t = "<div style='padding:6px;'>Soil Type: <b>${Map_unit_n}</b></div>";
-						var content = esriLang.substitute(evt.graphic.attributes,t);
-						console.log(content);
-						$('#' + this.id + 'clickSoils').html(content);
-
-					}));
-					// this.soils.on("mouse-out", lang.hitch(function(evt){
-						// this.map.setMapCursor("default");
-						// map.graphics.clear();
-						// dijitPopup.close();
-					// }));
 				this.rendered = true;
 			},
 			// add huc8 and on huc8 load add click events
@@ -1147,6 +1167,93 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					// }
 				// }));
 				this.map.graphics.clear();
+			},
+			supDataFunction: function(){
+				this.soils.clear();
+				this.huc12.clear();
+				if(this.obj.supLayer == 'none' || this.obj.supLayer == 'landCover'){
+					this.huc8_click.selectFeatures(this.hQuery,esri.layers.FeatureLayer.SELECTION_NEW);
+				} 
+				if (this.obj.supLayer == 'huc12'){
+					this.hQuery.where = "HUC_8 = '" + this.obj.huc8Selected[1] + "'";
+					this.huc12.selectFeatures(this.hQuery,esri.layers.FeatureLayer.SELECTION_NEW);
+				}
+				if (this.obj.supLayer == 'soils'){
+					var soilsUrl = this.obj.url + "/" + this.soilID;
+					this.soils = new FeatureLayer(soilsUrl, { mode: esri.layers.FeatureLayer.MODE_SELECTION, outFields: "*"});
+					this.soils.setSelectionSymbol(this.soilsSym);
+					this.map.addLayer(this.soils);
+					this.soils.selectFeatures(this.hQuery,esri.layers.FeatureLayer.SELECTION_NEW);
+					// handle the on selection complete here after the add layer
+					this.soils.on("selection-complete", lang.hitch(this,function(f){
+					if (f.features.length > 0){
+						$('#' + this.id + 'clickSoils').show();
+						var t = "<div style='padding:6px;'>Soil Type: <b>${Map_unit_n}</b></div>";
+						var content = esriLang.substitute(f.features[0].attributes,t);
+						$('#' + this.id + 'clickSoils').html(content);
+					}else{
+						var query = new esri.tasks.Query();
+						query.geometry = this.hQuery.geometry;
+						this.huc8_click.selectFeatures(query,esri.layers.FeatureLayer.SELECTION_NEW);
+						}
+					}));
+				}
+				// if (this.obj.supLayer == 'landCover'){
+						// this.land.selectFeatures(this.hQuery,esri.layers.FeatureLayer.SELECTION_NEW);
+					// }
+					
+				//this.impWater.selectFeatures(this.hQuery,esri.layers.FeatureLayer.SELECTION_NEW);
+			},
+			traitPopulate: function(){
+				this.obj.traitArray = [];
+				// something was selected
+				$.each(this.layersArray, lang.hitch(this,function(i,v){
+					var splitStr = v.name.split("_");
+					if (this.obj.huc8Selected[0] == splitStr[0]){
+						this.obj.traitArray.push(splitStr[1]);
+					}
+				}));
+				//clear the text var
+				this.obj.traitArray = unique(this.obj.traitArray);
+				//append intital empty option
+				$('#' + this.id + 'ch-traits').append('<option value=""></option>');
+				//use lang.hitch so the 'this' object is available for the append
+				$.each(this.obj.traitArray, lang.hitch(this, function(i,v){
+					var traitText = '';
+					if (v == "TUR"){
+						traitText = "Turbitity";
+					}
+					if (v == "TSS"){
+						traitText = "Total Suspended Solids";
+					}
+					if (v == "TDS"){
+						traitText = "Total Dissolved Solids";
+					}
+					if (v == "P"){
+						traitText = "Phosphorus";
+					}
+					if (v == "N"){
+						traitText = "Nitrogen";
+					}
+					if(v == "Phos"){
+						traitText = "Phosphate";
+					}
+					if(v == "NNN"){
+						traitText = "Nitrate";
+					}
+					if(v == "NH3"){
+						traitText = "Ammonia";
+					}
+					if(v == "ION"){
+						traitText = "Inorganic Nitrogen";
+					}
+					if (traitText != ''){
+						//you have to use this.id to get the element (won't work without lang.hitch above
+						$('#' + this.id + 'ch-traits').append('<option value="' + v + '">' + traitText + '</option>');
+					}
+				}));
+				//after the loop trigger an update to the select menu
+				$('#' + this.id + 'ch-traits').trigger("chosen:updated");
 			}
 		});
 	});
@@ -1159,4 +1266,11 @@ function commaSeparateNumber(val){
 
 function numberWithCommas(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+function unique(list){
+	var result = [];
+	$.each(list, function(i, e){
+		if ($.inArray(e, result) == -1) result.push(e);
+	});
+	return result;
 }

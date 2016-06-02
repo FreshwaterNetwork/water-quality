@@ -8,7 +8,7 @@
 	"extent": "",
 	"sliderVal": 3,
 	"supLyrId": "",
-	"supLayer": "",
+	"supLayer": "none",
 	"stateSet": "no",
 	"spAtts": [],
 	"val": "",
@@ -18,5 +18,9 @@
 	"tid": "",
 	"mean": "",
 	"graphOpen": "",
-	"rangeNum": ""
+	"rangeNum": "",
+	"spatialLayerArray": [2],
+	"inHuc8": "",
+	"layerDefs": []
+	
 }
