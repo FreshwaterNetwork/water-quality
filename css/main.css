@@ -31,7 +31,7 @@ body.waiting * {
 }
 .navBtnSel{
 	padding:5px 10px; text-decoration:none; -moz-border-radius:1px; -webkit-border-radius:1px; border-radius:1px; border-bottom: 1px solid rgba(0,0,0,0.25); outline:none; position:relative; 
-	font-size: 16pt; margin:5px; background-color:#c3daf8; color: #555; text-shadow:0 -1px 1px rgba(0,0,0,0.25); font-weight:100; text-align:center;
+	font-size: 16pt; margin:5px; background-color:#c3daf8; color: #555; text-shadow:0 1px 1px rgba(0,0,0,0.25); font-weight:100; text-align:center;
 	box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5); 
 }
 .navBtn:hover{
@@ -41,7 +41,7 @@ body.waiting * {
 	box-shadow: 1px 0px 3px rgba(0,0,0,0.5); text-shadow: 0 1px 1px rgba(0,0,0,0.25); background-color: #c3daf8;
 }
 .navBtnSel:hover{
-	background-color:#c3daf8; cursor:pointer; color:#555;
+	background-color:#c3daf8; cursor:default; color:#555;
 }
 .intNavBtn{
 	font-size:18px;
@@ -75,12 +75,35 @@ body.waiting * {
 .clearWrapper{ 
 	position:absolute; left:0px; top:30px; width:100%; height:45px; background-color:#fff; z-index:21; display:none; text-align:right;
 }
+/*  styling for the impaired watersheds table*/
+.impTable{
+	border-top:1px solid #e5eff8; border-right:1px solid #e5eff8; color:red; width:98%; margin:auto;
+}
+
+tr:nth-child(odd){
+	background-color:#adccf5;
+}
+tr:nth-child(even){
+	background-color:black;
+}
+table tbody tr:nth-child(even) {
+    background: black;
+}
+th{
+	color:black; font-weight:bold; padding:5px;
+}
+.impTable th, .impTable td{
+	padding: 5px; border: 1px solid #21658c;
+}
+.waterAttributes{
+	display:block; text-align:left; margin-top:5px; margin-left:10px; margin-right:10px; display:none;
+}
 .impWaterWrapper{
 	display:none; left:10px;
 }
-.waterAttributes{
-	position:absolute; left:10px; display:block; text-align:left; margin-top:5px; display:none;
-}
+
+
+/* Work with some of the main sections of the page */
 .topHeader{
 	font-size:14pt; width:290px; margin-top:3px; margin-left:10px; color:#21658c; font-weight:bold; 
 }
@@ -88,10 +111,13 @@ body.waiting * {
 	display:none; 
 }
 .supData{
-	display:none; position:relative; top:65px;
+	display:none; position:relative; top:54px;
 }
 .supDataDiv{
 	margin: 10px;
+}
+.supDataText{
+	padding:6px; font-size:9.5pt; margin-left:12px; margin-bottom:4px; margin-top:-5px; color:#29658C;
 }
 .clickAttributes{
 	display:none;
@@ -106,21 +132,36 @@ body.waiting * {
 	font-family:'Archivo Narrow', 'Arial Narrow', Arial, Helvetica, sans-serif; height:355px; z-index:4;
 }
 .chartHeader{
-	height:28px; font-size:1em; font-weight:bold; padding:8px 0px 0px 10px;
+	height:28px; font-size:1em; font-weight:bold; padding:8px 0px 0px 10px; text-shadow:0 -1px 1px rgba(0,0,0,0.25);
 }
 .buttonBar__item > input {
   border:0; clip:rect(0 0 0 0); height:2rem; margin:0 -2.5rem -2.5rem 0; overflow:hidden; padding:0; position:absolute; width:auto; opacity:0.001;
 }
 .buttonBar {
-  display:table; table-layout:fixed; white-space:no-wrap; margin-left:35px; padding:0;
+  display:table; table-layout:fixed; white-space:no-wrap; margin-left:16px; padding:0;
 }
 .buttonBar__item {
   display:table-cell; width:auto; border-radius:0;
 }
-.buttonBar__button {
+/* .buttonBar__button {
 	background-color:#7FB0F0; border:1px solid #a5a8a8; color:white; font-size:8pt !important; line-height:200%; margin:-1px; overflow:hidden; padding:0 5px;	
-	position:relative; text-decoration:none; text-overflow:ellipsis; text-shadow:0 1px #fff; user-select:none; vertical-align:top; white-space:nowrap; width:44px; 
-}	
+	position:relative; text-decoration:none; user-select:none; vertical-align:top; white-space:nowrap; width:44px; text-shadow:0 -1px 1px rgba(0,0,0,0.25);
+    font-weight: 100;
+}	 */
+.buttonBar__button {
+    background-color: #7FB0F0;border: 1px solid #717676;color: white;font-size: 9pt !important; line-height: 200%;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0 5px;
+    position: relative;
+    text-decoration: none;
+    user-select: none;
+    vertical-align: top;
+    white-space: nowrap;
+    width: 48px;
+    text-shadow: 0 -1px 1px rgba(0,0,0,0.25);
+    font-weight: 500;
+}
 .buttonBar__button:hover {
 	cursor:pointer;
 	background-color:#29658C;
@@ -132,10 +173,13 @@ body.waiting * {
 	cursor:default;
 }
 .buttonBar__button:disabled, .buttonBar__button.is-disabled {
-  opacity:0.3; cursor:default; pointer-events:none;
+    opacity:0.8; cursor:default; pointer-events:none; text-decoration: line-through; color:#efefef;
 }
 .buttonBar__selected{
-  background-color:#c3daf8; -webkit-box-shadow:inset 0 1px rgba(0,0,0,0.12); box-shadow:inset 0 1px rgba(0,0,0,0.12); color:#555;
+    background-color:#c3daf8; color:#555; box-shadow:inset 0px 1px 1px rgba(0,0,0,0.5); text-shadow:0 1px 1px rgba(0,0,0,0.25);
+}
+.buttonBar__selected:hover{
+	background-color:#c3daf8; cursor:default;
 }
 .buttonBar__item:disabled, .buttonBar__item.is-disabled {
   opacity:0.3; cursor:default; pointer-events:none;
@@ -163,7 +207,7 @@ body.waiting * {
 	width:26px; height:36px; border: 1px solid gray; float:left; text-align:center; padding-top:10px; background-color: #e5e9e8; color:#454545; font-size:8pt;
 }
 .slText{
-	-ms-transform: rotate(90deg); -webkit-transform: rotate(91deg); transform: rotate(90deg); font-size:8pt;
+	-ms-transform: rotate(90deg); -webkit-transform: rotate(91deg); transform: rotate(90deg); font-size:10pt;
 }
 .hp{
 	position:relative; left:-50px; top:0px; font-size:8pt; color:#454545;
@@ -448,6 +492,7 @@ abbr.search-choice-close {
 label.radioLabels input[type=checkbox]{
 	position: relative; vertical-align: middle; bottom: 1px; margin-right:3px;
 }
+
 /* Info icons */
 .infoOpen{
 	cursor:pointer; margin-left:4px; margin-bottom:-3px; display:none; font-size:8pt;
@@ -592,7 +637,7 @@ label.radioLabels input[type=checkbox]{
 	background-color:#c8841d;
 }
 .topPad{
-	 position:relative; top:45px; text-align:center;
+	 position:relative; top:43px; text-align:center;
 }	
 .topLabel{
 	margin-left:5px; margin-bottom:-5px; 
@@ -647,6 +692,18 @@ label.radioLabels input[type=checkbox]{
 }	
 .puHr{
 	margin-bottom:3px !important; margin-top:3px !important;
+}
+.hrLine{
+	background-color: #4a96de; 
+	height:1px; 
+	border:0; 
+	margin-top:5px; 
+	margin-bottom:5px;
+	margin:7px 5px 7px 5px;
+	background-image: -webkit-linear-gradient(left, #ccc, #4a96de, #ccc);
+	background-image: -moz-linear-gradient(left, #ccc, #4a96de, #ccc);
+	background-image: -ms-linear-gradient(left, #ccc, #4a96de, #ccc); 
+	background-image: -o-linear-gradient(left, #ccc, #4a96de, #ccc);
 }
 /* Hidden Print Table Styles */
 .pt {

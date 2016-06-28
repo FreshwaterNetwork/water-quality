@@ -25,17 +25,20 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
 	<div class='homeHeader'>What would you like to do?</div>
 	<div class='startButton ready' id='spatial'>Explore Spatial Concentrations</div>
 	<div class='startButton ready' id='temporal'>Explore Temporal Trends</div>
-	<div class='startButton ready' id='impWatersheds'>Explore Impaired Watersheds</div>
+	<hr class='hrLine'>
+	<div class='startButton ready' id='impWaterButton'>Explore Impaired Watersheds</div>
+	<hr class='hrLine'>
+	<div class='startButton comingSoon' id='learnMore'>Learn More About This App</div>
 </div>
 <div class='topWrapper' id='topWrapper'> 
 
 	<div class='navBtn bbar bbarL intNavBtn' id='spaBtn'>Spatial</div>
 	<div class='navBtn bbar bbarR intNavBtn' id='temBtn'>Temporal</div> 
-	<div class='navBtn bbar bbarR intNavBtn' id='clearBtn'>Clear</div>
+	<div class='navBtn bbar bbarR intNavBtn' id='clearBtn'>Home</div>
 	<div class='borderDiv'></div>	
 </div>
 <div class='clearWrapper' id='clearWrapper'> 
-	<div class='navBtn bbar bbarR intNavBtn' id='clearWaterBtn'>Clear</div>
+	<div class='navBtn bbar bbarR intNavBtn' id='clearWaterBtn'>Home</div>
 	<div class='borderDiv'></div>	
 </div>
 <!-- The main wrapper that contains all the data besides sup data -->
@@ -187,14 +190,28 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
 			<div id='waterDesc'>Watershed Description: </div>
 		</div>
 		<div id='impWaterWrapper' class='impWaterWrapper'>
-			<div style='display:block; margin-top:65px'>
-				<table id='tableTest' class='tableTest' style= "width:100%;">
-				  
-				</table>
+			<div style='margin-top:10px'>
+				<table id='impTable' class='impTable'></table>
 			</div>
 		</div>
 	</div>	
 </div>
+
+<!-- work with the imp water wrapper to create a simple table -->
+<!-- <div class='impWaterWrapper' id='impWaterWrapper' style='display:block; margin-top:49px; border:1px solid black; padding:10px;'>
+	<div id='impClick'> Please click on an impaired watershed for info</div>
+	<div id='waterAttributes' class='waterAttributes'>
+		<div id='waterID'>Watershed ID: </div>
+		<div id='waterName' >Watershed Name: </div>
+		<div id='waterDesc'>Watershed Description: </div>
+	</div>
+	<div id='impWaterWrapper' class='impWaterWrapper'>
+		<div style='margin-top:65px'>
+			<table id='impTable' class='impTable'></table>
+		</div>
+	</div>
+</div> -->
+
 <!--Supporting data-->
 <div id='supData' class='supData'>
 	<div class='dlAccord' id='dlAccord'>	

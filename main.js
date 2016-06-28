@@ -10,11 +10,12 @@ define([
 	"esri/symbols/SimpleMarkerSymbol", "esri/graphic", "dojo/_base/Color", 	"dijit/layout/ContentPane", "dijit/form/HorizontalSlider", "dojo/dom",
 	"dojo/dom-class", "dojo/dom-style", "dojo/dom-construct", "dojo/dom-geometry", "dojo/_base/lang", "dojo/on", "dojo/parser", 'plugins/water-quality/js/ConstrainedMoveable',
 	"dojo/text!./varObject.json", "jquery", "dojo/text!./html/legend.html", "dojo/text!./html/content.html", 'plugins/water-quality/js/jquery-ui-1.11.2/jquery-ui', "esri/renderers/SimpleRenderer",
-	"plugins/water-quality/chartist/chartist"
+	"plugins/water-quality/chartist/chartist", "./test", "./test1", "./test2",
 ],
 function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryTask, PictureMarkerSymbol, TooltipDialog, dijitPopup,
 	declare, PluginBase, FeatureLayer, SimpleLineSymbol, SimpleFillSymbol, esriLang, Geoprocessor, SimpleMarkerSymbol, Graphic, Color,
-	ContentPane, HorizontalSlider, dom, domClass, domStyle, domConstruct, domGeom, lang, on, parser, ConstrainedMoveable, config, $, legendContent, content, ui, SimpleRenderer, Chartist ) {
+	ContentPane, HorizontalSlider, dom, domClass, domStyle, domConstruct, domGeom, lang, on, parser, ConstrainedMoveable, config, $,
+	legendContent, content, ui, SimpleRenderer, Chartist, test, test1, test2 ) {
 		return declare(PluginBase, {
 			// The height and width are set here when an infographic is defined. When the user click Continue it rebuilds the app window with whatever you put in.
 			toolbarName: "Water Quality", showServiceLayersInLegend: true, allowIdentifyWhenActive: false, rendered: false, resizable: false,
@@ -31,10 +32,10 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				this.con1 = dom.byId('plugins/water-quality-1');
 				if (this.con1 != undefined){
 					domStyle.set(this.con1, "width", "350px");
-					domStyle.set(this.con1, "height", "200px");
+					domStyle.set(this.con1, "height", "250px");
 				}else{
 					domStyle.set(this.con, "width", "350px");
-					domStyle.set(this.con, "height", "200px");
+					domStyle.set(this.con, "height", "250px");
 				}
 				// Define object to access global variables from JSON object. Only add variables to varObject.json that are needed by Save and Share.
 				this.obj = dojo.eval("[" + config + "]")[0];
@@ -121,8 +122,22 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				else { this.sph = cdg.h - 10; }
 				domStyle.set(this.appDiv.domNode, "height", this.sph + "px");
 			},
+// TEST function called from test1
+			mainfromtest: function(){
+				console.log("function on main.js called from test1")
+			},
 			// Called by activate and builds the plugins elements and functions
 			render: function() {
+// CALL TEST.JS CLASS AND FUNCTION
+
+				this.wx = 'before'
+				this.test = new test();
+				this.test.doTest(this);
+				console.log(this.wx)
+				this.test2 = new test2();
+				this.test2.doTest2();
+				// this.test2.impWaterButtonClick();
+
 				// Define Content Pane
 				this.appDiv = new ContentPane({style:'padding:8px 8px 8px 8px'});
 				this.id = this.appDiv.id;
@@ -185,6 +200,23 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 						new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
 						new Color([0,46,115]), 3),
 						new Color([236,239,222,0]));
+				// imp watershed selection symbol
+				var impWaterShedSelectionN = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
+						new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
+						new Color([53, 154, 0]), 3),
+						new Color([236,239,222,.15]));
+				var impWaterShedSelectionL = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
+						new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
+						new Color([216,216,0]), 3),
+						new Color([236,239,222,.15]));
+				var impWaterShedSelectionM = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
+						new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
+						new Color([	216,144,0]), 3),
+						new Color([236,239,222,.15]));
+				var impWaterShedSelectionH = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
+						new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
+						new Color([216,0,0]), 3),
+						new Color([236,239,222,.15]));
 
 				// set all feature layers and set selection symbols
 				// huc8
@@ -193,6 +225,8 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				this.huc8.setSelectionSymbol(huc8highlightSymbol);
 				// impaired watershed
 				this.impWater = new FeatureLayer(this.obj.url + "/3", { mode: esri.layers.FeatureLayer.MODE_SELECTION, outFields: "*"});
+
+				// huc 12 layer
 				this.huc12 = new FeatureLayer(this.obj.url + "/1", { mode: esri.layers.FeatureLayer.MODE_SELECTION, outFields: "*"});
 				// soils data
 				this.soils = new FeatureLayer(this.obj.url + "/10000", { mode: esri.layers.FeatureLayer.MODE_SELECTION, outFields: "*"});
@@ -205,12 +239,16 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				//sampling stations layer
 				this.samplingStations = new FeatureLayer(this.obj.url + "/0", { mode: esri.layers.FeatureLayer.MODE_ONDEMAND, outFields: "*"});
 				this.sSelected = 'map';
-				// on selection complete of the huc8 
+				// on selection complete of the huc8
 				this.huc8.on("selection-complete", lang.hitch(this,function(f){
 					if(f.features.length > 0){
-						var huc8Extent = f.features[0].geometry.getExtent().expand(1.3);
+						if(this.obj.huc8Selected[0] == 'Merm'){
+							var huc8Extent = f.features[0].geometry.getExtent().expand(1);
+						}else{
+							var huc8Extent = f.features[0].geometry.getExtent().expand(0.9);
+						}
 						this.map.setExtent(huc8Extent, true);
-					} 
+					}
 				}));
 				// build the secend huc 8 selection complete here
 				// on selection complete of the huc8 click
@@ -221,7 +259,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 							console.log('this huc8 has already been selected');
 						}else{
 							var huc8ClickVal = f.features[0].attributes.Abbr + '_' + f.features[0].attributes.HUC_8;
-							$('#' + id + 'ch-HUC8').val(huc8ClickVal).trigger('chosen:updated').trigger('change');
+							$('#' + this.id + 'ch-HUC8').val(huc8ClickVal).trigger('chosen:updated').trigger('change');
 						}
 					} else{
 						console.log('you did not click on a huc8 and did not activate a huc 8 click');
@@ -232,7 +270,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					if(f.features.length > 0){
 						$('#' + this.id + 'clickHuc12').show();
 						var acres = numberWithCommas(f.features[0].attributes.ACRES);
-						var t = "<div style='padding:6px;'>HUC 12: <b>${HUC_12}</b><br>Acres: <b>" + acres + "</b><br>Subwatershed: <b>${SUBWATERSHED}</b></div>";
+						var t = "<div class='supDataText' style='padding:6px;'><b>HUC 12: </b>${HUC_12}<br><b>Acres: </b>" + acres + "<br><b>Subwatershed: </b>${SUBWATERSHED}</div>";
 						var content = esriLang.substitute(f.features[0].attributes,t);
 						$('#' + this.id + 'clickHuc12').html(content);
 					}else{
@@ -241,60 +279,78 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 						this.huc8_click.selectFeatures(query,esri.layers.FeatureLayer.SELECTION_NEW);
 					}
 				}));
-				// this.soils.on("selection-complete", lang.hitch(this,function(f){
-					// if (f.features.length > 0){
-						// $('#' + this.id + 'clickSoils').show();
-						// var t = "<div style='padding:6px;'>Soil Type: <b>${Map_unit_n}</b></div>";
-						// var content = esriLang.substitute(f.features[0].attributes,t);
-						// $('#' + this.id + 'clickSoils').html(content);
-					// }else{
-						// var query = new esri.tasks.Query();
-						// query.geometry = this.hQuery.geometry;
-						// this.huc8_click.selectFeatures(query,esri.layers.FeatureLayer.SELECTION_NEW);
-					// }
-				// }));
-				// this.samplingStations.on("selection-complete", lang.hitch(this,function(f){
-					// console.log('sampling stations click');
-					// console.log(f.features[0]);
-					// console.log(f);
-					// var x = String(f.target.attributes[10]);
-					// this.map.graphics.clear();
-					// this.obj.spAtts = f.graphic.attributes;
-					// $('#' + this.id + 'chartHeader').text("Station ID " + this.obj.spAtts.generated_stations_old_ID);
-					// this.checkTraits(this.obj.spAtts);
-					// this.map.graphics.add(spHlGraphic);
-					// $('#' + this.id + 'graphShow, #' + this.id + 'showGraphText, #' + this.id + 'supData, #' + this.id + 'huc8Wrapper, #'  + this.id + 'bottomDiv').hide();
-					// $('#' + this.id + 'graphDiv').slideDown('slow');
-					// $(this.con).animate({ height: '520px', width: '630px' }, 250,
-						// lang.hitch(this,function(){
-							// this.resize();
-							// $('#' + this.id + 'graphHide' ).show();
-						// })
-					// );
+				// on selection complete of impaired watersheds
+				this.impWater.on("selection-complete", lang.hitch(this,function(f){
+					console.log(f.features[0], 'features')
 
-				// }));
-				
-				// this.land.on("selection-complete", lang.hitch(this,function(f){
-					
-				// }));
-				// this.impWater.on("selection-complete", lang.hitch(this,function(f){
-				// }));
-				//$('#' + id + 'ch-HUC8').val(huc8ClickVal).trigger('chosen:updated').trigger('change');
-				// HUC 8 mouse over
-				// this.huc8.on("mouse-over", lang.hitch(this,function(evt){
-					// this.map.setMapCursor("pointer");
-					// var huc8highlightSymbol = new Graphic(evt.graphic.geometry,huc8highlightSymbol);
-					// this.map.graphics.add(huc8highlightSymbol);
-				// }));
-				// this.huc8.on("mouse-out", lang.hitch(this,function(evt){
-					// this.map.setMapCursor("default");
-				// }));
+					if (this.obj.sel == 'imp'){
+						var waterName = f.features[0].attributes.NAME;
+						var waterDesc = f.features[0].attributes.DESCRIPTIO;
+						var waterID = f.features[0].attributes.SUBSEGME_1;
+						var allUse = f.features[0].attributes.AllUse;
+
+						if (f.features[0].attributes.TMDL_Priority == 'N'){
+							this.impWater.setSelectionSymbol(impWaterShedSelectionN);
+						}
+						if (f.features[0].attributes.TMDL_Priority == 'L'){
+							this.impWater.setSelectionSymbol(impWaterShedSelectionL);
+						}
+						if (f.features[0].attributes.TMDL_Priority == 'M'){
+							this.impWater.setSelectionSymbol(impWaterShedSelectionM);
+						}
+						if (f.features[0].attributes.TMDL_Priority == 'H'){
+							this.impWater.setSelectionSymbol(impWaterShedSelectionH);
+						}
+
+						if (f.features[0].attributes.TMDL_Priority == 'N'){
+							console.log('no data in this imp watershed');
+							var html = $('#' + this.id + 'waterName').html("<b>Watershed Name:</b> " + waterName);
+							var html = $('#' + this.id + 'waterDesc').html("<b>Watershed Description:</b> " + waterDesc);
+							var html = $('#' + this.id + 'waterID').html("<b>Watershed ID:</b> " + waterID);
+							$('#' + this.id + 'waterAttributes').slideDown();
+							$('#' + this.id + 'impWaterWrapper').slideUp();
+
+							if(f.features.length > 0){
+								var xmax = this.map.extent.xmax;
+								var xmin = this.map.extent.xmin;
+								var impExtent = f.features[0].geometry.getExtent().expand(3);
+								this.map.setExtent(impExtent, true);
+							}
+						}else{
+							$('#' + this.id + 'impTable').empty();
+							$('#' + this.id + 'impTable').append('<tr><th>Impairment</th><th>Suspected Cause</th><th>Suspected Source</th></tr>');
+							var splitAllUse = allUse.split('],');
+							for (i = 0; i < splitAllUse.length; i++) {
+								var item = splitAllUse[i];
+								item = item.split(/['']/);
+								$('#' + this.id + 'impTable').append('<tr class="tableRow"><td>' + item[1] + '</td> <td>' + item[3] + '</td> <td>' + item[5] + '</td></tr>');
+							}
+							$('#' + this.id + 'waterAttributes').slideDown();
+							$('#' + this.id + 'impWaterWrapper').slideDown();
+							var html = $('#' + this.id + 'waterName').html("<b>Watershed Name:</b> " + waterName);
+							var html = $('#' + this.id + 'waterDesc').html("<b>Watershed Description:</b> " + waterDesc);
+							var html = $('#' + this.id + 'waterID').html("<b>Watershed ID:</b> " + waterID);
+
+							
+							
+							if(f.features.length > 0){
+								console.log(f.features[0].geometry.getExtent());
+								
+								var impExtent = f.features[0].geometry.getExtent().expand(3);
+								this.map.setExtent(impExtent, true);
+								this.shiftMapCenter(this.map.extent, f.features[0].geometry.getCentroid());
+								//this.shiftMapCenter(this.con);
+							}
+						}
+					}
+				}));
 				this.map.addLayer(this.huc8); // add layer to map for querying purposes
 				this.map.addLayer(this.huc12); // add layer to map for querying purposes
+				this.map.addLayer(this.impWater); // add layer to map for querying purposes
 				//this.map.addLayer(this.soils); // add layer to map for querying purposes
 				// this.map.addLayer(this.samplingStations); // add layer to map for querying purposes
 				// this.map.addLayer(this.land); // add layer to map for querying purposes
-				
+
 				// handle on click of map to query out attributes
 				// this.map.on("click", lang.hitch(this, function(evt) {
 					// console.log(this.sSelected, 'map');
@@ -316,7 +372,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				this.samplingStations.on("click", lang.hitch(this,function(evt){
 					var x = String(evt.target.attributes[10]);
 					this.sSelected = 'ss';
-					console.log(this.sSelected, 'points');
 					this.map.graphics.clear();
 					this.obj.spAtts = evt.graphic.attributes;
 					$('#' + this.id + 'chartHeader').text("Station ID " + this.obj.spAtts.generated_stations_old_ID);
@@ -345,17 +400,32 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				}));
 				// handle on click of map to query out attributes
 				this.map.on("click", lang.hitch(this, function(evt) {
-					console.log(this.sSelected, 'map');
 					var pnt = evt.mapPoint;
 					this.hQuery = new esri.tasks.Query();
 					this.hQuery.geometry = pnt;
+					// select features from the imp water layer.
+					this.impWater.selectFeatures(this.hQuery,esri.layers.FeatureLayer.SELECTION_NEW);
 					if (this.obj.sel == 'tm' && this.sSelected == 'map'){
 						this.supDataFunction();
 					}
 					if (this.obj.sel == 'sp'){
 						this.supDataFunction();
 					}
+					if (this.obj.sel == 'imp'){
+						console.log('imp water section');
+					}
 					this.sSelected = 'map';
+				}));
+				// handle pointer on map pan and mouse up at the end of pan.
+				this.map.on("mouse-up", lang.hitch (this, function(evt){
+					if(this.obj.sel == 'tm' || this.obj.sel == 'sp'){
+						this.map.setMapCursor('pointer');
+					}
+				}));
+				this.map.on("mouse-over", lang.hitch (this, function(evt){
+					if(this.obj.sel == 'tm' || this.obj.sel == 'sp'){
+						this.map.setMapCursor('pointer');
+					}
 				}));
 				// handle clicks on the graph show button
 				$('#' + this.id + 'graphShow').on('click',lang.hitch(this,function(e){
@@ -373,21 +443,21 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				// handle clicks on the graph hide button
 				$('#' + this.id + 'graphHide').on('click',lang.hitch(this,function(e){
 					$('#' + this.id + 'chartHeader').text("Please choose or click on a HUC8");
-					$('#' + this.id + 'graphDiv').hide();
+					$('#' + this.id + 'graphDiv, #' + this.id + 'impWaterWrapper, #' + this.id + 'waterAttributes').hide();
 					// write an if statement to see if anything has been selected.
 					if (this.obj.huc8Selected[0] == undefined || this.obj.huc8Selected[0] == ''){
-						//console.log('there is no huc8 selected')
 					} else{
-						//console.log('there is a huc 8 selected')
 						$('#' + this.id + 'supData').slideDown();
 					}
 					$('#' + this.id + 'huc8Wrapper, #' + this.id + 'bottomDiv').show();
 					$('#' + this.id + 'temporalWrapper').find('.graphToggle').toggle();
-					$(this.con).animate({ height: '400px', width: '350px' }, 250,
-						lang.hitch(this,function(){
-							this.resize();
-						})
-					);
+					if(this.obj.sel == 'tm'){
+						$(this.con).animate({ height: '460px', width: '350px' }, 250,
+							lang.hitch(this,function(){
+								this.resize();
+							})
+						);
+					}
 				}));
 				//sampling station bar chart clicks
 				$('#' + this.id + 'traitBar').on('click',lang.hitch(this,function(e){
@@ -458,7 +528,11 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				}));
 				// handle clicks on internal spatial button
 				$('#' + this.id + 'spaBtn').on('click',lang.hitch(this,function(){
+
 					this.obj.sel = 'sp';
+					$('#' + this.id + 'temporalWrapper').hide();
+					$('#' + this.id + 'graphHide, #' + this.id + 'graphShow').hide();
+					$('#' + this.id + 'spatialWrapper').show();
 					// remove water quality sample station points when click on internal spatial.
 					var index = this.obj.spatialLayerArray.indexOf(0);
 					if(index > -1){
@@ -474,12 +548,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					console.log(this.obj.spatialLayerArray, 'vis layers spatial');
 					this.obj.visibleLayers = this.obj.spatialLayerArray;
 					this.dynamicLayer.setVisibleLayers(this.obj.visibleLayers);
-					// we made not need the below code anymore, but keeping it for now.
-					// logic to see if a trait has been chosen or not,
-					// if (this.obj.huc8Selected[0] != '' && this.obj.traitSelected == undefined ){
-						// this.obj.sel = 'sp';
-						// $('#' + this.id + 'ch-HUC8').val(this.obj.huc8Sel).trigger('chosen:updated').trigger('change');
-					// }
 					// show and hide elements
 					$('#' + this.id + 'graphHide').trigger('click');
 					$('#' + this.id + 'chartHeader').text("Please choose or click on a HUC8");
@@ -488,10 +556,8 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					$('#' + this.id + 'temBtn').removeClass('navBtnSel');
 					this.map.graphics.clear();
 					this.map.removeLayer(this.samplingStations);
-					$('#' + this.id + 'temporalWrapper').slideUp();
-					$('#' + this.id + 'graphHide, #' + this.id + 'graphShow').hide();
-					$('#' + this.id + 'spatialWrapper, #' + this.id + 'huc8Wrapper').slideDown();
-					$(this.con).animate({ height: '515px', width: '350px' }, 250,
+
+					$(this.con).animate({ height: '525px', width: '350px' }, 250,
 						lang.hitch(this,function(){
 							this.resize();
 						})
@@ -504,6 +570,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					$('#' + this.id + 'spaBtn').removeClass('navBtnSel');
 					this.obj.sel = "tm"
 					$('#' + this.id + 'spatialWrapper, #' + this.id + 'graphDiv').hide();
+					$('#' + this.id + 'graphHide, #' + this.id + 'graphShow').hide();
 					$('#' + this.id + 'temporalWrapper, #' + this.id + 'showGraphText').show();
 					// remove spatial raster layer when internal temporal button is clicked
 					var stationIndex = this.obj.visibleLayers.indexOf(0);
@@ -518,7 +585,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 						this.obj.visibleLayers.splice(yearIndex,1);
 					}
 					this.dynamicLayer.setVisibleLayers(this.obj.visibleLayers);
-					$(this.con).animate({ height: '430px', width: '350px' }, 250,
+					$(this.con).animate({ height: '445px', width: '350px' }, 250,
 						lang.hitch(this,function(){
 							this.resize();
 						})
@@ -526,6 +593,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				}));
 				// Handle clicks on spatial button
 				$('#' + this.id + 'spatial').on('click',lang.hitch(this,function(){
+					// this.map.setMapCursor('pointer');
 					// update css to show that it is clicked
 					$('#' + this.id + 'spaBtn').addClass('navBtnSel');
 					$('#' + this.id + 'temBtn').removeClass('navBtnSel');
@@ -537,8 +605,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					//this.addHuc8();
 					this.obj.visibleLayers = [2];
 					this.dynamicLayer.setVisibleLayers(this.obj.visibleLayers);
-					
-					$(this.con).animate({ height: '515px', width: '350px' }, 250,
+					$(this.con).animate({ height: '525px', width: '350px' }, 250,
 						lang.hitch(this,function(){
 							this.resize();
 						})
@@ -546,6 +613,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				}));
 				// Handle clicks on temporal button
 				$('#' + this.id + 'temporal').on('click',lang.hitch(this,function(){
+					// this.map.setMapCursor('pointer');
 					// update css to show that it is clicked
 					$('#' + this.id + 'temBtn').addClass('navBtnSel');
 					$('#' + this.id + 'spaBtn').removeClass('navBtnSel');
@@ -559,28 +627,36 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					$('#' + this.id + 'home, #' + this.id + 'spatialWrapper').slideUp();
 					$('#' + this.id + 'showGraphText').show();
 					$('#' + this.id + 'topWrapper, #' + this.id + 'hucWrapper, #' + this.id + 'temporalWrapper, #' + this.id + 'huc8Wrapper').slideDown();
-					$(this.con).animate({ height: '430px', width: '350px' }, 250,
+					$(this.con).animate({ height: '445px', width: '350px' }, 250,
 						lang.hitch(this,function(){
 							this.resize();
 						})
 					);
 				}));
 				// handle clicks on Impaired watersheds button
-				$('#' + this.id + 'impWatersheds').on('click',lang.hitch(this,function(){
+				$('#' + this.id + 'impWaterButton').on('click',lang.hitch(this,function(){
+					this.test2.impWaterClick();
+					//this.test2.shiftMapCenter();
+
+
+					$('#' + this.id + 'chartHeader').text("Please click on an impaired watershed for more info");
+					this.obj.sel = 'imp';
 					this.obj.visibleLayers = [3];
 					this.dynamicLayer.setVisibleLayers(this.obj.visibleLayers);
 					$('#' + this.id + 'home, #' + this.id + 'spatialWrapper, #' + this.id + 'huc8Wrapper').slideUp();
-					// $('#' + this.id + 'topWrapper, #' + this.id + 'impWaterWrapper').slideDown();
 					$('#' + this.id + 'clearWrapper, #' + this.id + 'hucWrapper').slideDown();
-					$(this.con).animate({ height: '450px', width: '600px' }, 250,
+					$('#' + this.id + 'bottomDiv').show();
+					$(this.con).animate({ height: '480px', width: '600px' }, 250,
 						lang.hitch(this,function(){
 							this.resize();
 						})
 					);
+
 				}));
 
 				// clear button clicks
 				$('#' + this.id + 'clearBtn').on('click',lang.hitch(this,function(){
+					this.map.setMapCursor('default');
 					// remove graphics when clearing
 					this.map.graphics.clear();
 					this.soils.clear();
@@ -603,7 +679,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					this.map.removeLayer(this.impWater);
 					this.obj.visibleLayers = []
 					this.dynamicLayer.setVisibleLayers(this.obj.visibleLayers);
-					$(this.con).animate({ height: '200px', width: '350px' }, 250,
+					$(this.con).animate({ height: '250px', width: '350px' }, 250,
 						lang.hitch(this,function(){
 							this.resize();
 						})
@@ -613,13 +689,16 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				$('#' + this.id + 'clearWaterBtn').on('click',lang.hitch(this,function(){
 					this.map.graphics.clear();
 					this.map.setExtent(this.dynamicLayer.initialExtent, true);
+					$('#' + this.id + 'chartHeader').text("Please choose or click on a HUC8");
 					$('#' + this.id + 'hucWrapper, #' + this.id + 'clearWrapper').slideUp();
 					$('#' + this.id + 'bottomDiv').hide();
 					$('#' + this.id + 'home').slideDown();
-					$('#' + id + 'waterAttributes').hide();
-					$('#' + id + 'impWaterWrapper').hide();
+					$('#' + this.id + 'waterAttributes').hide();
+					$('#' + this.id + 'impWaterWrapper').hide();
 					this.map.removeLayer(this.impWater);
-					$(this.con).animate({ height: '200px', width: '350px' }, 250,
+					this.obj.visibleLayers = [];
+					this.dynamicLayer.setVisibleLayers(this.obj.visibleLayers);
+					$(this.con).animate({ height: '250px', width: '350px' }, 250,
 						lang.hitch(this,function(){
 							this.resize();
 						})
@@ -630,7 +709,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				this.map.addLayer(this.dynamicLayer);
 				this.dynamicLayer.on("load", lang.hitch(this, function () {
 					if (this.obj.extent == ""){
-						this.map.setExtent(this.dynamicLayer.initialExtent, true);
+						//this.map.setExtent(this.dynamicLayer.initialExtent, true);
 					}else{
 						var extent = new Extent(this.obj.extent.xmin, this.obj.extent.ymin, this.obj.extent.xmax, this.obj.extent.ymax, new SpatialReference({ wkid:4326 }))
 						this.map.setExtent(extent, true);
@@ -772,7 +851,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 						} else{
 							$('#' + this.id + 'ch-years').empty();
 							$('#' + this.id + 'ch-pointsDiv').hide();
-							
 							var index = this.obj.spatialLayerArray.indexOf(this.obj.yearSelected);
 							if(index > -1){
 								this.obj.spatialLayerArray.splice(index,1);
@@ -807,27 +885,28 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 						return result;
 					};
 				}));
-				var id = this.id;
+				//var id = this.id;
 				// work with clicks on impaired watersheds and populate table with data from the attribute table
-				this.impWater.on("click", lang.hitch(function(evt){
-					$('#' + id + 'tableTest').empty();
-					$('#' + id + 'tableTest').append('<tr><th>Impairment</th><th>Suspected Cause</th><th>Suspected Source</th></tr>');
-					var waterName = evt.graphic.attributes.NAME;
-					var waterDesc = evt.graphic.attributes.DESCRIPTIO;
-					var waterID = evt.graphic.attributes.SUBSEGME_1;
-					var allUse = evt.graphic.attributes.AllUse;
-					var splitAllUse = allUse.split('],');
-					for (i = 0; i < splitAllUse.length; i++) { 
-						var item = splitAllUse[i];
-						item = item.split(/['']/);
-						$('#' + id + 'tableTest').append('<tr><td>' + item[1] + '</td> <td>' + item[3] + '</td> <td>' + item[5] + '</td></tr>');
-					}
-					$('#' + id + 'waterAttributes').slideDown();
-					$('#' + id + 'impWaterWrapper').slideDown();
-					var html = $('#' + id + 'waterName').html("<b>Watershed Name:</b> " + waterName);
-					var html = $('#' + id + 'waterDesc').html("<b>Watershed Description:</b> " + waterDesc);
-					var html = $('#' + id + 'waterID').html("<b>Watershed ID:</b> " + waterID);
-				}));
+				// this.impWater.on("click", lang.hitch(function(evt){
+					// console.log('click on impWater');
+					// $('#' + id + 'impTable').empty();
+					// $('#' + id + 'impTable').append('<tr><th>Impairment</th><th>Suspected Cause</th><th>Suspected Source</th></tr>');
+					// var waterName = evt.graphic.attributes.NAME;
+					// var waterDesc = evt.graphic.attributes.DESCRIPTIO;
+					// var waterID = evt.graphic.attributes.SUBSEGME_1;
+					// var allUse = evt.graphic.attributes.AllUse;
+					// var splitAllUse = allUse.split('],');
+					// for (i = 0; i < splitAllUse.length; i++) {
+						// var item = splitAllUse[i];
+						// item = item.split(/['']/);
+						// $('#' + id + 'impTable').append('<tr><td>' + item[1] + '</td> <td>' + item[3] + '</td> <td>' + item[5] + '</td></tr>');
+					// }
+					// $('#' + id + 'waterAttributes').slideDown();
+					// $('#' + id + 'impWaterWrapper').slideDown();
+					// var html = $('#' + id + 'waterName').html("<b>Watershed Name:</b> " + waterName);
+					// var html = $('#' + id + 'waterDesc').html("<b>Watershed Description:</b> " + waterDesc);
+					// var html = $('#' + id + 'waterID').html("<b>Watershed ID:</b> " + waterID);
+				// }));
 				// work with sup radio buttons
 				$('#' + this.id + 'supDataDiv input:radio').on('click', lang.hitch(this,function(c){
 					//var map = this.map
@@ -840,7 +919,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					this.soils.clear();
 					this.huc12.clear();
 					// make an array to loop through soils layers
-					var supDataArray = [1,8,9,10,11,12,13] 
+					var supDataArray = [1,8,9,10,11,12,13]
 					$.each(supDataArray, lang.hitch(this, function(i,v){
 						var index = this.obj.spatialLayerArray.indexOf(v);
 						if(index > -1){
@@ -1173,7 +1252,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				this.huc12.clear();
 				if(this.obj.supLayer == 'none' || this.obj.supLayer == 'landCover'){
 					this.huc8_click.selectFeatures(this.hQuery,esri.layers.FeatureLayer.SELECTION_NEW);
-				} 
+				}
 				if (this.obj.supLayer == 'huc12'){
 					this.hQuery.where = "HUC_8 = '" + this.obj.huc8Selected[1] + "'";
 					this.huc12.selectFeatures(this.hQuery,esri.layers.FeatureLayer.SELECTION_NEW);
@@ -1188,7 +1267,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					this.soils.on("selection-complete", lang.hitch(this,function(f){
 					if (f.features.length > 0){
 						$('#' + this.id + 'clickSoils').show();
-						var t = "<div style='padding:6px;'>Soil Type: <b>${Map_unit_n}</b></div>";
+						var t = "<div class='supDataText' style='padding:6px;'><b>Soil Type: </b>${Map_unit_n}</div>";
 						var content = esriLang.substitute(f.features[0].attributes,t);
 						$('#' + this.id + 'clickSoils').html(content);
 					}else{
@@ -1198,12 +1277,69 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 						}
 					}));
 				}
-				// if (this.obj.supLayer == 'landCover'){
-						// this.land.selectFeatures(this.hQuery,esri.layers.FeatureLayer.SELECTION_NEW);
-					// }
-					
-				//this.impWater.selectFeatures(this.hQuery,esri.layers.FeatureLayer.SELECTION_NEW);
 			},
+			// used to shift the map center out from under any div on the map.
+			// shiftMapCenter: function(div) {
+				// console.log(div, 'div');
+				// var width = div.width;
+				// console.log(width, 'width');
+				// var extent = this.map.extent;
+				// console.log(extent, 'extent');
+				// var x = (extent.xmax + extent.xmin)/2;
+				// var y = (extent.ymax + extent.ymin)/2;
+				// console.log(x, 'xdiff', y, 'ydiff');
+				// console.log(this.map.getResolution(), 'get res');
+				// console.log(dojo.style(div, "width"), 'dojo style');
+				// var offset = this.map.getResolution() * dojo.style(div,"width")/2;
+				// var point = new esri.geometry.Point(x - offset, y, this.map.spatialReference);
+				// console.log(this.map.point, 'center point');
+				// console.log(point, 'center point new');
+				// console.log(point, 'point')
+				//this.map.centerAt(point);
+				// console.log('after map')
+			// },
+			shiftMapCenter: function(extent, featCentroid) {
+				console.log(extent, 'extent', featCentroid, 'feature centroid');
+				var extentDiff = extent.xmin - extent.xmax;
+				extentDiff = extentDiff * .10; // 10 percent difference
+				console.log(Math.abs(extentDiff), 'diff');
+				var newCentroidX = featCentroid.x + Math.abs(extentDiff);
+				console.log(newCentroidX, 'new centroid');
+				var point = new esri.geometry.Point(newCentroidX, featCentroid.y, this.map.spatialReference);
+				console.log(point, 'point');
+				this.map.centerAt(point);
+				console.log(this.map.centroid)
+				
+				
+				
+				
+				// var screenWidth = window.innerWidth;
+				// var conWidth = Number(this.con.style.width.slice(0,-2));
+				// var leftDivEdge = 70 + 85 + conWidth;
+				// console.log(leftDivEdge, screenWidth);
+				// if (screenWidth < 1800){
+					// console.log('screen is less than 1800px');
+				// }
+			},
+				// console.log(div, 'div');
+				// var width = div.width;
+				// console.log(width, 'width');
+				// var extent = this.map.extent;
+				// console.log(extent, 'extent');
+				// var x = (extent.xmax + extent.xmin)/2;
+				// var y = (extent.ymax + extent.ymin)/2;
+				// console.log(x, 'xdiff', y, 'ydiff');
+				// console.log(this.map.getResolution(), 'get res');
+				// console.log(dojo.style(div, "width"), 'dojo style');
+
+				// var offset = this.map.getResolution() * dojo.style(div,"width")/2;
+				// var point = new esri.geometry.Point(x - offset, y, this.map.spatialReference);
+				// console.log(this.map.point, 'center point');
+				// console.log(point, 'center point new');
+				// console.log(point, 'point')
+				//this.map.centerAt(point);
+				// console.log('after map')
+			// }
 			traitPopulate: function(){
 				this.obj.traitArray = [];
 				// something was selected
@@ -1213,7 +1349,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 						this.obj.traitArray.push(splitStr[1]);
 					}
 				}));
-				//clear the text var
+				//clear the text varmap
 				this.obj.traitArray = unique(this.obj.traitArray);
 				//append intital empty option
 				$('#' + this.id + 'ch-traits').append('<option value=""></option>');
@@ -1257,6 +1393,8 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 			}
 		});
 	});
+
+// seperate functions from main body of script
 function commaSeparateNumber(val){
     while (/(\d+)(\d{3})/.test(val.toString())){
 		val = val.toString().replace(/(\d+)(\d{3})/, '$1'+','+'$2');
@@ -1274,3 +1412,4 @@ function unique(list){
 	});
 	return result;
 }
+
