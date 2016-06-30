@@ -77,10 +77,10 @@ body.waiting * {
 }
 /*  styling for the impaired watersheds table*/
 .impTable{
-	border-top:1px solid #e5eff8; border-right:1px solid #e5eff8; color:red; width:98%; margin:auto;
+	border-top:1px solid #e5eff8; border-right:1px solid #e5eff8; width:95%; margin:auto; height:225px; padding-bottom:10px;
 }
 
-tr:nth-child(odd){
+/* tr:nth-child(odd){
 	background-color:#adccf5;
 }
 tr:nth-child(even){
@@ -91,7 +91,7 @@ table tbody tr:nth-child(even) {
 }
 th{
 	color:black; font-weight:bold; padding:5px;
-}
+} */
 .impTable th, .impTable td{
 	padding: 5px; border: 1px solid #21658c;
 }
@@ -101,8 +101,9 @@ th{
 .impWaterWrapper{
 	display:none; left:10px;
 }
-
-
+.impTableWrapper{
+	position:relative; padding:5px; margin:0 auto; overflow-y:auto; overflow-x:hidden; border:1px solid #215973; width:320px; height:220px;
+}
 /* Work with some of the main sections of the page */
 .topHeader{
 	font-size:14pt; width:290px; margin-top:3px; margin-left:10px; color:#21658c; font-weight:bold; 
