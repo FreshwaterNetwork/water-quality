@@ -15,10 +15,9 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 
         return declare(null, {
             doTest: function(t) {
-                console.log('graph clicks');
             },
 			internalSpatialClick: function(t){
-				console.log('internal spatial click');
+				t.obj.graphOpen = '';
 				t.obj.sel = 'sp';
 				$('#' + t.id + 'temporalWrapper').hide();
 				$('#' + t.id + 'graphHide, #' + t.id + 'graphShow').hide();
@@ -35,7 +34,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					t.obj.spatialLayerArray.push(t.obj.yearSelected)
 				}
 				t.obj.spatialLayerArray = unique(t.obj.spatialLayerArray);
-				console.log(t.obj.spatialLayerArray, 'vis layers spatial');
 				t.obj.visibleLayers = t.obj.spatialLayerArray;
 				t.dynamicLayer.setVisibleLayers(t.obj.visibleLayers);
 				// show and hide elements
@@ -82,6 +80,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				);
 			},
 			spatialClick: function(t){
+				t.obj.graphOpen = '';
 				console.log('external spatial click');
 				// update css to show that it is clicked
 				$('#' + t.id + 'spaBtn').addClass('navBtnSel');
@@ -130,13 +129,14 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				$('#' + t.id + 'home, #' + t.id + 'spatialWrapper, #' + t.id + 'huc8Wrapper').slideUp();
 				$('#' + t.id + 'clearWrapper, #' + t.id + 'hucWrapper').slideDown();
 				$('#' + t.id + 'bottomDiv').show();
-				$(t.con).animate({ height: '470px', width: '350px' }, 250,
+				$(t.con).animate({ height: '470px', width: '400px' }, 250,
 					l.hitch(t,function(){
 						t.resize();
 					})
 				);
 			},
 			homeButtonClick: function(t){
+				t.obj.graphOpen = '';
 				console.log('clear button click');
 				t.map.setMapCursor('default');
 				// remove graphics when clearing

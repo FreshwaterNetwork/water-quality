@@ -10,19 +10,19 @@ define([
 	"esri/symbols/SimpleMarkerSymbol", "esri/graphic", "dojo/_base/Color", 	"dijit/layout/ContentPane", "dijit/form/HorizontalSlider", "dojo/dom",
 	"dojo/dom-class", "dojo/dom-style", "dojo/dom-construct", "dojo/dom-geometry", "dojo/_base/lang", "dojo/on", "dojo/parser", 'plugins/water-quality/js/ConstrainedMoveable',
 	"dojo/text!./varObject.json", "jquery", "dojo/text!./html/legend.html", "dojo/text!./html/content.html", 'plugins/water-quality/js/jquery-ui-1.11.2/jquery-ui', "esri/renderers/SimpleRenderer",
-	"plugins/water-quality/chartist/chartist", "./test", "./test1", "./test2", "./impWatersheds", "./graphClicks", "./supportingData", "./navigation", "./dropdown","./mapClicks",
+	"plugins/water-quality/chartist/chartist", "./test", "./test1", "./test2", "./impWatersheds", "./graphClicks", "./supportingData", "./navigation", "./dropdown","./mapClicks","./saveState",
 ],
 function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryTask, PictureMarkerSymbol, TooltipDialog, dijitPopup,
 	declare, PluginBase, FeatureLayer, SimpleLineSymbol, SimpleFillSymbol, esriLang, Geoprocessor, SimpleMarkerSymbol, Graphic, Color,
 	ContentPane, HorizontalSlider, dom, domClass, domStyle, domConstruct, domGeom, lang, on, parser, ConstrainedMoveable, config, $,
-	legendContent, content, ui, SimpleRenderer, Chartist, test, test1, test2, impWatersheds, graphClicks, supportingData, navigation, dropdown, mapClicks) {
+	legendContent, content, ui, SimpleRenderer, Chartist, test, test1, test2, impWatersheds, graphClicks, supportingData, navigation, dropdown, mapClicks, saveState) {
 		return declare(PluginBase, {
 			// The height and width are set here when an infographic is defined. When the user click Continue it rebuilds the app window with whatever you put in.
 			toolbarName: "Water Quality", showServiceLayersInLegend: true, allowIdentifyWhenActive: false, rendered: false, resizable: false,
 			hasCustomPrint: true, usePrintPreviewMap: true, previewMapSize: [1000, 550], height:"200", width:"350",
 			// Comment out the infoGraphic property below to make that annoying popup go away when you start the app
 			//infoGraphic: "plugins/water-quality/images/infoGraphic.jpg",
-			
+
 // INITIALIZE FUNCTION /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			// First function called when the user clicks the pluging icon.
 			initialize: function (frameworkParameters) {
@@ -41,7 +41,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				// Define object to access global variables from JSON object. Only add variables to varObject.json that are needed by Save and Share.
 				this.obj = dojo.eval("[" + config + "]")[0];
 			},
-// HIBERNATE FUNCTION /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////			
+// HIBERNATE FUNCTION /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			// Called after initialize at plugin startup (why all the tests for undefined). Also called after deactivate when user closes app by clicking X.
 			hibernate: function () {
 				//$('.legend').removeClass("hideLegend");
@@ -82,21 +82,18 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 			getState: function () {
 				this.obj.extent = this.map.geographicExtent;
 				this.obj.stateSet = "yes";
-				// Get OBJECTIDs of filtered items
-				if ( this.itemsFiltered.length > 0 ){
-					$.each(this.itemsFiltered, lang.hitch(this,function(i,v){
-						this.obj.filteredIDs.push(v.OBJECTID)
-					}));
-				}
 				var state = new Object();
 				state = this.obj;
 				return state;
+
+
 			},
 			// Called before activate only when plugin is started from a getState url.
 			//It's overwrites the default JSON definfed in initialize with the saved stae JSON.
 			setState: function (state) {
 				this.obj = state;
 			},
+			
 // PRINT FUNCTION /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			// Called when the user hits the print icon
 			beforePrint: function(printDeferred, $printArea, mapObject) {
@@ -127,11 +124,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				else { this.sph = cdg.h - 10; }
 				domStyle.set(this.appDiv.domNode, "height", this.sph + "px");
 			},
-// TEST function called from test1
-			mainfromtest: function(){
-				console.log("function on main.js called from test1")
-			},
-			// Called by activate and builds the plugins elements and functions
+// START OF THE RENDER FUNCTION ////////////////////////////////////////////////////////////////////////////////////////////////////////
 			render: function() {
 // BRING IN OTHER JS FILES ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 				// set variables for all other js files
@@ -140,8 +133,9 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				this.navigation = new navigation();
 				this.dropdown = new dropdown();
 				this.mapClicks = new mapClicks();
-				
-// ENABLE TABLESORTER FUNCTION /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////			
+				this.saveState = new saveState();
+
+// ENABLE TABLESORTER FUNCTION /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 				// Enable jquery plugin 'tablesorter'
 				require(["jquery", "plugins/water-quality/js/tablesorter"],lang.hitch(this,function($) {
 					$("#" + this.id + "impTable").tablesorter({
@@ -150,15 +144,15 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 
 						widgets: [ 'zebra', 'stickyHeaders'],
 						theme: 'blue',
-						
+
 						widgetOptions: {
 							// jQuery selector or object to attach sticky header to
-							stickyHeaders_attachTo : '.impWaterWrapper',
+							//stickyHeaders_attachTo : '.impWaterWrapper',
 							stickyHeaders_includeCaption: false // or $('.wrapper')
 						}
 					});
 				}));
-// ENABLE CHOOSEN FUNCTION /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////				
+// ENABLE CHOOSEN FUNCTION /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 				// Enable jquery plugin 'chosen'
 				require(["jquery", "plugins/water-quality/js/chosen.jquery"],lang.hitch(this,function($) {
 					var configCrs =  { '.chosen-crs' : {allow_single_deselect:true, width:"200px", disable_search:false}}
@@ -248,9 +242,9 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				//sampling stations layer
 				this.samplingStations = new FeatureLayer(this.obj.url + "/0", { mode: esri.layers.FeatureLayer.MODE_ONDEMAND, outFields: "*"});
 				this.sSelected = 'map';
-				
-// MAP CLICKS/SELECTION COMPLETE //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////				
-				
+
+// MAP CLICKS/SELECTION COMPLETE //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 				// handle on click of map to query out attributes
 				this.map.on("click", lang.hitch(this, function(evt) {
 					this.mapClicks.mapClick(evt,this)
@@ -273,22 +267,14 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				// build the secend huc 8 selection complete here
 				// on selection complete of the huc8 click
 				this.huc8_click.on("selection-complete", lang.hitch(this,function(f){
+					console.log('huc 8 click');
 					this.mapClicks.huc8ClickSelComplete(f,this);
 				}));
 				// on selection complete for huc 12.
 				this.huc12.on("selection-complete", lang.hitch(this,function(f){
 					this.mapClicks.huc12SelComplete(f,this);
-					// if(f.features.length > 0){
-						// $('#' + this.id + 'clickHuc12').show();
-						// var acres = numberWithCommas(f.features[0].attributes.ACRES);
-						// var t = "<div class='supDataText' style='padding:6px;'><b>HUC 12: </b>${HUC_12}<br><b>Acres: </b>" + acres + "<br><b>Subwatershed: </b>${SUBWATERSHED}</div>";
-						// var content = esriLang.substitute(f.features[0].attributes,t);
-						// $('#' + this.id + 'clickHuc12').html(content);
-					// }else{
-						// var query = new esri.tasks.Query();
-						// query.geometry = this.hQuery.geometry;
-						// this.huc8_click.selectFeatures(query,esri.layers.FeatureLayer.SELECTION_NEW);
-					// }
+					this.obj.huc12ID = f.features[0].attributes.HUC_12;
+					//this.supportingData.supDataFunction(f, this);
 				}));
 				// on selection complete of impaired watersheds
 				this.impWater.on("selection-complete", lang.hitch(this,function(f){
@@ -298,14 +284,30 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 // ADD FEATURES LAYERS ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 				//Add feature layers below for querying purposes
 				this.map.addLayer(this.huc8); // add layer to map for querying purposes
+				this.map.addLayer(this.huc8_click); // add layer to map for querying purposes
 				this.map.addLayer(this.huc12); // add layer to map for querying purposes
 				this.map.addLayer(this.impWater); // add layer to map for querying purposes
-				
+
 				//this.map.infoWindow.resize(245,125);
-// GRAPH CLICKS SECTION //////////////////////////////////////////////////////////////////////////////////////////////				
+// GRAPH CLICKS SECTION //////////////////////////////////////////////////////////////////////////////////////////////
 				// Handle clicks on the sampling stations which opens the graph
 				this.samplingStations.on("click", lang.hitch(this,function(evt){
+					this.obj.ssOID = evt.graphic.attributes.OBJECTID;
+					this.obj.graphOpen = 'yes';
 					this.graphClicks.samplingStationClick(evt,this);
+
+
+				}));
+				this.samplingStations.on('selection-complete', lang.hitch(this,function(f){
+					var atts =  f.features[0];
+					this.graphClicks.samplingStationSaveShare(atts,this);
+					//$('#' + this.id + 'traitBar').find('#'+ this.obj.temp).trigger('click');
+					$('#'+ this.obj.traitBarSelected).trigger('click');
+					$('#'+ this.obj.slTextSelected).trigger('click');
+					if(this.obj.graphHideBtn == 'yes'){
+						$('#' + this.id + 'graphHide').trigger('click');
+					}
+
 				}));
 				// handle clicks on the graph show button
 				$('#' + this.id + 'graphShow').on('click',lang.hitch(this,function(e){
@@ -333,7 +335,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					numVal = numVal.toFixed(2);
 					e.currentTarget.title = 'Value: ' + numVal;
 				}));
-				
+
 // INTERNAL NAVIGATION ////////////////////////////////////////////////////////////////////////////////////////////////////
 				// handle clicks on internal spatial button
 				$('#' + this.id + 'spaBtn').on('click',lang.hitch(this,function(){
@@ -381,7 +383,16 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 						this.spid = this.obj.visibleLayers[0];
 					}
 					this.layersArray = this.dynamicLayer.layerInfos;
+// Set State Logic ///////////////////////////////////////////////////////////////////////////////////////////////////
+					require(["jquery", "plugins/water-quality/js/chosen.jquery"],lang.hitch(this,function($) {
+						if (this.obj.stateSet == 'yes'){
+							console.log(this.obj.visibleLayers, 'vis layers in save state');
+							this.saveState.saveStateFunc(this);
+						}
+					}));
 				}));
+// end of set state ////////////////////////////////////////////////////////////////////////////////////////////////
+
 				this.dynamicLayer.on("update-end", lang.hitch(this,function(e){
 					if (e.target.visibleLayers.length > 1){
 						if (this.obj.sel.length > 0 ){
@@ -417,6 +428,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					//Select Huc8
 					$('#' + this.id + 'ch-HUC8').chosen().change(lang.hitch(this,function(c, p){
 						this.dropdown.huc8Select(c, p, this)
+						
 					}));
 					// build the yearArray for the year select menu after change in traits menu
 					$('#' + this.id + 'ch-traits').chosen().change(lang.hitch(this,function(c, d){
@@ -438,12 +450,17 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 						});
 						return result;
 					};
+
 				}));
 // SUPPORTING DATA /////////////////////////////////////////////////////////////////////////////////////////////////////////
 				// work with sup radio buttons
 				$('#' + this.id + 'supDataDiv input:radio').on('click', lang.hitch(this,function(c){
 					this.supportingData.supRadioClick(this, c);
 				}));
+				
+				// $('#' + this.id + 'cb-huc12').trigger("click");
+				//$('#' + this.id + 'supDataDiv input:radio').val().trigger('click');
+				
 				
 				this.rendered = true;
 			}, // end of render function.
@@ -460,68 +477,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 			clearItems: function(){
 				this.map.graphics.clear();
 			},
-			// used to shift the map center out from under any div on the map.
-			// shiftMapCenter: function(div) {
-				// console.log(div, 'div');
-				// var width = div.width;
-				// console.log(width, 'width');
-				// var extent = this.map.extent;
-				// console.log(extent, 'extent');
-				// var x = (extent.xmax + extent.xmin)/2;
-				// var y = (extent.ymax + extent.ymin)/2;
-				// console.log(x, 'xdiff', y, 'ydiff');
-				// console.log(this.map.getResolution(), 'get res');
-				// console.log(dojo.style(div, "width"), 'dojo style');
-				// var offset = this.map.getResolution() * dojo.style(div,"width")/2;
-				// var point = new esri.geometry.Point(x - offset, y, this.map.spatialReference);
-				// console.log(this.map.point, 'center point');
-				// console.log(point, 'center point new');
-				// console.log(point, 'point')
-				//this.map.centerAt(point);
-				// console.log('after map')
-			// },
-			shiftMapCenter: function(extent, featCentroid) {
-				console.log(extent, 'extent', featCentroid, 'feature centroid');
-				var extentDiff = extent.xmin - extent.xmax;
-				extentDiff = extentDiff * .10; // 10 percent difference
-				console.log(Math.abs(extentDiff), 'diff');
-				var newCentroidX = featCentroid.x + Math.abs(extentDiff);
-				console.log(newCentroidX, 'new centroid');
-				var point = new esri.geometry.Point(newCentroidX, featCentroid.y, this.map.spatialReference);
-				console.log(point, 'point');
-				this.map.centerAt(point);
-				console.log(this.map.centroid)
-				
-				
-				
-				
-				// var screenWidth = window.innerWidth;
-				// var conWidth = Number(this.con.style.width.slice(0,-2));
-				// var leftDivEdge = 70 + 85 + conWidth;
-				// console.log(leftDivEdge, screenWidth);
-				// if (screenWidth < 1800){
-					// console.log('screen is less than 1800px');
-				// }
-			},
-				// console.log(div, 'div');
-				// var width = div.width;
-				// console.log(width, 'width');
-				// var extent = this.map.extent;
-				// console.log(extent, 'extent');
-				// var x = (extent.xmax + extent.xmin)/2;
-				// var y = (extent.ymax + extent.ymin)/2;
-				// console.log(x, 'xdiff', y, 'ydiff');
-				// console.log(this.map.getResolution(), 'get res');
-				// console.log(dojo.style(div, "width"), 'dojo style');
-
-				// var offset = this.map.getResolution() * dojo.style(div,"width")/2;
-				// var point = new esri.geometry.Point(x - offset, y, this.map.spatialReference);
-				// console.log(this.map.point, 'center point');
-				// console.log(point, 'center point new');
-				// console.log(point, 'point')
-				//this.map.centerAt(point);
-				// console.log('after map')
-			// }
 		});
 	});
 

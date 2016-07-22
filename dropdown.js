@@ -18,14 +18,17 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
                 console.log('graph clicks');
             },
 			huc8Select: function(c, p, t){
-				console.log('t huc 8 dropdown');
 				// clear traits value if huc 8 dropdown menu was cleared
 				p = $('#' + t.id + 'ch-HUC8').val()
-				t.obj.traitSelected = undefined;
+				console.log(t.obj.stateSet, 'stateset');
 				t.obj.huc8Selected[0] = '';
 				//t.obj.traitArray = [];
 				$('#' + t.id + 'ch-traits').val('').trigger('chosen:updated').trigger('change');
-				$('#' + t.id + 'cb-none').trigger("click");
+				if(t.obj.stateSet == 'no'){	
+					$('#' + t.id + 'cb-none').trigger("click");
+					t.obj.traitSelected = undefined;
+				}
+				
 				$('#' + t.id + 'ch-traits').empty();
 				// if something was selected in the huc 8 dropdown
 				if(p){
@@ -70,16 +73,16 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				}
 			},
 			traitsSelect: function(c,d,t){
-				console.log(c, d, t, 'look here');
-				console.log('traits select');
+				var traitTest = $('#' + t.id + 'ch-traits').val();
+				//var d = $('#' + t.id + 'ch-traits').val();
 				// clear years value if traits dropdown menu was cleared
 				$('#' + t.id + 'ch-years').val('').trigger('chosen:updated').trigger('change');
 				// something was selected from traits dropdown.
 				if(d) {
-					console.log('trait selected');
 					// append empty option as first value
 					$('#' + t.id + 'ch-years').append('<option value=""></option>');
-					t.obj.traitSelected = t.obj.huc8Selected[0] + "_" + d.selected;
+					t.obj.traitSelected = t.obj.huc8Selected[0] + "_" + traitTest;
+					t.obj.trait = d.selected;
 					// loop through layers array
 					$.each(t.layersArray, lang.hitch(t,function(i,v){
 						var wn = v.name
@@ -97,15 +100,23 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					$('#' + t.id + 'ch-yearsDiv').slideUp();
 				};
 			},
-			yearsSelect: function(c,v,t){
-				console.log('years select');
+			yearsSelect: function(c,v,t){	
 				if(v){
+					// remove a raster layer if it already exists in the layers array. this keeps the rasters from stacking on each other
+					var index = t.obj.spatialLayerArray.indexOf(t.obj.yearSelected);
+					if(index > -1){
+						t.obj.spatialLayerArray.splice(index,1);
+					}
+					var index = t.obj.visibleLayers.indexOf(t.obj.yearSelected);
+					if(index > -1){
+						t.obj.visibleLayers.splice(index,1);
+					}
 					$('#' + t.id + 'ch-pointsDiv').slideDown();
-					t.obj.yearSelected = v.selected;
+					t.obj.yearSelected = $('#' + t.id + 'ch-years').val();
 					t.obj.spatialLayerArray.push(t.obj.yearSelected);
 					t.obj.visibleLayers.push(t.obj.yearSelected);
+					
 					t.dynamicLayer.setVisibleLayers(t.obj.visibleLayers);
-					console.log('years click')
 					var lyrName = '';
 					$.each(t.layersArray, lang.hitch(t,function(i,v){
 						if(v.id == t.obj.yearSelected){
@@ -115,8 +126,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					}));
 					t.samplePoints.setDefinitionExpression("raster = '" + lyrName + "'");
 				} else{
-					$('#' + t.id + 'ch-years').empty();
-					$('#' + t.id + 'ch-pointsDiv').hide();
 					var index = t.obj.spatialLayerArray.indexOf(t.obj.yearSelected);
 					if(index > -1){
 						t.obj.spatialLayerArray.splice(index,1);
@@ -125,20 +134,25 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					if(index > -1){
 						t.obj.visibleLayers.splice(index,1);
 					}
-					t.obj.yearSelected = undefined;
+					$('#' + t.id + 'ch-years').empty();
+					$('#' + t.id + 'ch-years').val('').trigger('chosen:updated');
+					$('#' + t.id + 'ch-pointsDiv').hide();
+					//t.obj.yearSelected = undefined;
 					t.dynamicLayer.setVisibleLayers(t.obj.visibleLayers);
-					$('#' + t.id + 'ch-points').prop( "checked", false ).trigger('change');
+					//$('#' + t.id + 'ch-points').prop( "checked", false ).trigger('change');
 
 				}
 			},
 			samplePointClick: function(v,t){
 				var lyrName = '';
 				if(v.currentTarget.checked == true){
+					t.obj.samplePointChecked = 'yes';
 					t.map.addLayer(t.samplePoints);
 				}else{
 					t.map.removeLayer(t.samplePoints);
 				}
 			},
+			
 			traitPopulate: function(t){
 				console.log('trait populate');
 				t.obj.traitArray = [];

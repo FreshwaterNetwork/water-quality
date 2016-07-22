@@ -42,9 +42,10 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				}));
 				// if value is Huc 12 set the layer to on
 				if (c.currentTarget.value == "HUC 12s"){
+					console.log('huc 12 click')
 					t.obj.spatialLayerArray.push(1);
 					t.obj.visibleLayers.push(1);
-					t.obj.supLayer = "huc12";
+					t.obj.supLayer = "cb-huc12";
 					t.obj.layerDefs[1] = "HUC_8 = '" + t.obj.huc8Selected[1] +"'";
 					t.dynamicLayer.setLayerDefinitions(t.obj.layerDefs);
 					if (t.obj.visibleLayers.length < 2 ){
@@ -53,15 +54,16 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				}
 				// if value is soils set the layer to on
 				if (c.currentTarget.value == "Soils Data"){
-					t.obj.supLayer = "soils"
-					t.soilID = '';
+					console.log('soils click')
+					t.obj.supLayer = "cb-soils"
+					t.obj.soilID = '';
 					var soilLayer = t.obj.huc8Selected[0] + '_soils' + "_web";
 					$.each(t.layersArray, lang.hitch(t,function(i,v){
 						var layerName = v.name;
 						if (t.obj.huc8Selected[0] + '_soils' + "_web" == layerName){
-							t.soilID = v.id;
-							t.obj.spatialLayerArray.push(t.soilID);
-							t.obj.visibleLayers.push(t.soilID);
+							t.obj.soilID = v.id;
+							t.obj.spatialLayerArray.push(t.obj.soilID);
+							t.obj.visibleLayers.push(t.obj.soilID);
 							return false;
 						}
 					}));
@@ -70,7 +72,8 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					}
 				}
 				if (c.currentTarget.value == "Land Cover"){
-					t.obj.supLayer = 'landCover';
+					console.log('land cover click')
+					t.obj.supLayer = 'cb-land';
 					var landID = '';
 					$.each(t.layersArray, lang.hitch(t,function(i,v){
 						if (t.obj.huc8Selected[0] + ' Land Cover' == v.name){
@@ -92,36 +95,36 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				console.log('end of sup data');
 			},
 			supDataFunction: function(t, f){
-				console.log('sup data function call', t.id);
+				console.log(t.hQuery, 'hq');
 				var id = t.id;
 				t.soils.clear();
 				t.huc12.clear();
-				if(t.obj.supLayer == 'none' || t.obj.supLayer == 'landCover'){
+				if(t.obj.supLayer == 'none' || t.obj.supLayer == 'cb-land'){
 					t.huc8_click.selectFeatures(t.hQuery,esri.layers.FeatureLayer.SELECTION_NEW);
 				}
-				if (t.obj.supLayer == 'huc12'){
+				if (t.obj.supLayer == 'cb-huc12'){
 					t.hQuery.where = "HUC_8 = '" + t.obj.huc8Selected[1] + "'";
 					t.huc12.selectFeatures(t.hQuery,esri.layers.FeatureLayer.SELECTION_NEW);
 				}
-				if (t.obj.supLayer == 'soils'){
-					var soilsUrl = t.obj.url + "/" + t.soilID;
+				if (t.obj.supLayer == 'cb-soils'){
+					var soilsUrl = t.obj.url + "/" + t.obj.soilID;
 					t.soils = new FeatureLayer(soilsUrl, { mode: esri.layers.FeatureLayer.MODE_SELECTION, outFields: "*"});
 					t.soils.setSelectionSymbol(t.soilsSym);
 					t.map.addLayer(t.soils);
 					t.soils.selectFeatures(t.hQuery,esri.layers.FeatureLayer.SELECTION_NEW);
 					// handle the on selection complete here after the add layer
 					t.soils.on("selection-complete", lang.hitch(t,function(f){
-						console.log(f, 'soils f', id)
 						if (f.features.length > 0){
 							$('#' + id + 'clickSoils').show();
-							var t = "<div class='supDataText' style='padding:6px;'><b>Soil Type: </b>${Map_unit_n}</div>";
-							var content = esriLang.substitute(f.features[0].attributes,t);
+							var c = "<div class='supDataText' style='padding:6px;'><b>Soil Type: </b>${Map_unit_n}</div>";
+							var content = esriLang.substitute(f.features[0].attributes,c);
 							$('#' + id + 'clickSoils').html(content);
 						}else{
 							var query = new esri.tasks.Query();
-							query.geometry = t.query.geometry;
+							query.geometry = t.hQuery.geometry;
 							t.huc8_click.selectFeatures(query,esri.layers.FeatureLayer.SELECTION_NEW);
 						}
+						t.obj.soilStateID = f.features[0].attributes.OBJECTID;
 					}));
 				}
 			}

@@ -19,8 +19,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				var pnt = evt.mapPoint;
 				t.hQuery = new esri.tasks.Query();
 				t.hQuery.geometry = pnt;
-				
-				
 				if (t.obj.sel == 'tm' && t.sSelected == 'map'){
 					t.supportingData.supDataFunction(t);
 				}
@@ -28,7 +26,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					t.supportingData.supDataFunction(t);
 				}
 				if (t.obj.sel == 'imp'){
-					console.log('imp water section');
 					// select features from the imp water layer.
 					t.impWater.selectFeatures(t.hQuery,esri.layers.FeatureLayer.SELECTION_NEW);
 				}
@@ -61,16 +58,11 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 			},
 			huc12SelComplete: function(f,t){
 				console.log('huc 12 sel complete');
-				// function numberWithCommas(x) {
-					// return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-				// }
 				if(f.features.length > 0){
-					console.log('look here is f lenghth is more than 0', '#' + t.id + 'clickHuc12');
 					$('#' + t.id + 'clickHuc12').show();
 					var acres = numberWithCommas(f.features[0].attributes.ACRES);
-					var t = "<div class='supDataText' style='padding:6px;'><b>HUC 12: </b>${HUC_12}<br><b>Acres: </b>" + acres + "<br><b>Subwatershed: </b>${SUBWATERSHED}</div>";
-					var content = esriLang.substitute(f.features[0].attributes,t);
-					console.log(content ,'content');
+					var c = "<div class='supDataText' style='padding:6px;'><b>HUC 12: </b>${HUC_12}<br><b>Acres: </b>" + acres + "<br><b>Subwatershed: </b>${SUBWATERSHED}</div>";
+					var content = esriLang.substitute(f.features[0].attributes,c);
 					$('#' + t.id + 'clickHuc12').html(content);
 				}else{
 					var query = new esri.tasks.Query();
@@ -79,7 +71,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				}
 			},
 			impSelectionComplete: function(f,t,l){
-				console.log(f.features[0], 'features')
+				t.obj.impStateID = f.features[0].attributes.SUBSEGMENT;
 				// imp watershed selection symbol
 				var impWaterShedSelectionN = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
 						new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
@@ -118,9 +110,10 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 
 					if (f.features[0].attributes.TMDL_Priority == 'N'){
 						console.log('no data in t imp watershed');
-						var html = $('#' + t.id + 'waterName').html("<b>Watershed Name:</b> " + waterName);
-						var html = $('#' + t.id + 'waterDesc').html("<b>Watershed Description:</b> " + waterDesc);
-						var html = $('#' + t.id + 'waterID').html("<b>Watershed ID:</b> " + waterID);
+						var html = $('#' + t.id + 'waterName').html("<b>Subsegment Name:</b> " + waterName);
+						var html = $('#' + t.id + 'waterDesc').html("<b>Subsegment Description:</b> " + waterDesc);
+						var html = $('#' + t.id + 'waterID').html("<b>Subsegment ID:</b> " + waterID);
+						$('#' + t.id + 'noImpText').slideDown();
 						$('#' + t.id + 'waterAttributes').slideDown();
 						$('#' + t.id + 'impWaterWrapper').slideUp();
 
@@ -131,50 +124,47 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 							t.map.setExtent(impExtent, true);
 						}
 					}else{
+						$('#' + t.id + 'noImpText').hide();
 						$('#' + t.id + 'impTable').empty();
-						$('#' + t.id + 'impTable').append('<tr><th>Impairment</th><th>Suspected Cause</th><th>Suspected Source</th></tr>');
+						$('#' + t.id + 'impTable').append('<tr><th style='+'height:20px;'+'>Impairment</th><th>Suspected Cause</th><th>Suspected Source</th></tr>');
 						var splitAllUse = allUse.split('],');
 						var i;
 						for (i = 0; i < splitAllUse.length; i++) {
 							var item = splitAllUse[i];
 							item = item.split(/['']/);
-							$('#' + t.id + 'impTable').append('<tr class="tableRow"><td>' + item[1] + '</td> <td>' + item[3] + '</td> <td>' + item[5] + '</td></tr>');
+							$('#' + t.id + 'impTable').append('<tr class="tableRow" ><td style="height:20px">' + item[1] + '</td> <td>' + item[3] + '</td> <td>' + item[5] + '</td></tr>');
 						}
 						$('#' + t.id + 'waterAttributes').slideDown();
 						$('#' + t.id + 'impWaterWrapper').slideDown();
-						var html = $('#' + t.id + 'waterName').html("<b>Watershed Name:</b> " + waterName);
-						var html = $('#' + t.id + 'waterDesc').html("<b>Watershed Description:</b> " + waterDesc);
-						var html = $('#' + t.id + 'waterID').html("<b>Watershed ID:</b> " + waterID);
+						var html = $('#' + t.id + 'waterName').html("<b>Subsegment Name:</b> " + waterName);
+						var html = $('#' + t.id + 'waterDesc').html("<b>Subsegment Description:</b> " + waterDesc);
+						var html = $('#' + t.id + 'waterID').html("<b>Subsegment ID:</b> " + waterID);
 						
 						if(f.features.length > 0){
-							console.log(f.features[0].geometry.getExtent());
-							
 							var impExtent = f.features[0].geometry.getExtent().expand(3);
 							t.map.setExtent(impExtent, true);
-							t.shiftMapCenter(t.map.extent, f.features[0].geometry.getCentroid());
 						}
 					}
 				}
 			},
-			shiftMapCenter: function(extent, featCentroid) {
-				console.log(extent, 'extent', featCentroid, 'feature centroid');
-				var extentDiff = extent.xmin - extent.xmax;
-				extentDiff = extentDiff * .10; // 10 percent difference
-				console.log(Math.abs(extentDiff), 'diff');
-				var newCentroidX = featCentroid.x + Math.abs(extentDiff);
-				console.log(newCentroidX, 'new centroid');
-				var point = new esri.geometry.Point(newCentroidX, featCentroid.y, this.map.spatialReference);
-				console.log(point, 'point');
-				this.map.centerAt(point);
-				console.log(this.map.centroid)
-				
-				
-				
-				
-				// var screenWidth = window.innerWidth;
-				// var conWidth = Number(this.con.style.width.slice(0,-2));
-				// var leftDivEdge = 70 + 85 + conWidth;
-				// console.log(leftDivEdge, screenWidth);
+			shiftMapCenter: function(t, extent, featCentroid) {
+				// var extentDiff = extent.xmin - extent.xmax;
+				// extentDiff = extentDiff * .10; // 10 percent difference
+				// console.log(Math.abs(extentDiff), 'diff');
+				// var newCentroidX = featCentroid.x + Math.abs(extentDiff);
+				// console.log(newCentroidX, 'new centroid');
+				// var point = new esri.geometry.Point(newCentroidX, featCentroid.y, t.map.spatialReference);
+				// console.log(point, 'point');
+				// this.map.centerAt(point);
+				// console.log(this.map.centroid)
+				var screenWidth = window.innerWidth - 85;
+				var conWidth = Number(t.con.style.width.slice(0,-2));
+				var leftDivEdge = 70  + conWidth;
+				console.log(leftDivEdge, screenWidth , 'left edge div and screen width');
+				var conPercent =  leftDivEdge/screenWidth * 100;
+				console.log(conPercent, 'percent');
+				var mapExtent = t.map.extent;
+				console.log(mapExtent, 'map extent');
 				// if (screenWidth < 1800){
 					// console.log('screen is less than 1800px');
 				// }
@@ -182,9 +172,3 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
         });
     }
 );
-
-
-
-
-
-

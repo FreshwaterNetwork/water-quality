@@ -1,16 +1,16 @@
 /*************
   Blue Theme
  *************/
-.wrapper {
+.impWaterWrapper {
 	position: relative;
 	padding: 0;
 	height: 250px;
 	overflow-y: auto;
 	overflow-x:hidden;
 	border: 1px solid #215973;
-	width: 278px;
+	width: 352px;
 	height: 459px;
-	margin-top:20px;
+	margin-top:10px;
 }
 /* overall */
 .tablesorter-blue {
@@ -43,6 +43,7 @@
 	border-collapse: collapse;
 	padding: 4px;
 	text-shadow: 0 1px 0 rgba(204, 204, 204, 0.7);
+	font-weight: bold;
 }
 .tablesorter-header-inner{
 	font-family: 'Archivo Narrow', 'Arial Narrow', Arial, Helvetica, sans-serif !important;
