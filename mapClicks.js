@@ -33,13 +33,17 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 			},
 			huc8SelComplete: function(f,t){
 				console.log('huc 8 sel complete');
+				console.log(t.obj.visibleLayers, 'vis layers');
+				console.log(t.obj.spatialLayerArray, 'spatial layers');
 				if(f.features.length > 0){
 					if(t.obj.huc8Selected[0] == 'Merm'){
 						var huc8Extent = f.features[0].geometry.getExtent().expand(1);
 					}else{
 						var huc8Extent = f.features[0].geometry.getExtent().expand(0.9);
 					}
-					t.map.setExtent(huc8Extent, true);
+					if(t.obj.stateSet == 'no'){
+						t.map.setExtent(huc8Extent, true);
+					}
 				}
 			},
 			huc8ClickSelComplete: function(f,t){

@@ -93,6 +93,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				//t.addHuc8();
 				t.obj.visibleLayers = [2];
 				t.dynamicLayer.setVisibleLayers(t.obj.visibleLayers);
+				console.log(t.obj.visibleLayers, 'vis layers spatial click');
 				$(t.con).animate({ height: '525px', width: '350px' }, 250,
 					lang.hitch(t,function(){
 						t.resize();
@@ -153,7 +154,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				$('#' + t.id + 'topWrapper, #' + t.id + 'supData, #' + t.id + 'temporalWrapper, #' + t.id + 'hucWrapper').slideUp();
 				$('#' + t.id + 'bottomDiv').hide();
 				$('#' + t.id + 'home').slideDown();
-				t.obj.traitSelected = undefined;
+				t.obj.traitSelected = '';
 				t.map.removeLayer(t.land);
 				t.map.removeLayer(t.soils);
 				t.map.removeLayer(t.samplingStations);

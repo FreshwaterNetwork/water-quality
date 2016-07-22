@@ -81,6 +81,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 			// Write anything to you varObject.json file you have tracked during user activity.
 			getState: function () {
 				this.obj.extent = this.map.geographicExtent;
+				console.log(this.obj.extent, 'extent');
 				this.obj.stateSet = "yes";
 				var state = new Object();
 				state = this.obj;
@@ -427,15 +428,18 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				require(["jquery", "plugins/water-quality/js/chosen.jquery"],lang.hitch(this,function($) {
 					//Select Huc8
 					$('#' + this.id + 'ch-HUC8').chosen().change(lang.hitch(this,function(c, p){
-						this.dropdown.huc8Select(c, p, this)
-						
+						this.dropdown.huc8Select(c, p, this);
 					}));
 					// build the yearArray for the year select menu after change in traits menu
 					$('#' + this.id + 'ch-traits').chosen().change(lang.hitch(this,function(c, d){
 						this.dropdown.traitsSelect(c,d,this)
 					}));
 					$('#' + this.id + 'ch-years').chosen().change(lang.hitch(this,function(c, v){
+						// if(this.obj.stateSet == 'yes'){
+							// v = 'r';
+						// }
 						this.dropdown.yearsSelect(c,v,this);
+						// v = undefined;
 					}));
 					// work with sample points checkbox
 					this.map = this.map

@@ -26,14 +26,15 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				$('#' + t.id + 'ch-traits').val('').trigger('chosen:updated').trigger('change');
 				if(t.obj.stateSet == 'no'){	
 					$('#' + t.id + 'cb-none').trigger("click");
-					t.obj.traitSelected = undefined;
+					t.obj.traitSelected = '';
 				}
 				
 				$('#' + t.id + 'ch-traits').empty();
 				// if something was selected in the huc 8 dropdown
-				if(p){
+				if(p || t.obj.stateSet == 'yes'){
 					t.obj.spatialLayerArray = [2];
 					t.obj.visibleLayers = [2];
+					console.log(t.obj.visibleLayers, 'vis layers after if p in huc 8');
 					t.dynamicLayer.setVisibleLayers(t.obj.visibleLayers);
 					$('#' + t.id + 'ch-traits').val('').trigger('chosen:updated');
 					var val = $('#' + t.id + 'ch-HUC8').val();
@@ -74,15 +75,14 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 			},
 			traitsSelect: function(c,d,t){
 				var traitTest = $('#' + t.id + 'ch-traits').val();
-				//var d = $('#' + t.id + 'ch-traits').val();
 				// clear years value if traits dropdown menu was cleared
 				$('#' + t.id + 'ch-years').val('').trigger('chosen:updated').trigger('change');
 				// something was selected from traits dropdown.
-				if(d) {
+				if(d || t.stateTraits == 'yes'){
 					// append empty option as first value
 					$('#' + t.id + 'ch-years').append('<option value=""></option>');
 					t.obj.traitSelected = t.obj.huc8Selected[0] + "_" + traitTest;
-					t.obj.trait = d.selected;
+					t.obj.trait = c.currentTarget.value;
 					// loop through layers array
 					$.each(t.layersArray, lang.hitch(t,function(i,v){
 						var wn = v.name
@@ -100,8 +100,9 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					$('#' + t.id + 'ch-yearsDiv').slideUp();
 				};
 			},
-			yearsSelect: function(c,v,t){	
-				if(v){
+			yearsSelect: function(c,v,t){
+				if(v || t.stateYear == 'yes'){
+					console.log('years select');
 					// remove a raster layer if it already exists in the layers array. this keeps the rasters from stacking on each other
 					var index = t.obj.spatialLayerArray.indexOf(t.obj.yearSelected);
 					if(index > -1){
@@ -115,8 +116,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					t.obj.yearSelected = $('#' + t.id + 'ch-years').val();
 					t.obj.spatialLayerArray.push(t.obj.yearSelected);
 					t.obj.visibleLayers.push(t.obj.yearSelected);
-					
-					t.dynamicLayer.setVisibleLayers(t.obj.visibleLayers);
+						t.dynamicLayer.setVisibleLayers(t.obj.visibleLayers);
 					var lyrName = '';
 					$.each(t.layersArray, lang.hitch(t,function(i,v){
 						if(v.id == t.obj.yearSelected){

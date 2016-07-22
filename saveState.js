@@ -24,8 +24,21 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					if(t.obj.huc8Sel != ''){
 						var p = 'r'
 						var d = t.obj.traitSelected;
-						$('#' + t.id + 'ch-HUC8').val(t.obj.huc8Sel).trigger	('chosen:updated').trigger('change', p);
-
+						$('#' + t.id + 'ch-HUC8').val(t.obj.huc8Sel).trigger('chosen:updated').trigger('change', p);
+						if(t.obj.traitSelected != ''){
+							t.stateTraits = 'yes';
+							$('#' + t.id + 'ch-traits').val(t.obj.trait).trigger('chosen:updated').trigger('change', d);
+							t.stateTraits = 'no';
+							if(t.obj.yearSelected != ''){
+								t.stateYear = 'yes';
+								$('#' + t.id + 'ch-years').val(t.obj.yearSelected).trigger('chosen:updated').trigger('change', p);
+								t.stateYear = 'no';
+								if(t.obj.samplePointChecked == 'yes'){
+									$('#' + t.id + 'ch-points').trigger('click');
+								}
+							}
+						}
+						
 						// work with sup layers in both tm and sp 
 						if(t.obj.supLayer != 'none'){
 							$('#' + t.id + t.obj.supLayer).trigger('click');
@@ -56,15 +69,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 							//t.obj.soilStateID = '';
 							}
 						}
-						if(t.obj.traitSelected != ''){
-							$('#' + t.id + 'ch-traits').val(t.obj.trait).trigger('chosen:updated').trigger('change', d);
-							if(t.obj.yearSelected != ''){
-								$('#' + t.id + 'ch-years').val(t.obj.yearSelected).trigger('chosen:updated').trigger('change', p);
-								if(t.obj.samplePointChecked == 'yes'){
-									$('#' + t.id + 'ch-points').trigger('click');
-								}
-							}
-						}
+						
 					}
 				}
 				// work with if tm section
@@ -121,6 +126,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 						t.impWater.selectFeatures(t.impQuery, esri.layers.FeatureLayer.SELECTION_NEW);
 					}
 				}
+				t.map.setExtent(t.obj.extent, true);
 				t.obj.stateSet = 'no'
 			}
 		});
