@@ -18,6 +18,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
                 console.log('graph clicks');
             },
 			samplingStationClick: function(evt, t){
+				console.log(t, 't');
 				var x = String(evt.target.attributes[10]);
 				t.sSelected = 'ss';
 				t.map.graphics.clear();
@@ -54,7 +55,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				t.sSelected = 'ss';
 				t.map.graphics.clear();
 				t.spAtts = evt.attributes;
-				$('#' + t.id + 'chartHeader').text("Station ID " + t.spAtts.generated_stations_old_ID);
+				$('#' + t.id + 'chartHeader').text("Station ID " + t.spAtts.Station_ID);
 				t.graphClicks.checkTraits(t.spAtts, t);
 				if(t.obj.nodeValue == "4"){
 					var spHlGraphic = new Graphic(evt.geometry,t.hlStationPointS);
@@ -87,7 +88,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				$('#' + t.id + 'graphDiv').show();
 				$('#' + t.id + 'graphShow').hide();
 				$('#' + t.id + 'ch-HUC8, #' + t.id + 'supData, #' + t.id + 'huc8Wrapper, #' + t.id + 'bottomDiv').hide();
-				$('#' + t.id + 'chartHeader').text("Station ID: " + t.spAtts.generated_stations_old_ID);
+				$('#' + t.id + 'chartHeader').text("Station ID: " + t.spAtts.Station_ID);
 				$(t.con).animate({ height: '520px', width: '630px' }, 250,
 					lang.hitch(t,function(){
 						t.resize();
@@ -419,7 +420,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				};
 				new Chartist.Line('#' + t.id + 'lineChart', data, options);
 				var units = "(mg/L)"
-				if (t.obj.tid == "generated_stations_TURmean"){
+				if (t.obj.tid == "TURmean"){
 					units = "(NTU)"
 				}
 				$('#' + t.id + 'lineChartTitle').html("Monthly Readings Taken in " + t.obj.year + " " + units)

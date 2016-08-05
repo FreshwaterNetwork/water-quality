@@ -20,7 +20,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 			huc8Select: function(c, p, t){
 				// clear traits value if huc 8 dropdown menu was cleared
 				p = $('#' + t.id + 'ch-HUC8').val()
-				console.log(t.obj.stateSet, 'stateset');
 				t.obj.huc8Selected[0] = '';
 				//t.obj.traitArray = [];
 				$('#' + t.id + 'ch-traits').val('').trigger('chosen:updated').trigger('change');
@@ -34,7 +33,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				if(p || t.obj.stateSet == 'yes'){
 					t.obj.spatialLayerArray = [2];
 					t.obj.visibleLayers = [2];
-					console.log(t.obj.visibleLayers, 'vis layers after if p in huc 8');
 					t.dynamicLayer.setVisibleLayers(t.obj.visibleLayers);
 					$('#' + t.id + 'ch-traits').val('').trigger('chosen:updated');
 					var val = $('#' + t.id + 'ch-HUC8').val();

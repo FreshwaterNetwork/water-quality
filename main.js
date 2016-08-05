@@ -81,7 +81,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 			// Write anything to you varObject.json file you have tracked during user activity.
 			getState: function () {
 				this.obj.extent = this.map.geographicExtent;
-				console.log(this.obj.extent, 'extent');
 				this.obj.stateSet = "yes";
 				var state = new Object();
 				state = this.obj;
@@ -263,6 +262,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				}));
 				// on selection complete of the huc8
 				this.huc8.on("selection-complete", lang.hitch(this,function(f){
+					
 					this.mapClicks.huc8SelComplete(f,this);
 				}));
 				// build the secend huc 8 selection complete here
@@ -296,8 +296,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					this.obj.ssOID = evt.graphic.attributes.OBJECTID;
 					this.obj.graphOpen = 'yes';
 					this.graphClicks.samplingStationClick(evt,this);
-
-
 				}));
 				this.samplingStations.on('selection-complete', lang.hitch(this,function(f){
 					var atts =  f.features[0];
@@ -308,7 +306,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					if(this.obj.graphHideBtn == 'yes'){
 						$('#' + this.id + 'graphHide').trigger('click');
 					}
-
 				}));
 				// handle clicks on the graph show button
 				$('#' + this.id + 'graphShow').on('click',lang.hitch(this,function(e){
@@ -387,7 +384,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 // Set State Logic ///////////////////////////////////////////////////////////////////////////////////////////////////
 					require(["jquery", "plugins/water-quality/js/chosen.jquery"],lang.hitch(this,function($) {
 						if (this.obj.stateSet == 'yes'){
-							console.log(this.obj.visibleLayers, 'vis layers in save state');
 							this.saveState.saveStateFunc(this);
 						}
 					}));

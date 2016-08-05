@@ -93,7 +93,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				//t.addHuc8();
 				t.obj.visibleLayers = [2];
 				t.dynamicLayer.setVisibleLayers(t.obj.visibleLayers);
-				console.log(t.obj.visibleLayers, 'vis layers spatial click');
 				$(t.con).animate({ height: '525px', width: '350px' }, 250,
 					lang.hitch(t,function(){
 						t.resize();
