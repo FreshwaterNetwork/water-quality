@@ -33,8 +33,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 			},
 			huc8SelComplete: function(f,t){
 				console.log('huc 8 sel complete');
-				console.log(t.obj.visibleLayers, 'vis layers');
-				console.log(t.obj.spatialLayerArray, 'spatial layers');
 				if(f.features.length > 0){
 					if(t.obj.huc8Selected[0] == 'Merm'){
 						var huc8Extent = f.features[0].geometry.getExtent().expand(1);
@@ -75,6 +73,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				}
 			},
 			impSelectionComplete: function(f,t,l){
+				$('#' + t.id + 'impStartText').hide();
 				t.obj.impStateID = f.features[0].attributes.SUBSEGMENT;
 				// imp watershed selection symbol
 				var impWaterShedSelectionN = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
@@ -119,7 +118,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 						var html = $('#' + t.id + 'waterID').html("<b>Subsegment ID:</b> " + waterID);
 						$('#' + t.id + 'noImpText').slideDown();
 						$('#' + t.id + 'waterAttributes').slideDown();
-						$('#' + t.id + 'impWaterWrapper').slideUp();
+						$('#' + t.id + 'impTableWrapper').slideUp();
 
 						if(f.features.length > 0){
 							var xmax = t.map.extent.xmax;
@@ -139,7 +138,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 							$('#' + t.id + 'impTable').append('<tr class="tableRow" ><td style="height:20px">' + item[1] + '</td> <td>' + item[3] + '</td> <td>' + item[5] + '</td></tr>');
 						}
 						$('#' + t.id + 'waterAttributes').slideDown();
-						$('#' + t.id + 'impWaterWrapper').slideDown();
+						$('#' + t.id + 'impTableWrapper').slideDown();
 						var html = $('#' + t.id + 'waterName').html("<b>Subsegment Name:</b> " + waterName);
 						var html = $('#' + t.id + 'waterDesc').html("<b>Subsegment Description:</b> " + waterDesc);
 						var html = $('#' + t.id + 'waterID').html("<b>Subsegment ID:</b> " + waterID);

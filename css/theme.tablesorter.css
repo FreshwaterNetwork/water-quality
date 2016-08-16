@@ -1,22 +1,11 @@
 /*************
   Blue Theme
  *************/
-.impWaterWrapper {
-	position: relative;
-	padding: 0;
-	height: 250px;
-	overflow-y: auto;
-	overflow-x:hidden;
-	border: 1px solid #215973;
-	width: 352px;
-	height: 459px;
-	margin-top:10px;
-}
+
 /* overall */
 .tablesorter-blue {
 	font-family: 'Archivo Narrow', 'Arial Narrow', Arial, Helvetica, sans-serif !important;
 	font-size: 10pt !important;
-	position:absolute;
 	top:0px;
 	left:0px;
 	margin:0;	

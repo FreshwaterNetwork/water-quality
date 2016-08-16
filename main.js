@@ -124,6 +124,14 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				else { this.sph = cdg.h - 10; }
 				domStyle.set(this.appDiv.domNode, "height", this.sph + "px");
 			},
+			execute: function(){
+				this.queryTask.execute(this.query, huc8Results);
+			},
+			huc8Results: function(results){
+				var resultItems = [];
+				var resultCount =  results.features.length;
+				console.log(resultCount);
+			},
 // START OF THE RENDER FUNCTION ////////////////////////////////////////////////////////////////////////////////////////////////////////
 			render: function() {
 // BRING IN OTHER JS FILES ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -134,34 +142,10 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				this.dropdown = new dropdown();
 				this.mapClicks = new mapClicks();
 				this.saveState = new saveState();
-
-// ENABLE TABLESORTER FUNCTION /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-				// Enable jquery plugin 'tablesorter'
-				require(["jquery", "plugins/water-quality/js/tablesorter"],lang.hitch(this,function($) {
-					$("#" + this.id + "impTable").tablesorter({
-						widthFixed : true,
-						headerTemplate : '{content} {icon}', // Add icon for various themes
-
-						widgets: [ 'zebra', 'stickyHeaders'],
-						theme: 'blue',
-
-						widgetOptions: {
-							// jQuery selector or object to attach sticky header to
-							//stickyHeaders_attachTo : '.impWaterWrapper',
-							stickyHeaders_includeCaption: false // or $('.wrapper')
-						}
-					});
-				}));
-// ENABLE CHOOSEN FUNCTION /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-				// Enable jquery plugin 'chosen'
-				require(["jquery", "plugins/water-quality/js/chosen.jquery"],lang.hitch(this,function($) {
-					var configCrs =  { '.chosen-crs' : {allow_single_deselect:true, width:"200px", disable_search:false}}
-					for (var selector in configCrs)  { $(selector).chosen(configCrs[selector]); }
-				}));
-				// Define Content Pane
+// DEFINE CONTENT ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+					// Define Content Pane
 				this.appDiv = new ContentPane({style:'padding:8px 8px 8px 8px'});
 				this.id = this.appDiv.id;
-				parser.parse();
 				dom.byId(this.container).appendChild(this.appDiv.domNode);
 				// Get html from content.html, prepend appDiv.id to html element id's, and add to appDiv
 				var idUpdate = content.replace(/id='/g, "id='" + this.id);
@@ -178,6 +162,90 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					active: false,
 					heightStyle: "content"
 				});
+
+// ENABLE TABLESORTER FUNCTION /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+				// Enable jquery plugin 'tablesorter'
+				require(["jquery", "plugins/water-quality/js/tablesorter"],lang.hitch(this,function($) {
+					// console.log($("#" + this.id + "impTable"));
+					// $("#" + this.id + "impTable").tablesorter({
+						// widthFixed : true,
+						// headerTemplate : '{content} {icon}', // Add icon for various themes
+
+						// widgets: [ 'zebra', 'stickyHeaders'],
+						// theme: 'blue',
+
+						// widgetOptions: {
+							//jQuery selector or object to attach sticky header to
+							// stickyHeaders_attachTo : '.impWaterWrapper',
+							// stickyHeaders_includeCaption: false // or $('.wrapper')
+						// }
+					// });
+					
+					
+					$("#" + this.appDiv.id + "impTable").tablesorter({
+						widthFixed : true,
+						headerTemplate : '{content}', // Add icon for various themes
+
+						widgets: [ 'zebra'],
+						theme: 'blue',
+						
+						widgetOptions: {
+							// jQuery selector or object to attach sticky header to
+							//stickyHeaders_attachTo : '.impTableWrapper',
+							//stickyHeaders_includeCaption: false // or $('.wrapper')
+						}
+					})	
+				}));
+// ENABLE CHOOSEN FUNCTION /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+				// Enable jquery plugin 'chosen'
+				require(["jquery", "plugins/water-quality/js/chosen.jquery"],lang.hitch(this,function($) {
+					var configCrs =  { '.chosen-crs' : {allow_single_deselect:true, width:"200px", disable_search:false}}
+					for (var selector in configCrs)  { $(selector).chosen(configCrs[selector]); }
+				}));
+				
+// Populate huc 8 dropdown /////////////////////////////////////////////			
+				var queryTask = new QueryTask("http://cirrus-web-adapter-241060755.us-west-1.elb.amazonaws.com/arcgis/rest/services/FN_Louisiana/NRCS_Water_Quality/MapServer/2")
+				var query = new Query();
+				query.returnGeometry = false;
+				query.outFields = ['Abbr', 'HUC_8'];
+				query.where = "OBJECTID > -1"
+				console.log(this.id, 'This.id');
+				console.log(query, 'this.query');
+				
+				
+				queryTask.execute(query, lang.hitch(this, function(results){
+					var f = results.features;
+					$('#' + this.id + 'ch-HUC8').append('<option value=""></option>');
+					//$('#' + this.id + 'ch-HUC8').empty();
+					$.each(f, lang.hitch(this, function(i,v){
+						
+						console.log(v);
+						abbr = v.attributes.Abbr;
+						HUC_8 = v.attributes.HUC_8
+						console.log(abbr, HUC_8)
+						huc8Value = abbr + "_" + HUC_8
+						
+						if (abbr == "Merm"){
+							var val = "Mermentau"
+						}
+						if (abbr == "Tang"){
+							var val = "Tangipahoa"
+						}
+						if (abbr == "Boeu"){
+							var val = "Boeuf"
+						}
+						
+						huc8HTML = '<option value="' + huc8Value + '">' + 'test' + '</option>'
+						console.log(huc8HTML);
+						console.log($('#' + this.id + 'ch-HUC8'));
+						$('#' + this.id + 'ch-HUC8').append('<option value="' + huc8Value + '">' + val + '</option>');
+					}));
+					$('#' + this.id + 'ch-HUC8').trigger("chosen:updated");
+					console.log(results);
+				}));
+					
+				
+			
 // SET SYMBOLOGY /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 				// HUC12 Symbol
 				this.hucSym = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
@@ -464,6 +532,8 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				
 				this.rendered = true;
 			}, // end of render function.
+			
+			
 			// add huc8 and on huc8 load add click events
 			addHuc8: function(){
 				this.map.addLayer(this.huc8);

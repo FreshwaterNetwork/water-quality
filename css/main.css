@@ -76,8 +76,30 @@ body.waiting * {
 	position:absolute; left:0px; top:30px; width:100%; height:45px; background-color:#fff; z-index:21; display:none; text-align:right;
 }
 /*  styling for the impaired watersheds table*/
+
+.impWaterWrapper{
+	display:none; left:10px;
+}
+/* .impTableWrapper{
+	position:relative; padding:0px; margin:0 auto; overflow-y:auto; overflow-x:hidden; border:1px solid #215973; height:250px; margin-top:10px; 
+}
 .impTable{
-	border-top:1px solid #e5eff8; border-right:1px solid #e5eff8; width:95%; margin:auto; height:225px; padding-bottom:10px;
+	border-top:1px solid #e5eff8; border-right:1px solid #e5eff8; margin:auto; padding-bottom:10px; margin-top:110px;
+} */
+.impTableWrapper {
+	display:none;
+	position: relative;
+	padding: 0;
+	height: 250px;
+	overflow-y: auto;
+	overflow-x:hidden;
+	border: 1px solid #215973;
+	margin-top:20px;
+	margin-left: 10px;
+	margin-right: 10px;
+}
+.impTable{
+	width: 100%;
 }
 
 /* tr:nth-child(odd){
@@ -98,15 +120,14 @@ th{
 .noImpText{
 	display:none; margin-top:10px;
 }
+.impStartText{
+	display:none;
+}
 .waterAttributes{
 	display:block; text-align:left; margin-top:5px; margin-left:10px; margin-right:10px; display:none;
 }
-.impWaterWrapper{
-	display:none; left:10px;
-}
-.impTableWrapper{
-	position:relative; padding:5px; margin:0 auto; overflow-y:auto; overflow-x:hidden; border:1px solid #215973; width:320px; height:220px;
-}
+
+
 /* Work with some of the main sections of the page */
 .topHeader{
 	font-size:14pt; width:290px; margin-top:3px; margin-left:10px; color:#21658c; font-weight:bold; 

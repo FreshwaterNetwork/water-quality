@@ -52,7 +52,8 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
 		<div id='huc8Wrapper'>
 			<select id='ch-HUC8' data-placeholder="Select a HUC8" class="chosen-crs" tabindex="16">
 				<option value=""></option>
-				<option value="Amit_08070202">Amite</option>
+				<!-- <option value="Tang_08070205">test</option> -->
+				<!-- <option value="Amit_08070202">Amite</option>
 				<option value="BaBa_08040205">Bayou Bartholomew</option>
 				<option value="BLBa_11140209">Black Lake Bayou</option>
 				<option value="BoCh_03180005">Bogue Chitto</option>
@@ -64,7 +65,7 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
 				<option value="MeHe_08080202">Mermentau Headwaters</option>
 				<option value="Tang_08070205">Tangipahoa</option>
 				<option value="Tick_08070203">Tickfaw</option>
-				<option value="UpCa_08080203">Upper Calcasieu</option>
+				<option value="UpCa_08080203">Upper Calcasieu</option> -->
 			</select>
 		</div>
 		<div id='spatialWrapper'>
@@ -203,19 +204,38 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
 		<div id='noImpText' class='noImpText'>
 			<b>There are no impairments listed for this subsegment</b>
 		</div>
-		<div id='impWaterWrapper' class='impWaterWrapper bottomRight' style='height:200px;'>
+		<div id='impStartText' class='impStartText'>
+			<b>Please click on the map to view Impaired Watershed data</b>
+		</div>
+		
+		<div id='impTableWrapper' class="impTableWrapper bottomRight">
 			<table id='impTable' class='impTable tablesorter'> 
-				<thead id='impTableHead'> 
+				<thead> 
 					<tr> 
-						<th><div style='width: 15px;' >Impairment</div></th> 
-						<th><div style='width: 26px;'>Suspected Cause</div></th> 
-						<th>Suspected Source</th> 
+						<th><div style='width:60px;'>Impairment</div></th> 
+						<th><div style='width:80px;'>Suspected Cause</div></th> 
+						<th><div style='width 300px;'>Suspected Source</div></th> 
 					</tr> 
 				</thead> 
-				<tbody id='impTableBody'> 		
+				<tbody> 		
 				</tbody> 
 			</table>
 		</div>
+		
+		
+		<!-- <div id='impWaterWrapper' class='impWaterWrapper bottomRight' style='height:200px;'>
+			<table id='impTable' class='impTable tablesorter'> 
+				<thead id='impTableHead'> 
+					<tr> 
+						<th>Impairment</th> 
+						<th>Suspected Cause</th> 
+						<th>Suspected Source</th> 
+					</tr> 
+				</thead> 
+				<tbody> 		
+				</tbody> 
+			</table>
+		</div> -->
 		<!-- <div id='impWaterWrapper' class='impWaterWrapper'>
 			<div class='impTableWrapper' style='margin-top:10px'>
 				<table id='impTable' class='impTable tablesorter'></table>

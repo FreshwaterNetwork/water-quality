@@ -122,14 +122,14 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				);
 			},
 			impWaterClick: function(t, l) {
-				$('#' + t.id + 'chartHeader').text("Click on an Impaired Watershed");
+				$('#' + t.id + 'chartHeader').text("Impaired Watershed");
 				t.obj.sel = 'imp';
 				t.obj.visibleLayers = [3];
 				t.dynamicLayer.setVisibleLayers(t.obj.visibleLayers);
 				$('#' + t.id + 'home, #' + t.id + 'spatialWrapper, #' + t.id + 'huc8Wrapper').slideUp();
-				$('#' + t.id + 'clearWrapper, #' + t.id + 'hucWrapper').slideDown();
+				$('#' + t.id + 'clearWrapper, #' + t.id + 'hucWrapper, #' + t.id + 'impStartText').slideDown();
 				$('#' + t.id + 'bottomDiv').show();
-				$(t.con).animate({ height: '470px', width: '400px' }, 250,
+				$(t.con).animate({ height: '485px', width: '500px' }, 250,
 					l.hitch(t,function(){
 						t.resize();
 					})
@@ -176,7 +176,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				$('#' + t.id + 'bottomDiv').hide();
 				$('#' + t.id + 'home').slideDown();
 				$('#' + t.id + 'waterAttributes').hide();
-				$('#' + t.id + 'impWaterWrapper').hide();
+				$('#' + t.id + 'impTableWrapper, #' + t.id + 'impStartText, #' + t.id + 'noImpText').hide();
 				t.map.removeLayer(t.impWater);
 				t.obj.visibleLayers = [];
 				t.dynamicLayer.setVisibleLayers(t.obj.visibleLayers);
