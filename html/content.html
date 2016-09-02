@@ -52,20 +52,6 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
 		<div id='huc8Wrapper'>
 			<select id='ch-HUC8' data-placeholder="Select a HUC8" class="chosen-crs" tabindex="16">
 				<option value=""></option>
-				<!-- <option value="Tang_08070205">test</option> -->
-				<!-- <option value="Amit_08070202">Amite</option>
-				<option value="BaBa_08040205">Bayou Bartholomew</option>
-				<option value="BLBa_11140209">Black Lake Bayou</option>
-				<option value="BoCh_03180005">Bogue Chitto</option>
-				<option value="Boeu_08050001">Boeuf</option>
-				<option value="Cast_08040302">Castor</option>
-				<option value="LMBR_08070100">Lower Mississippi Baton Rouge</option>
-				<option value="LoOu_08040207">Lower Ouachita</option>
-				<option value="Merm_08080202">Mermentau</option>
-				<option value="MeHe_08080202">Mermentau Headwaters</option>
-				<option value="Tang_08070205">Tangipahoa</option>
-				<option value="Tick_08070203">Tickfaw</option>
-				<option value="UpCa_08080203">Upper Calcasieu</option> -->
 			</select>
 		</div>
 		<div id='spatialWrapper'>
@@ -82,7 +68,9 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
 			</div>
 			<div id='ch-pointsDiv' class='ch-divs' >
 				<label class='radioLabels samplePoints'><input name='supDataRadio' type='checkbox' id='ch-points'  value='Show Sample Points'><span>Show Sample Points</span></label>
+			
 			</div>
+			<div id='sampleValue' class='sampleValue'></div>
 		</div>
 		<div class='temporalWrapper' id='temporalWrapper'>
 			<div id='showGraphText'> Click on Water Quality Station to show graph</div>
@@ -254,8 +242,11 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
 				<div id='clickHuc12' class='clickHuc12' style= "display:none;">test huc12</div>
 				<label class='radioLabels'><input name='supDataRadio' type='radio' id='cb-soils' value='Soils Data'><span>Soils Data</span></label>
 				<div id='clickSoils' class='clickSoils'></div>
+				<label class='radioLabels'><input name='supDataRadio' type='radio' id='cb-streams' value='Streams'><span>Streams</span></label>
+				<div id='clickStreams' class='clickStreams'></div>
+				<label class='radioLabels'><input name='supDataRadio' type='radio' id='cb-bank' value='Bank'><span>Mitigation Banks</span></label>
+				<div id='clickBank' class='clickBank'></div>
 				<label class='radioLabels'><input name='supDataRadio' type='radio' id='cb-land' value='Land Cover'><span>Land Cover</span></label>
-				<div id='clickLand' class='clickLand'></div>
 				<label class='radioLabels'><input name='supDataRadio' type='radio' id='cb-none' value='None' checked="checked"><span>None</span></label>
 			</div>
 			<div id='clickSoils' class='clickSoils'></div>

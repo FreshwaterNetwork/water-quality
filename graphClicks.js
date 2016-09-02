@@ -15,10 +15,8 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 
         return declare(null, {
             doTest: function(t) {
-                console.log('graph clicks');
             },
 			samplingStationClick: function(evt, t){
-				console.log(t, 't');
 				var x = String(evt.target.attributes[10]);
 				t.sSelected = 'ss';
 				t.map.graphics.clear();
@@ -83,7 +81,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 			},
 			
 			graphShow: function(e, t, lang) {
-				console.log('graph show function')
 				t.obj.graphHideBtn = 'no';
 				$('#' + t.id + 'graphDiv').show();
 				$('#' + t.id + 'graphShow').hide();
@@ -97,7 +94,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				);
 			},
 			graphHide: function(e, t, lang) {
-				console.log('graph hide function');
 				t.obj.graphHideBtn = 'yes';
 				$('#' + t.id + 'chartHeader').text("Please choose or click on a HUC8");
 				$('#' + t.id + 'graphDiv, #' + t.id + 'impWaterWrapper, #' + t.id + 'waterAttributes, #' + t.id + "graphHide").hide();
@@ -118,7 +114,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				}
 			},
 			traitBarClick: function(e, t, lang) {
-				console.log('trait bar click');
 				var btnch = $('#' + t.id + 'traitBar').find('.buttonBar__button');
 				$.each(btnch, function(i,v){
 					$('#' + v.id).removeClass('buttonBar__selected')
@@ -153,7 +148,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				}
 			},
 			meanBarClicks: function(e, t, lang){
-				console.log('mean bar clicks');
 				if ($('#' + e.target.id).height() > 0){
 					//add and remove classes
 					var c = $('#' + t.id + 'meanBarDiv').find('.meanBars')

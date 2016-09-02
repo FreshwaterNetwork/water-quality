@@ -45,14 +45,13 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				t.map.graphics.clear();
 				t.map.removeLayer(t.samplingStations);
 
-				$(t.con).animate({ height: '525px', width: '350px' }, 250,
+				$(t.con).animate({ height: '565px', width: '350px' }, 250,
 					lang.hitch(t,function(){
 						t.resize();
 					})
 				);
 			},
 			internalTemporalClick: function(t){
-				console.log('internal temporal click');
 				// update css to show that it is clicked
 				$('#' + t.id + 'temBtn').addClass('navBtnSel');
 				$('#' + t.id + 'spaBtn').removeClass('navBtnSel');
@@ -70,10 +69,10 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				var yearIndex = t.obj.visibleLayers.indexOf(t.obj.yearSelected);
 				if(yearIndex > -1){
 					// t.obj.visibleLayers = [2,0];
-					t.obj.visibleLayers.splice(yearIndex,1);
+					t.obj.visibleLayers.splice(yearIndex,1, 0);
 				}
 				t.dynamicLayer.setVisibleLayers(t.obj.visibleLayers);
-				$(t.con).animate({ height: '445px', width: '350px' }, 250,
+				$(t.con).animate({ height: '485px', width: '350px' }, 250,
 					lang.hitch(t,function(){
 						t.resize();
 					})
@@ -81,7 +80,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 			},
 			spatialClick: function(t){
 				t.obj.graphOpen = '';
-				console.log('external spatial click');
 				// update css to show that it is clicked
 				$('#' + t.id + 'spaBtn').addClass('navBtnSel');
 				$('#' + t.id + 'temBtn').removeClass('navBtnSel');
@@ -93,29 +91,25 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				//t.addHuc8();
 				t.obj.visibleLayers = [2];
 				t.dynamicLayer.setVisibleLayers(t.obj.visibleLayers);
-				$(t.con).animate({ height: '525px', width: '350px' }, 250,
+				$(t.con).animate({ height: '565px', width: '350px' }, 250,
 					lang.hitch(t,function(){
 						t.resize();
 					})
 				);
 			},
 			temporalClick: function(t){
-				console.log('external temporal click');
-				//t.map.setMapCursor('pointer');
 				//update css to show that it is clicked
 				$('#' + t.id + 'temBtn').addClass('navBtnSel');
 				$('#' + t.id + 'spaBtn').removeClass('navBtnSel');
 				t.obj.sel = "tm"
-				//t.map.addLayer(t.samplingStations);
-				//t.addHuc8();
-				t.obj.visibleLayers = [2];
+				t.obj.visibleLayers = [0,2];
 				t.dynamicLayer.setVisibleLayers(t.obj.visibleLayers);
 				$('#' + t.id + 'graphDiv').hide();
 				$('#' + t.id + 'graphHide, #' + t.id + 'graphShow, #' + t.id + 'graphDiv').hide();
 				$('#' + t.id + 'home, #' + t.id + 'spatialWrapper').slideUp();
 				$('#' + t.id + 'showGraphText').show();
 				$('#' + t.id + 'topWrapper, #' + t.id + 'hucWrapper, #' + t.id + 'temporalWrapper, #' + t.id + 'huc8Wrapper').slideDown();
-				$(t.con).animate({ height: '445px', width: '350px' }, 250,
+				$(t.con).animate({ height: '485px', width: '350px' }, 250,
 					lang.hitch(t,function(){
 						t.resize();
 					})
@@ -137,10 +131,10 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 			},
 			homeButtonClick: function(t){
 				t.obj.graphOpen = '';
-				console.log('clear button click');
 				t.map.setMapCursor('default');
 				// remove graphics when clearing
 				t.map.graphics.clear();
+				t.huc8.clear();
 				t.soils.clear();
 				t.huc12.clear();
 				$('#' + t.id + 'cb-none, #' + t.id + 'graphHide').trigger("click");
@@ -153,12 +147,15 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				$('#' + t.id + 'topWrapper, #' + t.id + 'supData, #' + t.id + 'temporalWrapper, #' + t.id + 'hucWrapper').slideUp();
 				$('#' + t.id + 'bottomDiv').hide();
 				$('#' + t.id + 'home').slideDown();
+				$('#' + t.id + 'sampleValue').hide();
 				t.obj.traitSelected = '';
 				t.map.removeLayer(t.land);
 				t.map.removeLayer(t.soils);
 				t.map.removeLayer(t.samplingStations);
 				t.map.removeLayer(t.huc8);
+				t.map.removeLayer(t.huc8_click);
 				t.map.removeLayer(t.impWater);
+				t.map.removeLayer(t.samplePoints);
 				t.obj.visibleLayers = []
 				t.dynamicLayer.setVisibleLayers(t.obj.visibleLayers);
 				$(t.con).animate({ height: '250px', width: '350px' }, 250,
@@ -168,7 +165,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				);
 			},
 			impClear: function(t){
-				console.log('imp clear')
 				t.map.graphics.clear();
 				t.map.setExtent(t.dynamicLayer.initialExtent, true);
 				$('#' + t.id + 'chartHeader').text("Please choose or click on a HUC8");

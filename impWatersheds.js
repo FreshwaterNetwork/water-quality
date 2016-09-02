@@ -15,7 +15,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 
         return declare(null, {
             // doTest: function(t) {
-                // console.log(t.map);
 				// t.wx = 'after';
 				// t.test1 = new test1();
 				// t.test1.doTest1();
@@ -35,7 +34,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				);
 			}, */
 			// impSelectionComplete: function(f,t,l){
-				// console.log(f.features[0], 'features')
 				// imp watershed selection symbol
 				// var impWaterShedSelectionN = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
 						// new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
@@ -73,7 +71,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					// }
 
 					// if (f.features[0].attributes.TMDL_Priority == 'N'){
-						// console.log('no data in t imp watershed');
 						// var html = $('#' + t.id + 'waterName').html("<b>Watershed Name:</b> " + waterName);
 						// var html = $('#' + t.id + 'waterDesc').html("<b>Watershed Description:</b> " + waterDesc);
 						// var html = $('#' + t.id + 'waterID').html("<b>Watershed ID:</b> " + waterID);
@@ -103,8 +100,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 						// var html = $('#' + t.id + 'waterID').html("<b>Watershed ID:</b> " + waterID);
 						
 						// if(f.features.length > 0){
-							// console.log(f.features[0].geometry.getExtent());
-							
 							// var impExtent = f.features[0].geometry.getExtent().expand(3);
 							// t.map.setExtent(impExtent, true);
 							// t.shiftMapCenter(t.map.extent, f.features[0].geometry.getCentroid());

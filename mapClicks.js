@@ -15,7 +15,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 
         return declare(null, {
 			mapClick: function(evt, t){
-				console.log('map click')
 				var pnt = evt.mapPoint;
 				t.hQuery = new esri.tasks.Query();
 				t.hQuery.geometry = pnt;
@@ -31,8 +30,8 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				}
 				t.sSelected = 'map';
 			},
+			
 			huc8SelComplete: function(f,t){
-				console.log('huc 8 sel complete');
 				if(f.features.length > 0){
 					if(t.obj.huc8Selected[0] == 'Merm'){
 						var huc8Extent = f.features[0].geometry.getExtent().expand(1);
@@ -45,21 +44,17 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				}
 			},
 			huc8ClickSelComplete: function(f,t){
-				console.log('huc 8 click sel complete');
 				if(f.features.length > 0){
 					// only allow a trigger of the dropdown menu if it has not been selected
 					if(f.features[0].attributes.Abbr == t.obj.huc8Selected[0]){
-						console.log('t huc8 has already been selected');
 					}else{
 						var huc8ClickVal = f.features[0].attributes.Abbr + '_' + f.features[0].attributes.HUC_8;
 						$('#' + t.id + 'ch-HUC8').val(huc8ClickVal).trigger('chosen:updated').trigger('change');
 					}
 				} else{
-					console.log('you did not click on a huc8 and did not activate a huc 8 click');
 				}
 			},
 			huc12SelComplete: function(f,t){
-				console.log('huc 12 sel complete');
 				if(f.features.length > 0){
 					$('#' + t.id + 'clickHuc12').show();
 					var acres = numberWithCommas(f.features[0].attributes.ACRES);
@@ -112,7 +107,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					}
 
 					if (f.features[0].attributes.TMDL_Priority == 'N'){
-						console.log('no data in t imp watershed');
 						var html = $('#' + t.id + 'waterName').html("<b>Subsegment Name:</b> " + waterName);
 						var html = $('#' + t.id + 'waterDesc').html("<b>Subsegment Description:</b> " + waterDesc);
 						var html = $('#' + t.id + 'waterID').html("<b>Subsegment ID:</b> " + waterID);
@@ -153,23 +147,15 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 			shiftMapCenter: function(t, extent, featCentroid) {
 				// var extentDiff = extent.xmin - extent.xmax;
 				// extentDiff = extentDiff * .10; // 10 percent difference
-				// console.log(Math.abs(extentDiff), 'diff');
 				// var newCentroidX = featCentroid.x + Math.abs(extentDiff);
-				// console.log(newCentroidX, 'new centroid');
 				// var point = new esri.geometry.Point(newCentroidX, featCentroid.y, t.map.spatialReference);
-				// console.log(point, 'point');
 				// this.map.centerAt(point);
-				// console.log(this.map.centroid)
 				var screenWidth = window.innerWidth - 85;
 				var conWidth = Number(t.con.style.width.slice(0,-2));
 				var leftDivEdge = 70  + conWidth;
-				console.log(leftDivEdge, screenWidth , 'left edge div and screen width');
 				var conPercent =  leftDivEdge/screenWidth * 100;
-				console.log(conPercent, 'percent');
 				var mapExtent = t.map.extent;
-				console.log(mapExtent, 'map extent');
 				// if (screenWidth < 1800){
-					// console.log('screen is less than 1800px');
 				// }
 			},
         });

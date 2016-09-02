@@ -15,7 +15,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 
         return declare(null, {
             doTest: function(t) {
-                console.log('graph clicks');
             },
 			saveStateFunc: function(t){
 				//start of handleState.js

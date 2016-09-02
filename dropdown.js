@@ -15,7 +15,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 
         return declare(null, {
             doTest: function(t) {
-                console.log('graph clicks');
             },
 			huc8Select: function(c, p, t){
 				// clear traits value if huc 8 dropdown menu was cleared
@@ -34,6 +33,9 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					t.obj.spatialLayerArray = [2];
 					t.obj.visibleLayers = [2];
 					t.dynamicLayer.setVisibleLayers(t.obj.visibleLayers);
+					t.map.removeLayer(t.samplePoints);
+					$('#' + t.id + 'ch-points').prop( "checked", false ).trigger('change');
+					
 					$('#' + t.id + 'ch-traits').val('').trigger('chosen:updated');
 					var val = $('#' + t.id + 'ch-HUC8').val();
 					$('#' + t.id + 'ch-traitsDiv').show();
@@ -55,7 +57,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					if(t.obj.sel == "tm"){
 						t.dropdown.traitPopulate(t);
 						$('#' + t.id + "supData").slideDown();
-						t.obj.visibleLayers = [2];
+						t.obj.visibleLayers = [0,2];
 						t.dynamicLayer.setVisibleLayers(t.obj.visibleLayers);
 						t.map.addLayer(t.samplingStations);
 					}
@@ -63,6 +65,16 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					t.selectHuc8.where = "HUC_8 = '" + t.obj.huc8Selected[1] + "'";
 					t.huc8.selectFeatures(t.selectHuc8, FeatureLayer.SELECTION_NEW);
 				} else{
+					t.map.removeLayer(t.land);
+					t.map.removeLayer(t.soils);
+					t.map.removeLayer(t.samplingStations);
+					t.map.removeLayer(t.huc8);
+					t.map.removeLayer(t.huc8_click);
+					t.map.removeLayer(t.impWater);
+					t.map.removeLayer(t.samplePoints);
+					$('#' + t.id + 'sampleValue').hide();
+					t.obj.visibleLayers = [2]
+					t.dynamicLayer.setVisibleLayers(t.obj.visibleLayers);
 					t.map.setExtent(t.dynamicLayer.initialExtent, true);
 					$('#' + t.id + 'supData').slideUp();
 					var ch = $('#' + t.id + 'spatialWrapper').find('.ch-divs');
@@ -93,28 +105,27 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					$('#' + t.id + 'ch-years').trigger("chosen:updated");
 					$('#' + t.id + 'ch-yearsDiv').slideDown();
 				} else{
-					console.log('no trait selected');
 					$('#' + t.id + 'ch-years').val('').trigger("chosen:updated");
 					$('#' + t.id + 'ch-yearsDiv').slideUp();
+					$('#' + t.id + 'sampleValue').hide();
 				};
 			},
 			yearsSelect: function(c,v,t){
 				if(v || t.stateYear == 'yes'){
-					console.log('years select');
 					// remove a raster layer if it already exists in the layers array. this keeps the rasters from stacking on each other
-					var index = t.obj.spatialLayerArray.indexOf(t.obj.yearSelected);
+					var index = t.obj.spatialLayerArray.indexOf(Number(t.obj.yearSelected));
 					if(index > -1){
 						t.obj.spatialLayerArray.splice(index,1);
 					}
-					var index = t.obj.visibleLayers.indexOf(t.obj.yearSelected);
+					var index = t.obj.visibleLayers.indexOf(Number(t.obj.yearSelected));
 					if(index > -1){
 						t.obj.visibleLayers.splice(index,1);
 					}
 					$('#' + t.id + 'ch-pointsDiv').slideDown();
 					t.obj.yearSelected = $('#' + t.id + 'ch-years').val();
-					t.obj.spatialLayerArray.push(t.obj.yearSelected);
-					t.obj.visibleLayers.push(t.obj.yearSelected);
-						t.dynamicLayer.setVisibleLayers(t.obj.visibleLayers);
+					t.obj.spatialLayerArray.push(Number(t.obj.yearSelected));
+					t.obj.visibleLayers.push(Number(t.obj.yearSelected));
+					t.dynamicLayer.setVisibleLayers(t.obj.visibleLayers);
 					var lyrName = '';
 					$.each(t.layersArray, lang.hitch(t,function(i,v){
 						if(v.id == t.obj.yearSelected){
@@ -124,20 +135,21 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					}));
 					t.samplePoints.setDefinitionExpression("raster = '" + lyrName + "'");
 				} else{
-					var index = t.obj.spatialLayerArray.indexOf(t.obj.yearSelected);
+					var index = t.obj.spatialLayerArray.indexOf(Number(t.obj.yearSelected));
 					if(index > -1){
 						t.obj.spatialLayerArray.splice(index,1);
 					}
-					var index = t.obj.visibleLayers.indexOf(t.obj.yearSelected);
+					var index = t.obj.visibleLayers.indexOf(Number(t.obj.yearSelected));
 					if(index > -1){
 						t.obj.visibleLayers.splice(index,1);
 					}
-					$('#' + t.id + 'ch-years').empty();
+					//$('#' + t.id + 'ch-years').empty();
 					$('#' + t.id + 'ch-years').val('').trigger('chosen:updated');
 					$('#' + t.id + 'ch-pointsDiv').hide();
+					$('#' + t.id + 'sampleValue').hide();
 					//t.obj.yearSelected = undefined;
 					t.dynamicLayer.setVisibleLayers(t.obj.visibleLayers);
-					//$('#' + t.id + 'ch-points').prop( "checked", false ).trigger('change');
+					$('#' + t.id + 'ch-points').prop( "checked", false ).trigger('change');
 
 				}
 			},
@@ -147,12 +159,13 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					t.obj.samplePointChecked = 'yes';
 					t.map.addLayer(t.samplePoints);
 				}else{
+					$('#' + t.id + 'sampleValue').hide();
 					t.map.removeLayer(t.samplePoints);
 				}
 			},
 			
+			
 			traitPopulate: function(t){
-				console.log('trait populate');
 				t.obj.traitArray = [];
 				// something was selected
 				$.each(t.layersArray, lang.hitch(t,function(i,v){

@@ -130,7 +130,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 			huc8Results: function(results){
 				var resultItems = [];
 				var resultCount =  results.features.length;
-				console.log(resultCount);
 			},
 // START OF THE RENDER FUNCTION ////////////////////////////////////////////////////////////////////////////////////////////////////////
 			render: function() {
@@ -166,7 +165,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 // ENABLE TABLESORTER FUNCTION /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 				// Enable jquery plugin 'tablesorter'
 				require(["jquery", "plugins/water-quality/js/tablesorter"],lang.hitch(this,function($) {
-					// console.log($("#" + this.id + "impTable"));
 					// $("#" + this.id + "impTable").tablesorter({
 						// widthFixed : true,
 						// headerTemplate : '{content} {icon}', // Add icon for various themes
@@ -204,27 +202,19 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				}));
 				
 // Populate huc 8 dropdown /////////////////////////////////////////////			
-				var queryTask = new QueryTask("http://cirrus-web-adapter-241060755.us-west-1.elb.amazonaws.com/arcgis/rest/services/FN_Louisiana/NRCS_Water_Quality/MapServer/2")
+				var queryTask = new QueryTask(this.obj.url + "/2")
 				var query = new Query();
 				query.returnGeometry = false;
-				query.outFields = ['Abbr', 'HUC_8'];
+				query.outFields = ['Abbr', 'HUC_8', 'clean_names'];
 				query.where = "OBJECTID > -1"
-				console.log(this.id, 'This.id');
-				console.log(query, 'this.query');
-				
-				
 				queryTask.execute(query, lang.hitch(this, function(results){
 					var f = results.features;
 					$('#' + this.id + 'ch-HUC8').append('<option value=""></option>');
-					//$('#' + this.id + 'ch-HUC8').empty();
 					$.each(f, lang.hitch(this, function(i,v){
-						
-						console.log(v);
-						abbr = v.attributes.Abbr;
-						HUC_8 = v.attributes.HUC_8
-						console.log(abbr, HUC_8)
+						var abbr = v.attributes.Abbr;
+						var HUC_8 = v.attributes.HUC_8
+						var cleanNames = v.attributes.clean_names
 						huc8Value = abbr + "_" + HUC_8
-						
 						if (abbr == "Merm"){
 							var val = "Mermentau"
 						}
@@ -236,12 +226,9 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 						}
 						
 						huc8HTML = '<option value="' + huc8Value + '">' + 'test' + '</option>'
-						console.log(huc8HTML);
-						console.log($('#' + this.id + 'ch-HUC8'));
-						$('#' + this.id + 'ch-HUC8').append('<option value="' + huc8Value + '">' + val + '</option>');
+						$('#' + this.id + 'ch-HUC8').append('<option value="' + huc8Value + '">' + cleanNames + '</option>');
 					}));
 					$('#' + this.id + 'ch-HUC8').trigger("chosen:updated");
-					console.log(results);
 				}));
 					
 				
@@ -258,6 +245,11 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					new Color([236,239,222,.25]));
 				// soil symbol
 				this.soilsSym = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
+						new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
+						new Color([100,100,0,1]), 2),
+						new Color([100,100,0,0.3]));
+						// soil symbol
+				this.streamsSym = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
 						new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
 						new Color([100,100,0,1]), 2),
 						new Color([100,100,0,0.3]));
@@ -305,7 +297,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				// land cover data
 				this.land = new FeatureLayer(this.obj.url + "/10", { mode: esri.layers.FeatureLayer.MODE_SELECTION, outFields: "*"}); ;
 				// sample points layer
-				this.samplePoints = new FeatureLayer(this.obj.url + "/14", { mode: esri.layers.FeatureLayer.MODE_SNAPSHOT, outFields: "*"});
+				this.samplePoints = new FeatureLayer(this.obj.url + "/4", { mode: esri.layers.FeatureLayer.MODE_SNAPSHOT, outFields: "*"});
 				this.samplePoints.setRenderer(new SimpleRenderer(this.pntSym));
 				//sampling stations layer
 				this.samplingStations = new FeatureLayer(this.obj.url + "/0", { mode: esri.layers.FeatureLayer.MODE_ONDEMAND, outFields: "*"});
@@ -336,7 +328,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				// build the secend huc 8 selection complete here
 				// on selection complete of the huc8 click
 				this.huc8_click.on("selection-complete", lang.hitch(this,function(f){
-					console.log('huc 8 click');
 					this.mapClicks.huc8ClickSelComplete(f,this);
 				}));
 				// on selection complete for huc 12.
@@ -449,6 +440,15 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 						this.spid = this.obj.visibleLayers[0];
 					}
 					this.layersArray = this.dynamicLayer.layerInfos;
+					
+					// create supData array on load of app
+					this.supDataArray = [];
+					$.each(this.layersArray, lang.hitch(this,function(i,v){
+						if(v.name.includes('soils') == true || v.name.includes('Land Cover') == true || v.name.includes('streams') == true ||v.name.includes('HUC 12') == true || v.name.includes('banks') == true){
+							this.supDataArray.push(v.id)
+						}
+					}));
+					
 // Set State Logic ///////////////////////////////////////////////////////////////////////////////////////////////////
 					require(["jquery", "plugins/water-quality/js/chosen.jquery"],lang.hitch(this,function($) {
 						if (this.obj.stateSet == 'yes'){
@@ -510,6 +510,16 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					$('#' + this.id + 'ch-points').on('change',lang.hitch(this,function(v){
 						this.dropdown.samplePointClick(v,this);
 					}));
+					this.samplePoints.on("click", lang.hitch(this,function(evt){
+						console.log('test click')
+						console.log(evt.graphic.attributes.value_mean);
+						var val = evt.graphic.attributes.value_mean.toFixed(2)
+						$('#' + this.id + 'sampleValue').show();
+						var c = "<div style='padding:6px; font-size:16px;'><b>Station Value: </b>" + val + "</div>";
+						//var content = esriLang.substitute(f.features[0].attributes,c);
+						$('#' + this.id + 'sampleValue').html(c);
+						
+					}));
 					// this function removes duplicates from any list, used above on the traitArray
 					function unique(list){
 						var result = [];
@@ -525,6 +535,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				$('#' + this.id + 'supDataDiv input:radio').on('click', lang.hitch(this,function(c){
 					this.supportingData.supRadioClick(this, c);
 				}));
+				
 				
 				// $('#' + this.id + 'cb-huc12').trigger("click");
 				//$('#' + this.id + 'supDataDiv input:radio').val().trigger('click');
