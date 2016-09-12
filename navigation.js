@@ -31,7 +31,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				t.map.removeLayer(t.samplingStations);
 				// push year is to spatial array if year has been selected.
 				if (t.obj.yearSelected != undefined){
-					t.obj.spatialLayerArray.push(t.obj.yearSelected)
+					t.obj.spatialLayerArray.push(Number(t.obj.yearSelected))
 				}
 				t.obj.spatialLayerArray = unique(t.obj.spatialLayerArray);
 				t.obj.visibleLayers = t.obj.spatialLayerArray;
@@ -66,7 +66,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					//t.obj.visibleLayers.push(0)
 					t.map.addLayer(t.samplingStations);
 				}
-				var yearIndex = t.obj.visibleLayers.indexOf(t.obj.yearSelected);
+				var yearIndex = t.obj.visibleLayers.indexOf(Number(t.obj.yearSelected));
 				if(yearIndex > -1){
 					// t.obj.visibleLayers = [2,0];
 					t.obj.visibleLayers.splice(yearIndex,1, 0);

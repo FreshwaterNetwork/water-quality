@@ -17,6 +17,9 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
             doTest: function(t) {
             },
 			supRadioClick: function(t, c){
+				if(t.bankChecked == 'yes'){
+					t.map.removeLayer(t.bank);
+				}
 				// write a function here to see if the layers exist, if they do remove them
 				$('#' + t.id + 'clickHuc12').hide();
 				$('#' + t.id + 'clickHuc12').html('');
@@ -25,6 +28,8 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				t.map.graphics.clear();
 				t.soils.clear();
 				t.huc12.clear();
+				//t.banks.clear();
+				//t.map.removeLayer(t.bank);
 				// make an array to loop through soils layers
 				$.each(t.supDataArray, lang.hitch(t, function(i,v){
 					var index = t.obj.spatialLayerArray.indexOf(v);
@@ -41,7 +46,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					t.obj.spatialLayerArray.push(1);
 					t.obj.visibleLayers.push(1);
 					t.obj.supLayer = "cb-huc12";
-					console.log(t.obj.huc8Selected[1])
 					t.obj.layerDefs[1] = "HUC_8 = '" + t.obj.huc8Selected[1] +"'";
 					t.dynamicLayer.setLayerDefinitions(t.obj.layerDefs);
 					if (t.obj.visibleLayers.length < 2 ){
@@ -67,37 +71,39 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					}
 				}
 				if (c.currentTarget.value == "Streams"){
-					console.log('streams click')
 					t.obj.supLayer = 'cb-streams';
 					t.obj.streamsID = '';
 					$.each(t.layersArray, lang.hitch(t,function(i,v){
-						//console.log(t.obj.huc8Selected[0] + ' named streams', v.name)
 						if (t.obj.huc8Selected[0] + '_named_streams_web' == v.name){
 							t.obj.streamsID = v.id;
 							t.obj.spatialLayerArray.push(t.obj.streamsID);
 							t.obj.visibleLayers.push(t.obj.streamsID);
-							console.log(t.obj.visibleLayers);
 							return false;
 						}
 					}));
 					$('#' + t.id + 'bottomDiv').show();
 				}
 				if (c.currentTarget.value == "Bank"){
-					console.log('banks click')
+					t.bankChecked = 'yes';
 					t.obj.supLayer = 'cb-bank';
 					t.obj.bankID = '';
 					$.each(t.layersArray, lang.hitch(t,function(i,v){
-						//console.log(t.obj.huc8Selected[0] + ' named streams', v.name)
 						if (t.obj.huc8Selected[0] + '_mitigation_banks_web' == v.name){
 							t.obj.bankID = v.id;
-							console.log(t.obj.bankID, v.name);
 							t.obj.spatialLayerArray.push(t.obj.bankID);
 							t.obj.visibleLayers.push(t.obj.bankID);
-							console.log(t.obj.visibleLayers);
 							return false;
 						}
 					}));
 					$('#' + t.id + 'bottomDiv').show();
+					
+					var bankURL  = t.obj.url + '/' + t.obj.bankID
+					t.bank = new FeatureLayer(bankURL, { mode: esri.layers.FeatureLayer.MODE_SNAPSHOT, outFields: "*"}); 
+					t.bank.setSelectionSymbol(t.streamsSym);
+					t.map.addLayer(t.bank);
+					t.bank.on('click', lang.hitch(t,function(evt){
+						console.log(evt,'evt')
+					}));
 				}
 				
 				if (c.currentTarget.value == "Land Cover"){
@@ -125,7 +131,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				var id = t.id;
 				t.soils.clear();
 				t.huc12.clear();
-				if(t.obj.supLayer == 'none' || t.obj.supLayer == 'cb-land'){
+				if(t.obj.supLayer == 'none' || t.obj.supLayer == 'cb-land' || t.obj.supLayer == 'cb-bank'){
 					t.huc8_click.selectFeatures(t.hQuery,esri.layers.FeatureLayer.SELECTION_NEW);
 				}
 				if(t.obj.supLayer == 'cb-streams'){
@@ -136,41 +142,17 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					t.streams.selectFeatures(t.hQuery, { mode: esri.layers.FeatureLayer.MODE_SELECTION, outFields: "*"});
 					t.streams.on("selection-complete", lang.hitch(t,function(f){
 						if (f.features.length > 0){
-							console.log('found a stream')
 							$('#' + id + 'clickBank').show();
 							var c = "<div class='supDataText' style='padding:6px;'><b>Soil Type: </b>${GNIS_Name}</div>";
 							var content = esriLang.substitute(f.features[0].attributes,c);
 							$('#' + id + 'clickBank').html(content);
 						}else{
-							console.log('did not hit a stream')
 							var query = new esri.tasks.Query();
 							query.geometry = t.hQuery.geometry;
 							t.huc8_click.selectFeatures(query,esri.layers.FeatureLayer.SELECTION_NEW);
 						}
 					}));
 				}
-				if(t.obj.supLayer == 'cb-bank'){
-					var bankURL  = t.obj.url + '/' + t.obj.bankID
-					t.bank = new FeatureLayer(bankURL, { mode: esri.layers.FeatureLayer.MODE_SELECTION, outFields: "*"}); 
-					t.bank.setSelectionSymbol(t.streamsSym);
-					t.map.addLayer(t.bank);
-					t.bank.selectFeatures(t.hQuery, { mode: esri.layers.FeatureLayer.MODE_SELECTION, outFields: "*"});
-					t.bank.on("selection-complete", lang.hitch(t,function(f){
-						if (f.features.length > 0){
-							console.log('found a bank')
-							$('#' + id + 'clickBank').show();
-							var c = "<div class='supDataText' style='padding:6px;'><b>Soil Type: </b>${Name}</div>";
-							var content = esriLang.substitute(f.features[0].attributes,c);
-							$('#' + id + 'clickBank').html(content);
-						}else{
-							console.log('did not hit a bank')
-							var query = new esri.tasks.Query();
-							query.geometry = t.hQuery.geometry;
-							t.huc8_click.selectFeatures(query,esri.layers.FeatureLayer.SELECTION_NEW);
-						}
-					}));
-				}
-				
 				
 				if (t.obj.supLayer == 'cb-huc12'){
 					t.hQuery.where = "HUC_8 = '" + t.obj.huc8Selected[1] + "'";

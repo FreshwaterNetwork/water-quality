@@ -280,6 +280,14 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 						new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
 						new Color([0,46,115]), 3),
 						new Color([236,239,222,0]));
+				this.sampleSym = new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_CIRCLE, 13,
+						new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
+						new Color([	64, 140, 180]), 4),
+						new Color([	200, 132, 29,0]));
+				this.bankSym = new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_CIRCLE, 13,
+						new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
+						new Color([	64, 140, 180]), 4),
+						new Color([	200, 132, 29,0]));
 // FEATURE LAYERS /////////////////////////////////////////////////////////////////////////////////////////////////////////
 				// set all feature layers and set selection symbols
 				// huc8
@@ -509,11 +517,14 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					this.map = this.map
 					$('#' + this.id + 'ch-points').on('change',lang.hitch(this,function(v){
 						this.dropdown.samplePointClick(v,this);
+						this.map.graphics.clear();
 					}));
 					this.samplePoints.on("click", lang.hitch(this,function(evt){
-						console.log('test click')
-						console.log(evt.graphic.attributes.value_mean);
+						this.map.graphics.clear();
+						var sampleGraphic = new Graphic(evt.graphic.geometry,this.sampleSym);
+						this.map.graphics.add(sampleGraphic);
 						var val = evt.graphic.attributes.value_mean.toFixed(2)
+						console.log(val, evt.graphic.attributes.value_mean);
 						$('#' + this.id + 'sampleValue').show();
 						var c = "<div style='padding:6px; font-size:16px;'><b>Station Value: </b>" + val + "</div>";
 						//var content = esriLang.substitute(f.features[0].attributes,c);
