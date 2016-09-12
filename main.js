@@ -284,9 +284,9 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 						new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
 						new Color([	64, 140, 180]), 4),
 						new Color([	200, 132, 29,0]));
-				this.bankSym = new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_CIRCLE, 13,
+				this.bankSym = new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_CIRCLE, 15,
 						new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
-						new Color([	64, 140, 180]), 4),
+						new Color([	64, 140, 180]), 3),
 						new Color([	200, 132, 29,0]));
 // FEATURE LAYERS /////////////////////////////////////////////////////////////////////////////////////////////////////////
 				// set all feature layers and set selection symbols
