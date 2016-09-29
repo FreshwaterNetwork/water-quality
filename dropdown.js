@@ -30,6 +30,10 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				$('#' + t.id + 'ch-traits').empty();
 				// if something was selected in the huc 8 dropdown
 				if(p || t.obj.stateSet == 'yes'){
+					if (t.streamsChecked == 'yes'){
+						console.log('look here')
+						t.map.removeLayer(t.streams);
+					}
 					t.obj.spatialLayerArray = [2];
 					t.obj.visibleLayers = [2];
 					t.dynamicLayer.setVisibleLayers(t.obj.visibleLayers);
@@ -65,18 +69,22 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					t.selectHuc8 = new Query();
 					t.selectHuc8.where = "HUC_8 = '" + t.obj.huc8Selected[1] + "'";
 					t.huc8.selectFeatures(t.selectHuc8, FeatureLayer.SELECTION_NEW);
+					
 				} else{
+					console.log('look here')
 					t.map.removeLayer(t.land);
 					t.map.removeLayer(t.soils);
 					t.map.removeLayer(t.samplingStations);
 					t.map.removeLayer(t.huc8);
 					t.map.removeLayer(t.streams);
-					
 					t.map.removeLayer(t.huc8_click);
 					t.map.removeLayer(t.impWater);
 					t.map.removeLayer(t.samplePoints);
 					if(t.bankChecked == 'yes'){
 						t.map.removeLayer(t.bank);
+					}
+					if (t.streamsChecked == 'yes'){
+						t.map.removeLayer(t.streams);
 					}
 					$('#' + t.id + 'sampleValue').hide();
 					t.obj.visibleLayers = [2]
