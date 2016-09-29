@@ -116,6 +116,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				);
 			},
 			impWaterClick: function(t, l) {
+				t.map.addLayer(t.impWater);
 				$('#' + t.id + 'chartHeader').text("Impaired Watershed");
 				t.obj.sel = 'imp';
 				t.obj.visibleLayers = [3];
@@ -137,6 +138,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				t.huc8.clear();
 				t.soils.clear();
 				t.huc12.clear();
+				t.streams.clear();
 				$('#' + t.id + 'cb-none, #' + t.id + 'graphHide').trigger("click");
 				$('#' + t.id + 'graphShow').hide();
 				$('#' + t.id + 'ch-traitsDiv, #' + t.id + 'ch-yearsDiv').slideUp();

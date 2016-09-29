@@ -27,11 +27,15 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				$('#' + t.id + 'clickSoils').html('');
 				$('#' + t.id + 'clickBank').hide();
 				$('#' + t.id + 'clickBank').html('');
+				$('#' + t.id + 'clickStreams').hide();
+				$('#' + t.id + 'clickStreams').html('');
 				t.map.graphics.clear();
 				t.soils.clear();
 				t.huc12.clear();
+				t.map.removeLayer(t.streams);
+				//t.streams.clear();
 				//t.banks.clear();
-				//t.map.removeLayer(t.bank);
+				t.map.removeLayer(t.streams);
 				// make an array to loop through soils layers
 				$.each(t.supDataArray, lang.hitch(t, function(i,v){
 					var index = t.obj.spatialLayerArray.indexOf(v);
@@ -89,18 +93,29 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					
 					var streamsURL  = t.obj.url + '/' + t.obj.streamsID
 					t.streams = new FeatureLayer(streamsURL, { mode: esri.layers.FeatureLayer.MODE_SNAPSHOT, outFields: "*"}); 
-					//t.map.addLayer(t.streams);
-					t.streams.on('click', lang.hitch(t,function(evt){
-						console.log('streams clikc');
-						// this.map.graphics.clear();
-						// var bankGraphic = new Graphic(evt.graphic.geometry,t.bankSym);
-						// this.map.graphics.add(bankGraphic);
-						// console.log(evt.graphic.attributes,'evt')
-						// $('#' + t.id + 'clickBank').show();
-						// var val = evt.graphic.attributes.Name
-						// var c = "<div class='supDataText' style='padding:6px;'><b>Name : </b>" + val + "</div>";
-						// $('#' + t.id + 'clickBank').html(c);
+					t.map.addLayer(t.streams);
+					t.streams.on('mouse-over', lang.hitch(t,function(evt){
+						t.map.graphics.clear();
+						console.log('mouse over')
+						var streamGraphic = new Graphic(evt.graphic.geometry,t.huc8highlightSymbol);
+						t.map.graphics.add(streamGraphic);
+						$('#' + t.id + 'clickStreams').show();
+						var val = evt.graphic.attributes.GNIS_Name
+						var c = "<div class='supDataText' style='padding:6px;'><b>Name : </b>" + val + "</div>";
+						$('#' + t.id + 'clickStreams').html(c);
 					}));
+					
+					// t.streams.on('click', lang.hitch(t,function(evt){
+						// console.log('streams clikc');
+						// this.map.graphics.clear();
+						// var streamGraphic = new Graphic(evt.graphic.geometry,t.huc8highlightSymbol);
+						// this.map.graphics.add(streamGraphic);
+						// console.log(evt.graphic.attributes,'evt')
+						// $('#' + t.id + 'clickStreams').show();
+						// var val = evt.graphic.attributes.GNIS_Name
+						// var c = "<div class='supDataText' style='padding:6px;'><b>Name : </b>" + val + "</div>";
+						// $('#' + t.id + 'clickStreams').html(c);
+					// }));
 				}
 				if (c.currentTarget.value == "Bank"){
 					t.bankChecked = 'yes';
@@ -153,8 +168,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					}
 				}
 				t.dynamicLayer.setVisibleLayers(t.obj.visibleLayers);
-				console.log($('#' + t.id + 'legend-container-0').find('span'));
-				//$('#' + t.id + 'legend-container-0' span).val();
 				
 			},
 			supDataFunction: function(t, f){

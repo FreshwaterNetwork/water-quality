@@ -50,6 +50,8 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					$('#' + this.id + 'ch-HUC8').val('').trigger('chosen:updated');
 					$('#' + this.id + 'ch-HUC8').trigger('change');
 				}
+				// trigger clear button to remove all huc 8's when closing app
+				$('#' + this.id + 'clearBtn').trigger('click');
 			},
 // ACTIVATE FUNCTION /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			// Called after hibernate at app startup. Calls the render function which builds the plugins elements and functions.
@@ -74,7 +76,8 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 			},
 			// Called when user hits the minimize '_' icon on the pluging. Also called before hibernate when users closes app by clicking 'X'.
 			deactivate: function () {
-				//$('.legend').removeClass("hideLegend");
+				
+				
 			},
 // GET STATE FUNCTION /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			// Called when user hits 'Save and Share' button. This creates the url that builds the app at a given state using JSON.
@@ -276,7 +279,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 						new Color([0,0,255]), 3),
 						new Color([206,200,58,0]));
 				// huc 8 highlight symbol
-				var huc8highlightSymbol = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
+				this.huc8highlightSymbol = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
 						new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
 						new Color([0,46,115]), 3),
 						new Color([236,239,222,0]));
@@ -288,12 +291,29 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 						new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
 						new Color([	64, 140, 180]), 3),
 						new Color([	200, 132, 29,0]));
+				// imp watershed selection symbol
+				this.impWaterShedSelectionN = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
+						new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
+						new Color([53, 154, 0]), 3),
+						new Color([236,239,222,.15]));
+				this.impWaterShedSelectionL = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
+						new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
+						new Color([216,216,0]), 3),
+						new Color([236,239,222,.15]));
+				this.impWaterShedSelectionM = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
+						new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
+						new Color([	216,144,0]), 3),
+						new Color([236,239,222,.15]));
+				this.impWaterShedSelectionH = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
+						new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
+						new Color([216,0,0]), 3),
+						new Color([236,239,222,.15]));
 // FEATURE LAYERS /////////////////////////////////////////////////////////////////////////////////////////////////////////
 				// set all feature layers and set selection symbols
 				// huc8
 				this.huc8 = new FeatureLayer(this.obj.url + "/2", { mode: esri.layers.FeatureLayer.MODE_SELECTION, outFields: "*"});
 				this.huc8_click = new FeatureLayer(this.obj.url + "/2", { mode: esri.layers.FeatureLayer.MODE_SELECTION, outFields: "*"});
-				this.huc8.setSelectionSymbol(huc8highlightSymbol);
+				this.huc8.setSelectionSymbol(this.huc8highlightSymbol);
 				// impaired watershed
 				this.impWater = new FeatureLayer(this.obj.url + "/3", { mode: esri.layers.FeatureLayer.MODE_SELECTION, outFields: "*"});
 
@@ -302,6 +322,9 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				// soils data
 				this.soils = new FeatureLayer(this.obj.url + "/10000", { mode: esri.layers.FeatureLayer.MODE_SELECTION, outFields: "*"});
 				this.soils.setSelectionSymbol(this.soilsSym);
+				// streams layer
+				this.streams = new FeatureLayer(this.obj.url + "/10000", { mode: esri.layers.FeatureLayer.MODE_SELECTION, outFields: "*"});
+				this.streams.setSelectionSymbol(this.huc8highlightSymbol);
 				// land cover data
 				this.land = new FeatureLayer(this.obj.url + "/10", { mode: esri.layers.FeatureLayer.MODE_SELECTION, outFields: "*"}); ;
 				// sample points layer
@@ -412,6 +435,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				}));
 				// clear button clicks
 				$('#' + this.id + 'clearBtn').on('click',lang.hitch(this,function(){
+					console.log('clear test')
 					this.navigation.homeButtonClick(this);
 				}));
 				// clear impaired watersheds table

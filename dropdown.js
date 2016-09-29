@@ -28,7 +28,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				}
 				
 				$('#' + t.id + 'ch-traits').empty();
-				console.log($('#' + t.id + 'ch-traits'))
 				// if something was selected in the huc 8 dropdown
 				if(p || t.obj.stateSet == 'yes'){
 					t.obj.spatialLayerArray = [2];
@@ -71,6 +70,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					t.map.removeLayer(t.soils);
 					t.map.removeLayer(t.samplingStations);
 					t.map.removeLayer(t.huc8);
+					t.map.removeLayer(t.streams);
 					
 					t.map.removeLayer(t.huc8_click);
 					t.map.removeLayer(t.impWater);
@@ -135,11 +135,9 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					}
 					$('#' + t.id + 'ch-pointsDiv').slideDown();
 					t.obj.yearSelected = $('#' + t.id + 'ch-years').val();
-					console.log(t.obj.yearSelected)
-					
 					t.obj.spatialLayerArray.push(Number(t.obj.yearSelected));
 					t.obj.visibleLayers.push(Number(t.obj.yearSelected));
-					t.dynamicLayer.setVisibleLayers(t.obj.visibleLayers);
+					t.dynamicLayer.setVisibleLayers(unique(t.obj.visibleLayers));
 					var lyrName = '';
 					$.each(t.layersArray, lang.hitch(t,function(i,v){
 						if(v.id == t.obj.yearSelected){

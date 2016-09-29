@@ -68,42 +68,46 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				}
 			},
 			impSelectionComplete: function(f,t,l){
+				
+				console.log('imp sel complete')
 				$('#' + t.id + 'impStartText').hide();
 				t.obj.impStateID = f.features[0].attributes.SUBSEGMENT;
 				// imp watershed selection symbol
-				var impWaterShedSelectionN = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
-						new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
-						new Color([53, 154, 0]), 3),
-						new Color([236,239,222,.15]));
-				var impWaterShedSelectionL = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
-						new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
-						new Color([216,216,0]), 3),
-						new Color([236,239,222,.15]));
-				var impWaterShedSelectionM = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
-						new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
-						new Color([	216,144,0]), 3),
-						new Color([236,239,222,.15]));
-				var impWaterShedSelectionH = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
-						new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
-						new Color([216,0,0]), 3),
-						new Color([236,239,222,.15]));
+				// var impWaterShedSelectionN = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
+						// new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
+						// new Color([53, 154, 0]), 3),
+						// new Color([236,239,222,.15]));
+				// var impWaterShedSelectionL = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
+						// new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
+						// new Color([216,216,0]), 3),
+						// new Color([236,239,222,.15]));
+				// var impWaterShedSelectionM = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
+						// new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
+						// new Color([	216,144,0]), 3),
+						// new Color([236,239,222,.15]));
+				// var impWaterShedSelectionH = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
+						// new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
+						// new Color([216,0,0]), 3),
+						// new Color([236,239,222,.15]));
 				if (t.obj.sel == 'imp'){
+					console.log(t.obj.sel)
 					var waterName = f.features[0].attributes.NAME;
 					var waterDesc = f.features[0].attributes.DESCRIPTIO;
 					var waterID = f.features[0].attributes.SUBSEGME_1;
 					var allUse = f.features[0].attributes.AllUse;
 
 					if (f.features[0].attributes.TMDL_Priority == 'N'){
-						t.impWater.setSelectionSymbol(impWaterShedSelectionN);
+						t.impWater.setSelectionSymbol(t.impWaterShedSelectionN);
 					}
 					if (f.features[0].attributes.TMDL_Priority == 'L'){
-						t.impWater.setSelectionSymbol(impWaterShedSelectionL);
+						console.log('low')
+						t.impWater.setSelectionSymbol(t.impWaterShedSelectionL);
 					}
 					if (f.features[0].attributes.TMDL_Priority == 'M'){
-						t.impWater.setSelectionSymbol(impWaterShedSelectionM);
+						t.impWater.setSelectionSymbol(t.impWaterShedSelectionM);
 					}
 					if (f.features[0].attributes.TMDL_Priority == 'H'){
-						t.impWater.setSelectionSymbol(impWaterShedSelectionH);
+						t.impWater.setSelectionSymbol(t.impWaterShedSelectionH);
 					}
 
 					if (f.features[0].attributes.TMDL_Priority == 'N'){
