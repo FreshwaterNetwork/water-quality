@@ -69,7 +69,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 			},
 			impSelectionComplete: function(f,t,l){
 				
-				console.log('imp sel complete')
 				$('#' + t.id + 'impStartText').hide();
 				t.obj.impStateID = f.features[0].attributes.SUBSEGMENT;
 				// imp watershed selection symbol
@@ -90,7 +89,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 						// new Color([216,0,0]), 3),
 						// new Color([236,239,222,.15]));
 				if (t.obj.sel == 'imp'){
-					console.log(t.obj.sel)
 					var waterName = f.features[0].attributes.NAME;
 					var waterDesc = f.features[0].attributes.DESCRIPTIO;
 					var waterID = f.features[0].attributes.SUBSEGME_1;
@@ -100,7 +98,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 						t.impWater.setSelectionSymbol(t.impWaterShedSelectionN);
 					}
 					if (f.features[0].attributes.TMDL_Priority == 'L'){
-						console.log('low')
 						t.impWater.setSelectionSymbol(t.impWaterShedSelectionL);
 					}
 					if (f.features[0].attributes.TMDL_Priority == 'M'){

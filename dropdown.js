@@ -31,7 +31,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				// if something was selected in the huc 8 dropdown
 				if(p || t.obj.stateSet == 'yes'){
 					if (t.streamsChecked == 'yes'){
-						console.log('look here')
 						t.map.removeLayer(t.streams);
 					}
 					t.obj.spatialLayerArray = [2];
@@ -50,7 +49,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 						t.obj.inHuc8 = 'no';
 					}
 					t.obj.huc8Sel = c.currentTarget.value;
-					console.log(t.obj.huc8Sel)
 					// if we are in the spatial side
 					if(t.obj.sel == "sp"){
 						t.dropdown.traitPopulate(t);
@@ -71,7 +69,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					t.huc8.selectFeatures(t.selectHuc8, FeatureLayer.SELECTION_NEW);
 					
 				} else{
-					console.log('look here')
 					t.map.removeLayer(t.land);
 					t.map.removeLayer(t.soils);
 					t.map.removeLayer(t.samplingStations);
@@ -114,9 +111,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 						var n = wn.substring(0, wn.length - 5)
 					
 						if (n == t.obj.traitSelected){
-							console.log(n, t.obj.traitSelected);
 							var y = wn.slice(-4)
-							console.log(v.id);
 							$('#' + t.id + 'ch-years').append('<option value="' + Number(v.id) + '">' + y + '</option>');
 						}
 					}));
@@ -130,8 +125,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 			},
 			yearsSelect: function(c,v,t){
 				if(v || t.stateYear == 'yes'){
-					console.log(v)
-					console.log(t.obj.yearSelected)
 					// remove a raster layer if it already exists in the layers array. this keeps the rasters from stacking on each other
 					var index = t.obj.spatialLayerArray.indexOf(Number(t.obj.yearSelected));
 					if(index > -1){
@@ -209,6 +202,9 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					}
 					if (v == "TDS"){
 						traitText = "Total Dissolved Solids";
+					}
+					if (v == "DO"){
+						traitText = "Dissolved Oxygen";
 					}
 					if (v == "P"){
 						traitText = "Phosphorus";

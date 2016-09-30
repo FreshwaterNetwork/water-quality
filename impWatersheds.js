@@ -21,7 +21,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
             // },
 			impWaterClick: function(t, l) {
 				$('#' + t.id + 'chartHeader').text("Click on an Impaired Watershed");
-				console.log('imp water click')
 				t.obj.sel = 'imp';
 				t.obj.visibleLayers = [3];
 				t.dynamicLayer.setVisibleLayers(t.obj.visibleLayers);

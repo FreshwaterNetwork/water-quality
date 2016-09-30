@@ -21,7 +21,12 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				t.sSelected = 'ss';
 				t.map.graphics.clear();
 				t.spAtts = evt.graphic.attributes;
-				$('#' + t.id + 'chartHeader').text("Station ID " + t.spAtts.generated_stations_old_ID);
+				if (t.spAtts.generated_stations_SITE_NAME == null){
+					$('#' + t.id + 'chartHeader').text("Station ID: " + t.spAtts.generated_stations_Station_ID);
+				}else{
+					$('#' + t.id + 'chartHeader').text("Station ID: " + t.spAtts.generated_stations_SITE_NAME);
+				}
+				
 				t.graphClicks.checkTraits(t.spAtts, t);
 				t.obj.nodeValue = evt.target.attributes[10].nodeValue;
 				if(evt.target.attributes[10].nodeValue == "4"){

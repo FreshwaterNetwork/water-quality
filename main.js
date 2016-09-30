@@ -435,7 +435,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				}));
 				// clear button clicks
 				$('#' + this.id + 'clearBtn').on('click',lang.hitch(this,function(){
-					console.log('clear test')
 					this.navigation.homeButtonClick(this);
 				}));
 				// clear impaired watersheds table
@@ -548,7 +547,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 						var sampleGraphic = new Graphic(evt.graphic.geometry,this.sampleSym);
 						this.map.graphics.add(sampleGraphic);
 						var val = evt.graphic.attributes.value_mean.toFixed(2)
-						console.log(val, evt.graphic.attributes.value_mean);
 						$('#' + this.id + 'sampleValue').show();
 						var c = "<div style='padding:6px; font-size:16px;'><b>Station Value: </b>" + val + "</div>";
 						//var content = esriLang.substitute(f.features[0].attributes,c);

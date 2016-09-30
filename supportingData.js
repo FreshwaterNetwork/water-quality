@@ -33,7 +33,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				t.soils.clear();
 				t.huc12.clear();
 				t.map.removeLayer(t.streams);
-				console.log('remove streams here')
 				//t.streams.clear();
 				//t.banks.clear();
 				// make an array to loop through soils layers
@@ -94,11 +93,9 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					
 					var streamsURL  = t.obj.url + '/' + t.obj.streamsID
 					t.streams = new FeatureLayer(streamsURL, { mode: esri.layers.FeatureLayer.MODE_SNAPSHOT, outFields: "*"}); 
-					console.log('look here again')
 					t.map.addLayer(t.streams);
 					t.streams.on('mouse-over', lang.hitch(t,function(evt){
 						t.map.graphics.clear();
-						console.log('mouse over')
 						var streamGraphic = new Graphic(evt.graphic.geometry,t.huc8highlightSymbol);
 						t.map.graphics.add(streamGraphic);
 						$('#' + t.id + 'clickStreams').show();
@@ -114,7 +111,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					t.obj.bankID = '';
 					$.each(t.layersArray, lang.hitch(t,function(i,v){
 						if (t.obj.huc8Selected[0] + '_mitigation_banks_web' == v.name){
-							console.log('test and look here')
 							t.obj.bankID = v.id;
 							t.obj.spatialLayerArray.push(t.obj.bankID);
 							t.obj.visibleLayers.push(t.obj.bankID);
@@ -131,7 +127,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 						t.map.graphics.clear();
 						var bankGraphic = new Graphic(evt.graphic.geometry,t.bankSym);
 						t.map.graphics.add(bankGraphic);
-						console.log(evt.graphic.attributes,'evt')
 						$('#' + t.id + 'clickBank').show();
 						var val = evt.graphic.attributes.Name
 						var c = "<div class='supDataText' style='padding:6px;'><b>Name : </b>" + val + "</div>";
@@ -168,7 +163,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				if(t.obj.supLayer == 'none' || t.obj.supLayer == 'cb-land' || t.obj.supLayer == 'cb-bank' || t.obj.supLayer == 'cb-streams' ){
 					t.huc8_click.selectFeatures(t.hQuery,esri.layers.FeatureLayer.SELECTION_NEW);
 					t.map.removeLayer(t.streams);
-					console.log('streams off')
 				}
 				if(t.obj.supLayer == 'cb-streams'){
 					var streamsURL  = t.obj.url + '/' + t.obj.streamsID
