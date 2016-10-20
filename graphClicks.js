@@ -17,16 +17,18 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
             doTest: function(t) {
             },
 			samplingStationClick: function(evt, t){
+				console.log('1')
 				var x = String(evt.target.attributes[10]);
 				t.sSelected = 'ss';
 				t.map.graphics.clear();
+				console.log('2')
 				t.spAtts = evt.graphic.attributes;
 				if (t.spAtts.generated_stations_SITE_NAME == null){
 					$('#' + t.id + 'chartHeader').text("Station ID: " + t.spAtts.generated_stations_Station_ID);
 				}else{
 					$('#' + t.id + 'chartHeader').text("Station ID: " + t.spAtts.generated_stations_SITE_NAME);
 				}
-				
+				console.log('3')
 				t.graphClicks.checkTraits(t.spAtts, t);
 				t.obj.nodeValue = evt.target.attributes[10].nodeValue;
 				if(evt.target.attributes[10].nodeValue == "4"){
@@ -42,9 +44,12 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				if(evt.target.attributes[10].nodeValue == "10"){
 					var spHlGraphic = new Graphic(evt.graphic.geometry,t.hlStationPointXL);
 				}
-				t.map.graphics.add(spHlGraphic);
+				console.log('4')
+				//t.map.graphics.add(spHlGraphic);
+				console.log('5')
 				$('#' + t.id + 'graphShow, #' + t.id + 'showGraphText, #' + t.id + 'supData, #' + t.id + 'huc8Wrapper, #'  + t.id + 'bottomDiv').hide();
 				$('#' + t.id + 'graphDiv').slideDown('slow');
+				console.log('6')
 				$(t.con).animate({ height: '520px', width: '630px' }, 250,
 					lang.hitch(t,function(){
 						t.resize();
@@ -52,7 +57,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					})
 				);
 				
-				
+				console.log('7')
 			},
 			samplingStationSaveShare: function(evt, t){
 				t.sSelected = 'ss';
@@ -124,10 +129,13 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					$('#' + v.id).removeClass('buttonBar__selected')
 				})
 				t.obj.traitBarSelected = e.target.id
+				
 				$('#' + t.obj.traitBarSelected).addClass('buttonBar__selected');
 				t.obj.tid = t.obj.traitBarSelected.split("-").pop();
 				var val = t.obj.tid.slice(0,-4) + "value"
 				t.mean = JSON.parse(t.spAtts[t.obj.tid])
+				console.log(t.spAtts[t.obj.tid], 't.mean look here')
+				console.log(t.mean, 't.mean')
 				t.obj.val = JSON.parse(t.spAtts[val])
 				t.obj.a = t.graphClicks.massageArray(t)
 				t.graphClicks.updateChart(t, t.obj.a)
@@ -397,6 +405,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 			},
 
 			updateLineChart: function(t){
+				console.log('8')
 				var d = []
 				$.each(t.obj.val, lang.hitch(t,function(i,v){
 					if (t.obj.year == v[0]){
@@ -417,12 +426,15 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				  width: 580,
 				  height: 145
 				};
+				// this line is causing the problems in IE.
 				new Chartist.Line('#' + t.id + 'lineChart', data, options);
 				var units = "(mg/L)"
 				if (t.obj.tid == "TURmean"){
 					units = "(NTU)"
 				}
+				console.log('9')
 				$('#' + t.id + 'lineChartTitle').html("Monthly Readings Taken in " + t.obj.year + " " + units)
+				console.log('10')
 			},
 			
         });

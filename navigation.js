@@ -17,6 +17,9 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
             doTest: function(t) {
             },
 			internalSpatialClick: function(t){
+				if(t.containsNumber == 'no'){
+					$('#' + t.id + 'noDataText').show();
+				}
 				t.obj.graphOpen = '';
 				t.obj.sel = 'sp';
 				$('#' + t.id + 'temporalWrapper').hide();
@@ -52,6 +55,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				);
 			},
 			internalTemporalClick: function(t){
+				$('#' + t.id + 'noDataText').hide();
 				// update css to show that it is clicked
 				$('#' + t.id + 'temBtn').addClass('navBtnSel');
 				$('#' + t.id + 'spaBtn').removeClass('navBtnSel');

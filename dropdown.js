@@ -22,15 +22,16 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				t.obj.huc8Selected[0] = '';
 				//t.obj.traitArray = [];
 				$('#' + t.id + 'ch-traits').val('').trigger('chosen:updated').trigger('change');
-				if(t.obj.stateSet == 'no'){	
+				if(t.obj.stateSet == 'no'){
 					$('#' + t.id + 'cb-none').trigger("click");
 					t.obj.traitSelected = '';
 				}
-				
+
 				$('#' + t.id + 'ch-traits').empty();
 				// if something was selected in the huc 8 dropdown
 				if(p || t.obj.stateSet == 'yes'){
 					if (t.streamsChecked == 'yes'){
+
 						t.map.removeLayer(t.streams);
 					}
 					t.obj.spatialLayerArray = [2];
@@ -38,16 +39,18 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					t.dynamicLayer.setVisibleLayers(t.obj.visibleLayers);
 					t.map.removeLayer(t.samplePoints);
 					$('#' + t.id + 'ch-points').prop( "checked", false ).trigger('change');
-					
+
 					$('#' + t.id + 'ch-traits').val('').trigger('chosen:updated');
 					var val = $('#' + t.id + 'ch-HUC8').val();
 					$('#' + t.id + 'ch-traitsDiv').show();
 					t.obj.huc8Selected = c.currentTarget.value.split("_");
+
 					if(t.obj.huc8Sel == c.currentTarget.value){
 						t.obj.inHuc8 = 'yes';
 					}else{
 						t.obj.inHuc8 = 'no';
 					}
+
 					t.obj.huc8Sel = c.currentTarget.value;
 					// if we are in the spatial side
 					if(t.obj.sel == "sp"){
@@ -64,10 +67,92 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 						t.dynamicLayer.setVisibleLayers(t.obj.visibleLayers);
 						t.map.addLayer(t.samplingStations);
 					}
+// check to see if the watershed contains a raster layer. if it does not dont display trait dropdown
+// and alert user that there is none.
+					$.each(t.layersArray, lang.hitch(t,function(i,v){
+						if(v.name.includes(t.obj.huc8Selected[0])== true){
+							var matches = v.name.match(/\d+/g);
+							if (matches != null) {
+								t.containsNumber = 'yes'
+							}else{
+								t.containsNumber = 'no'
+							}
+						}
+					}));
+					
+					if(t.containsNumber == 'yes'){
+						$('#' + t.id + 'noDataText').hide();
+					}else{
+						if(t.obj.sel == 'sp'){
+							$('#' + t.id + 'noDataText').show();
+							$('#' + t.id + 'ch-traitsDiv').hide();
+						}else{
+							$('#' + t.id + 'noDataText').hide();
+						}
+					}
+					
+// determine what we need to show in the supdata section based on if the alyers exist. 
+					var list = []
+					$.each(t.layersArray, lang.hitch(t,function(i,v){
+						if(v.name.includes(t.obj.huc8Selected[0])== true){
+							// check to see if banks are in the sup data 
+							list.push(v.name);
+						}
+					}));
+					// test banks
+					t.bankHide = '';
+					$.each(list, lang.hitch(t,function(i,v){
+						if(v.includes('banks')== true){
+							t.bankHide = 'no';
+						}
+					}));
+					if(t.bankHide != 'no'){
+						$('#' + t.id + 'bankParent').hide();
+					}else{
+						$('#' + t.id + 'bankParent').show();
+					}
+					// test streams
+					t.streamHide = '';
+					$.each(list, lang.hitch(t,function(i,v){
+						if(v.includes('streams')== true){
+							t.streamHide = 'no';
+						}
+					}));
+					if(t.streamHide != 'no'){
+						$('#' + t.id + 'streamParent').hide();
+					}else{
+						$('#' + t.id + 'streamParent').show();
+					}
+					// test soils
+					t.soilsHide = '';
+					$.each(list, lang.hitch(t,function(i,v){
+						if(v.includes('soils')== true){
+							t.soilsHide = 'no';
+						}
+					}));
+					if(t.soilsHide != 'no'){
+						$('#' + t.id + 'soilsParent').hide();
+					}else{
+						$('#' + t.id + 'soilsParent').show();
+					}
+					// test lands
+					t.landHide = '';
+					$.each(list, lang.hitch(t,function(i,v){
+						if(v.includes('land')== true){
+							t.landHide = 'no';
+						}
+					}));
+					if(t.landHide != 'no'){
+						$('#' + t.id + 'landParent').hide();
+					}else{
+						$('#' + t.id + 'landParent').show();
+					}
+					
+					// query for huc 8 select
 					t.selectHuc8 = new Query();
 					t.selectHuc8.where = "HUC_8 = '" + t.obj.huc8Selected[1] + "'";
 					t.huc8.selectFeatures(t.selectHuc8, FeatureLayer.SELECTION_NEW);
-					
+
 				} else{
 					t.map.removeLayer(t.land);
 					t.map.removeLayer(t.soils);
@@ -109,7 +194,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					$.each(t.layersArray, lang.hitch(t,function(i,v){
 						var wn = v.name
 						var n = wn.substring(0, wn.length - 5)
-					
+
 						if (n == t.obj.traitSelected){
 							var y = wn.slice(-4)
 							$('#' + t.id + 'ch-years').append('<option value="' + Number(v.id) + '">' + y + '</option>');
@@ -176,8 +261,8 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					t.map.removeLayer(t.samplePoints);
 				}
 			},
-			
-			
+
+
 			traitPopulate: function(t){
 				t.obj.traitArray = [];
 				// something was selected
@@ -195,34 +280,34 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				$.each(t.obj.traitArray, lang.hitch(t, function(i,v){
 					var traitText = '';
 					if (v == "TUR"){
-						traitText = "Turbitity";
+						traitText = "Turbitity (NTU)";
 					}
 					if (v == "TSS"){
-						traitText = "Total Suspended Solids";
+						traitText = "Total Suspended Solids (mg/L)";
 					}
 					if (v == "TDS"){
-						traitText = "Total Dissolved Solids";
+						traitText = "Total Dissolved Solids (mg/L)";
 					}
 					if (v == "DO"){
-						traitText = "Dissolved Oxygen";
+						traitText = "Dissolved Oxygen (mg/L)";
 					}
 					if (v == "P"){
-						traitText = "Phosphorus";
+						traitText = "Phosphorus (mg/L)";
 					}
 					if (v == "N"){
-						traitText = "Nitrogen";
+						traitText = "Nitrogen (mg/L)";
 					}
 					if(v == "Phos"){
-						traitText = "Phosphate";
+						traitText = "Phosphate (mg/L)";
 					}
 					if(v == "NNN"){
-						traitText = "Nitrate";
+						traitText = "Nitrate (mg/L)";
 					}
 					if(v == "AMM"){
-						traitText = "Ammonia";
+						traitText = "Ammonia (mg/L)";
 					}
 					if(v == "ION"){
-						traitText = "Inorganic Nitrogen";
+						traitText = "Inorganic Nitrogen (mg/L)";
 					}
 					if (traitText != ''){
 						//you have to use t.id to get the element (won't work without lang.hitch above
@@ -232,7 +317,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				//after the loop trigger an update to the select menu
 				$('#' + t.id + 'ch-traits').trigger("chosen:updated");
 			}
-			
+
         });
     }
 );
