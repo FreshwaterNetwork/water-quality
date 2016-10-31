@@ -19,9 +19,9 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 		return declare(PluginBase, {
 			// The height and width are set here when an infographic is defined. When the user click Continue it rebuilds the app window with whatever you put in.
 			toolbarName: "Water Quality", showServiceLayersInLegend: true, allowIdentifyWhenActive: false, rendered: false, resizable: false,
-			hasCustomPrint: true, usePrintPreviewMap: true, previewMapSize: [1000, 550], height:"200", width:"350",
+			hasCustomPrint: true, usePrintPreviewMap: true, previewMapSize: [1000, 550], height:"250", width:"350",
 			// Comment out the infoGraphic property below to make that annoying popup go away when you start the app
-			//infoGraphic: "plugins/water-quality/images/infoGraphic.jpg",
+			infoGraphic: "plugins/water-quality/images/infoGraphic.jpg",
 
 // INITIALIZE FUNCTION /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			// First function called when the user clicks the pluging icon.
@@ -76,8 +76,8 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 			},
 			// Called when user hits the minimize '_' icon on the pluging. Also called before hibernate when users closes app by clicking 'X'.
 			deactivate: function () {
-				
-				
+
+
 			},
 // GET STATE FUNCTION /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			// Called when user hits 'Save and Share' button. This creates the url that builds the app at a given state using JSON.
@@ -96,7 +96,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 			setState: function (state) {
 				this.obj = state;
 			},
-			
+
 // PRINT FUNCTION /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			// Called when the user hits the print icon
 			beforePrint: function(printDeferred, $printArea, mapObject) {
@@ -181,21 +181,21 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 							// stickyHeaders_includeCaption: false // or $('.wrapper')
 						// }
 					// });
-					
-					
+
+
 					$("#" + this.appDiv.id + "impTable").tablesorter({
 						widthFixed : true,
 						headerTemplate : '{content}', // Add icon for various themes
 
 						widgets: [ 'zebra'],
 						theme: 'blue',
-						
+
 						widgetOptions: {
 							// jQuery selector or object to attach sticky header to
 							//stickyHeaders_attachTo : '.impTableWrapper',
 							//stickyHeaders_includeCaption: false // or $('.wrapper')
 						}
-					})	
+					})
 				}));
 // ENABLE CHOOSEN FUNCTION /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 				// Enable jquery plugin 'chosen'
@@ -203,8 +203,8 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					var configCrs =  { '.chosen-crs' : {allow_single_deselect:true, width:"200px", disable_search:false}}
 					for (var selector in configCrs)  { $(selector).chosen(configCrs[selector]); }
 				}));
-				
-// Populate huc 8 dropdown /////////////////////////////////////////////			
+
+// Populate huc 8 dropdown /////////////////////////////////////////////
 				var queryTask = new QueryTask(this.obj.url + "/2")
 				var query = new Query();
 				query.returnGeometry = false;
@@ -217,25 +217,14 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 						var abbr = v.attributes.Abbr;
 						var HUC_8 = v.attributes.HUC_8
 						var cleanNames = v.attributes.clean_names
-						huc8Value = abbr + "_" + HUC_8
-						if (abbr == "Merm"){
-							var val = "Mermentau"
-						}
-						if (abbr == "Tang"){
-							var val = "Tangipahoa"
-						}
-						if (abbr == "Boeu"){
-							var val = "Boeuf"
-						}
-						
+						huc8Value = cleanNames + "_" + HUC_8
 						huc8HTML = '<option value="' + huc8Value + '">' + 'test' + '</option>'
 						$('#' + this.id + 'ch-HUC8').append('<option value="' + huc8Value + '">' + cleanNames + '</option>');
 					}));
 					$('#' + this.id + 'ch-HUC8').trigger("chosen:updated");
 				}));
-					
-				
-			
+
+
 // SET SYMBOLOGY /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 				// HUC12 Symbol
 				this.hucSym = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
@@ -353,7 +342,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				}));
 				// on selection complete of the huc8
 				this.huc8.on("selection-complete", lang.hitch(this,function(f){
-					
+
 					this.mapClicks.huc8SelComplete(f,this);
 				}));
 				// build the secend huc 8 selection complete here
@@ -397,6 +386,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 						$('#' + this.id + 'graphHide').trigger('click');
 					}
 				}));
+
 				// handle clicks on the graph show button
 				$('#' + this.id + 'graphShow').on('click',lang.hitch(this,function(e){
 					this.graphClicks.graphShow(e, this, lang);
@@ -454,6 +444,12 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				$('#' + this.id + 'impWaterButton').on('click',lang.hitch(this,function(){
 					this.navigation.impWaterClick(this, lang);
 				}));
+				$('#' + this.id + 'learnMore').on('click',lang.hitch(this,function(){
+					window.open("plugins\\water-quality\\images\\Water Quality Application Methods.pdf", "_blank");
+				}));
+				
+				
+				
 // DYNAMIC MAP SERVICE  ////////////////////////////////////////////////
 				// Add dynamic map service
 				this.dynamicLayer = new ArcGISDynamicMapServiceLayer(this.obj.url, {opacity: 1 - this.obj.sliderVal/10});
@@ -471,15 +467,15 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 						this.spid = this.obj.visibleLayers[0];
 					}
 					this.layersArray = this.dynamicLayer.layerInfos;
-					
+
 					// create supData array on load of app
 					this.supDataArray = [];
 					$.each(this.layersArray, lang.hitch(this,function(i,v){
-						if(v.name.includes('soils') == true || v.name.includes('Land Cover') == true || v.name.includes('streams') == true ||v.name.includes('HUC 12') == true || v.name.includes('banks') == true){
+						if(v.name.includes('Soils') == true || v.name.includes('NLCD') == true || v.name.includes('Streams') == true ||v.name.includes('HUC 12') == true || v.name.includes('Banks') == true){
 							this.supDataArray.push(v.id)
 						}
 					}));
-					
+
 // Set State Logic ///////////////////////////////////////////////////////////////////////////////////////////////////
 					require(["jquery", "plugins/water-quality/js/chosen.jquery"],lang.hitch(this,function($) {
 						if (this.obj.stateSet == 'yes'){
@@ -551,7 +547,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 						var c = "<div style='padding:6px; font-size:16px;'><b>Station Value: </b>" + val + "</div>";
 						//var content = esriLang.substitute(f.features[0].attributes,c);
 						$('#' + this.id + 'sampleValue').html(c);
-						
+
 					}));
 					// this function removes duplicates from any list, used above on the traitArray
 					function unique(list){
@@ -568,16 +564,16 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				$('#' + this.id + 'supDataDiv input:radio').on('click', lang.hitch(this,function(c){
 					this.supportingData.supRadioClick(this, c);
 				}));
-				
-				
+
+
 				// $('#' + this.id + 'cb-huc12').trigger("click");
 				//$('#' + this.id + 'supDataDiv input:radio').val().trigger('click');
-				
-				
+
+
 				this.rendered = true;
 			}, // end of render function.
-			
-			
+
+
 			// add huc8 and on huc8 load add click events
 			addHuc8: function(){
 				this.map.addLayer(this.huc8);

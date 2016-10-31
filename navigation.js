@@ -134,6 +134,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					})
 				);
 			},
+			
 			homeButtonClick: function(t){
 				t.obj.graphOpen = '';
 				t.map.setMapCursor('default');

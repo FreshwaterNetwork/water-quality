@@ -61,10 +61,9 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				if (c.currentTarget.value == "Soils Data"){
 					t.obj.supLayer = "cb-soils"
 					t.obj.soilID = '';
-					var soilLayer = t.obj.huc8Selected[0] + '_soils' + "_web";
 					$.each(t.layersArray, lang.hitch(t,function(i,v){
 						var layerName = v.name;
-						if (t.obj.huc8Selected[0] + '_soils' + "_web" == layerName){
+						if (t.obj.huc8Selected[0] + ' SSURGO Soils' == layerName){
 							t.obj.soilID = v.id;
 							t.obj.spatialLayerArray.push(t.obj.soilID);
 							t.obj.visibleLayers.push(t.obj.soilID);
@@ -80,7 +79,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					t.obj.supLayer = 'cb-streams';
 					t.obj.streamsID = '';
 					$.each(t.layersArray, lang.hitch(t,function(i,v){
-						if (t.obj.huc8Selected[0] + '_named_streams_web' == v.name){
+						if (t.obj.huc8Selected[0] + ' Named Streams' == v.name){
 							t.obj.streamsID = v.id;
 							t.obj.spatialLayerArray.push(t.obj.streamsID);
 							t.obj.visibleLayers.push(t.obj.streamsID);
@@ -110,7 +109,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					t.obj.supLayer = 'cb-bank';
 					t.obj.bankID = '';
 					$.each(t.layersArray, lang.hitch(t,function(i,v){
-						if (t.obj.huc8Selected[0] + '_mitigation_banks_web' == v.name){
+						if (t.obj.huc8Selected[0] + ' Mitigation Banks' == v.name){
 							t.obj.bankID = v.id;
 							t.obj.spatialLayerArray.push(t.obj.bankID);
 							t.obj.visibleLayers.push(t.obj.bankID);
@@ -138,7 +137,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					t.obj.supLayer = 'cb-land';
 					var landID = '';
 					$.each(t.layersArray, lang.hitch(t,function(i,v){
-						if (t.obj.huc8Selected[0] + ' Land Cover' == v.name){
+						if (t.obj.huc8Selected[0] + ' NLCD' == v.name){
 							landID = v.id;
 							t.obj.spatialLayerArray.push(landID);
 							t.obj.visibleLayers.push(landID);

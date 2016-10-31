@@ -931,16 +931,16 @@ var Chartist = {
       });
     }
 
-    if (!window.matchMedia) {
-      throw 'window.matchMedia not found! Make sure you\'re using a polyfill.';
-    } else if (responsiveOptions) {
+    // if (!window.matchMedia) {
+      // throw 'window.matchMedia not found! Make sure you\'re using a polyfill.';
+    // } else if (responsiveOptions) {
 
-      for (i = 0; i < responsiveOptions.length; i++) {
-        var mql = window.matchMedia(responsiveOptions[i][0]);
-        mql.addListener(updateCurrentOptions);
-        mediaQueryListeners.push(mql);
-      }
-    }
+      // for (i = 0; i < responsiveOptions.length; i++) {
+        // var mql = window.matchMedia(responsiveOptions[i][0]);
+        // mql.addListener(updateCurrentOptions);
+        // mediaQueryListeners.push(mql);
+      // }
+    // }
     // Execute initially so we get the correct options
     updateCurrentOptions(true);
 
