@@ -31,7 +31,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				// if something was selected in the huc 8 dropdown
 				if(p || t.obj.stateSet == 'yes'){
 					if (t.streamsChecked == 'yes'){
-
 						t.map.removeLayer(t.streams);
 					}
 					t.obj.spatialLayerArray = [2];
