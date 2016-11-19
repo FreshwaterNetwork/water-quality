@@ -18,7 +18,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
             },
 			internalSpatialClick: function(t){
 				if(t.containsNumber == 'no'){
-					$('#' + t.id + 'noDataText').show();
+					//$('#' + t.id + 'noDataText').show();
 				}
 				t.obj.graphOpen = '';
 				t.obj.sel = 'sp';
@@ -26,7 +26,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				$('#' + t.id + 'graphHide, #' + t.id + 'graphShow').hide();
 				$('#' + t.id + 'spatialWrapper').show();
 				// remove water quality sample station points when click on internal spatial.
-				var index = t.obj.spatialLayerArray.indexOf(0);
+				var index = t.obj.spatialLayerArray.indexOf(2);
 				if(index > -1){
 					t.obj.spatialLayerArray.splice(index,1);
 				}
@@ -34,10 +34,11 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				t.map.removeLayer(t.samplingStations);
 				// push year is to spatial array if year has been selected.
 				if (t.obj.yearSelected != undefined){
-					t.obj.spatialLayerArray.push(Number(t.obj.yearSelected))
+					t.obj.spatialLayerArray.push(Number(t.lyrID));
 				}
 				t.obj.spatialLayerArray = unique(t.obj.spatialLayerArray);
 				t.obj.visibleLayers = t.obj.spatialLayerArray;
+				console.log(t.obj.visibleLayers);
 				t.dynamicLayer.setVisibleLayers(t.obj.visibleLayers);
 				// show and hide elements
 				$('#' + t.id + 'graphHide').trigger('click');
@@ -55,7 +56,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				);
 			},
 			internalTemporalClick: function(t){
-				$('#' + t.id + 'noDataText').hide();
+				//$('#' + t.id + 'noDataText').hide();
 				// update css to show that it is clicked
 				$('#' + t.id + 'temBtn').addClass('navBtnSel');
 				$('#' + t.id + 'spaBtn').removeClass('navBtnSel');
@@ -66,11 +67,13 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				// remove spatial raster layer when internal temporal button is clicked
 				var stationIndex = t.obj.visibleLayers.indexOf(0);
 				// if there is a huc 8 selected. show water quality sample points.
-				if(t.obj.huc8Selected.length > 1){
+				console.log(t.obj.huc8Selected.length);
+				if(t.obj.huc8Selected.length > 0){
 					//t.obj.visibleLayers.push(0)
+					console.log('inside temp')
 					t.map.addLayer(t.samplingStations);
 				}
-				var yearIndex = t.obj.visibleLayers.indexOf(Number(t.obj.yearSelected));
+				var yearIndex = t.obj.visibleLayers.indexOf(Number(t.lyrID));
 				if(yearIndex > -1){
 					// t.obj.visibleLayers = [2,0];
 					t.obj.visibleLayers.splice(yearIndex,1, 0);
@@ -93,7 +96,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				$('#' + t.id + 'home').slideUp();
 				$('#' + t.id + 'topWrapper, #' + t.id + 'hucWrapper, #' + t.id + 'huc8Wrapper').slideDown();
 				//t.addHuc8();
-				t.obj.visibleLayers = [2];
+				t.obj.visibleLayers = [0];
 				t.dynamicLayer.setVisibleLayers(t.obj.visibleLayers);
 				$(t.con).animate({ height: '565px', width: '350px' }, 250,
 					lang.hitch(t,function(){

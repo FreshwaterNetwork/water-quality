@@ -35,10 +35,10 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				if(val == "6"){
 					var spHlGraphic = new Graphic(evt.graphic.geometry,t.hlStationPointM);
 				}
-				if(val == "8"){
+				if(val == "7.33333"){
 					var spHlGraphic = new Graphic(evt.graphic.geometry,t.hlStationPointL);
 				}
-				if(val == "10"){
+				if(val == "10.6667"){
 					var spHlGraphic = new Graphic(evt.graphic.geometry,t.hlStationPointXL);
 				}
 				t.map.graphics.add(spHlGraphic);
@@ -102,7 +102,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				$('#' + t.id + 'chartHeader').text("Please choose or click on a HUC8");
 				$('#' + t.id + 'graphDiv, #' + t.id + 'impWaterWrapper, #' + t.id + 'waterAttributes, #' + t.id + "graphHide").hide();
 				// write an if statement to see if anything has been selected.
-				if (t.obj.huc8Selected[0] == undefined || t.obj.huc8Selected[0] == ''){
+				if (t.obj.huc8Selected == undefined || t.obj.huc8Selected == ''){
 				} else{
 					$('#' + t.id + 'supData').slideDown();
 				}
@@ -190,7 +190,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				}
 			},
 			checkTraits: function(atts, t){
-				console.log(atts)
 				var c = $('#' + t.id + 'meanBarDiv').find('.meanBars')
 				$.each(c, function(i, v){
 					$('#' + v.id).removeClass('selBar');

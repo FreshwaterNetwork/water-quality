@@ -33,11 +33,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 			
 			huc8SelComplete: function(f,t){
 				if(f.features.length > 0){
-					if(t.obj.huc8Selected[0] == 'Merm'){
-						var huc8Extent = f.features[0].geometry.getExtent().expand(1);
-					}else{
-						var huc8Extent = f.features[0].geometry.getExtent().expand(0.9);
-					}
+					var huc8Extent = f.features[0].geometry.getExtent().expand(1);
 					if(t.obj.stateSet == 'no'){
 						t.map.setExtent(huc8Extent, true);
 					}
@@ -46,15 +42,16 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 			huc8ClickSelComplete: function(f,t){
 				if(f.features.length > 0){
 					// only allow a trigger of the dropdown menu if it has not been selected
-					if(f.features[0].attributes.Abbr == t.obj.huc8Selected[0]){
+					if(f.features[0].attributes.Abbr == t.huc8Abbr){
 					}else{
-						var huc8ClickVal = f.features[0].attributes.Abbr + '_' + f.features[0].attributes.HUC_8;
+						var huc8ClickVal = f.features[0].attributes.Abbr;
 						$('#' + t.id + 'ch-HUC8').val(huc8ClickVal).trigger('chosen:updated').trigger('change');
 					}
 				} else{
 				}
 			},
 			huc12SelComplete: function(f,t){
+				console.log(f)
 				if(f.features.length > 0){
 					$('#' + t.id + 'clickHuc12').show();
 					var acres = numberWithCommas(f.features[0].attributes.ACRES);

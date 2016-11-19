@@ -33,9 +33,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				t.soils.clear();
 				t.huc12.clear();
 				t.map.removeLayer(t.streams);
-				//t.streams.clear();
-				//t.banks.clear();
-				// make an array to loop through soils layers
+				// make an array to loop through sup data layers and clear on each radio click
 				$.each(t.supDataArray, lang.hitch(t, function(i,v){
 					var index = t.obj.spatialLayerArray.indexOf(v);
 					if(index > -1){
@@ -46,12 +44,13 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 						t.obj.visibleLayers.splice(index,1);
 					}
 				}));
+				
 				// if value is Huc 12 set the layer to on
 				if (c.currentTarget.value == "HUC 12s"){
 					t.obj.spatialLayerArray.push(1);
 					t.obj.visibleLayers.push(1);
 					t.obj.supLayer = "cb-huc12";
-					t.obj.layerDefs[1] = "HUC_8 = '" + t.obj.huc8Selected[1] +"'";
+					t.obj.layerDefs[1] = "huc8_abbr = '" + t.huc8Choosen +"'";
 					t.dynamicLayer.setLayerDefinitions(t.obj.layerDefs);
 					if (t.obj.visibleLayers.length < 2 ){
 						$('#' + t.id + 'bottomDiv').hide();
@@ -59,17 +58,11 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				}
 				// if value is soils set the layer to on
 				if (c.currentTarget.value == "Soils Data"){
+					t.obj.spatialLayerArray.push(7);
+					t.obj.visibleLayers.push(7);
 					t.obj.supLayer = "cb-soils"
-					t.obj.soilID = '';
-					$.each(t.layersArray, lang.hitch(t,function(i,v){
-						var layerName = v.name;
-						if (t.obj.huc8Selected[0] + ' SSURGO Soils' == layerName){
-							t.obj.soilID = v.id;
-							t.obj.spatialLayerArray.push(t.obj.soilID);
-							t.obj.visibleLayers.push(t.obj.soilID);
-							return false;
-						}
-					}));
+					t.obj.layerDefs[7] = "Watershed = '" + t.huc8Choosen +"'";
+					t.dynamicLayer.setLayerDefinitions(t.obj.layerDefs);
 					if (t.obj.visibleLayers.length < 2 ){
 						$('#' + t.id + 'bottomDiv').hide();
 					}
@@ -77,20 +70,15 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				if (c.currentTarget.value == "Streams"){
 					t.streamsChecked = 'yes'
 					t.obj.supLayer = 'cb-streams';
-					t.obj.streamsID = '';
-					$.each(t.layersArray, lang.hitch(t,function(i,v){
-						if (t.obj.huc8Selected[0] + ' Named Streams' == v.name){
-							t.obj.streamsID = v.id;
-							t.obj.spatialLayerArray.push(t.obj.streamsID);
-							t.obj.visibleLayers.push(t.obj.streamsID);
-							return false;
-						}
-					}));
-					
+					t.obj.spatialLayerArray.push(6);
+					t.obj.visibleLayers.push(6);
+					t.obj.supLayer = "cb-streams"
+					t.obj.layerDefs[6] = "Watershed = '" + t.huc8Choosen +"'";
+					t.dynamicLayer.setLayerDefinitions(t.obj.layerDefs);
 					
 					$('#' + t.id + 'bottomDiv').show();
 					
-					var streamsURL  = t.obj.url + '/' + t.obj.streamsID
+					var streamsURL  = t.obj.url + '/6';
 					t.streams = new FeatureLayer(streamsURL, { mode: esri.layers.FeatureLayer.MODE_SNAPSHOT, outFields: "*"}); 
 					t.map.addLayer(t.streams);
 					t.streams.on('mouse-over', lang.hitch(t,function(evt){
@@ -107,18 +95,25 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				if (c.currentTarget.value == "Bank"){
 					t.bankChecked = 'yes';
 					t.obj.supLayer = 'cb-bank';
-					t.obj.bankID = '';
-					$.each(t.layersArray, lang.hitch(t,function(i,v){
+					t.obj.spatialLayerArray.push(5);
+					t.obj.visibleLayers.push(5);
+					t.obj.layerDefs[5] = "Watershed = '" + t.huc8Choosen +"'";
+					t.dynamicLayer.setLayerDefinitions(t.obj.layerDefs);
+					if (t.obj.visibleLayers.length < 2 ){
+						$('#' + t.id + 'bottomDiv').hide();
+					}
+				
+					/* $.each(t.layersArray, lang.hitch(t,function(i,v){
 						if (t.obj.huc8Selected[0] + ' Mitigation Banks' == v.name){
 							t.obj.bankID = v.id;
 							t.obj.spatialLayerArray.push(t.obj.bankID);
 							t.obj.visibleLayers.push(t.obj.bankID);
 							return false;
 						}
-					}));
+					})); */
 					$('#' + t.id + 'bottomDiv').show();
 					
-					var bankURL  = t.obj.url + '/' + t.obj.bankID
+					var bankURL  = t.obj.url + '/5';
 					t.bank = new FeatureLayer(bankURL, { mode: esri.layers.FeatureLayer.MODE_SNAPSHOT, outFields: "*"}); 
 					//t.bank.setSelectionSymbol(t.streamsSym);
 					t.map.addLayer(t.bank);
@@ -137,7 +132,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					t.obj.supLayer = 'cb-land';
 					var landID = '';
 					$.each(t.layersArray, lang.hitch(t,function(i,v){
-						if (t.obj.huc8Selected[0] + ' NLCD' == v.name){
+						if ('Land Cover - ' + t.huc8CleanName == v.name){
 							landID = v.id;
 							t.obj.spatialLayerArray.push(landID);
 							t.obj.visibleLayers.push(landID);
@@ -164,7 +159,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					t.map.removeLayer(t.streams);
 				}
 				if(t.obj.supLayer == 'cb-streams'){
-					var streamsURL  = t.obj.url + '/' + t.obj.streamsID
+					var streamsURL  = t.obj.url + "/6";
 					t.streams = new FeatureLayer(streamsURL, { mode: esri.layers.FeatureLayer.MODE_SELECTION, outFields: "*"}); 
 					t.streams.setSelectionSymbol(t.streamsSym);
 					t.map.addLayer(t.streams);
@@ -184,11 +179,11 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				}
 				
 				if (t.obj.supLayer == 'cb-huc12'){
-					t.hQuery.where = "HUC_8 = '" + t.obj.huc8Selected[1] + "'";
+					t.hQuery.where = "huc8_abbr = '" + t.huc8Choosen + "'";
 					t.huc12.selectFeatures(t.hQuery,esri.layers.FeatureLayer.SELECTION_NEW);
 				}
 				if (t.obj.supLayer == 'cb-soils'){
-					var soilsUrl = t.obj.url + "/" + t.obj.soilID;
+					var soilsUrl = t.obj.url + "/7";
 					t.soils = new FeatureLayer(soilsUrl, { mode: esri.layers.FeatureLayer.MODE_SELECTION, outFields: "*"});
 					t.soils.setSelectionSymbol(t.soilsSym);
 					t.map.addLayer(t.soils);
@@ -197,7 +192,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					t.soils.on("selection-complete", lang.hitch(t,function(f){
 						if (f.features.length > 0){
 							$('#' + id + 'clickSoils').show();
-							var c = "<div class='supDataText' style='padding:6px;'><b>Soil Type: </b>${Map_unit_n}</div>";
+							var c = "<div class='supDataText' style='padding:6px;'><b>Soil Type: </b>${map_unit_n}</div>";
 							var content = esriLang.substitute(f.features[0].attributes,c);
 							$('#' + id + 'clickSoils').html(content);
 						}else{

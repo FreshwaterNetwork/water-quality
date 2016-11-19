@@ -205,25 +205,28 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				}));
 
 // Populate huc 8 dropdown /////////////////////////////////////////////
-				var queryTask = new QueryTask(this.obj.url + "/2")
+				// create query task on the huc 8 table at app startup
+				var queryTask = new QueryTask(this.obj.url + "/0")
 				var query = new Query();
 				query.returnGeometry = false;
-				query.outFields = ['Abbr', 'HUC_8', 'clean_names'];
+				query.outFields = ["Abbr", "clean_names", "Ammonia", "DissolvedOxygen", "InorganicNitrogen", "Nitrate",
+										"Phosphorus", "TotalDissolvedSolids", "TotalNitrogen", "TotalSuspendedSolids", "Turbidity"];
 				query.where = "OBJECTID > -1"
 				queryTask.execute(query, lang.hitch(this, function(results){
-					var f = results.features;
-					$('#' + this.id + 'ch-HUC8').append('<option value=""></option>');
-					$.each(f, lang.hitch(this, function(i,v){
-						var abbr = v.attributes.Abbr;
-						var HUC_8 = v.attributes.HUC_8
-						var cleanNames = v.attributes.clean_names
-						huc8Value = cleanNames + "_" + HUC_8
-						huc8HTML = '<option value="' + huc8Value + '">' + 'test' + '</option>'
-						$('#' + this.id + 'ch-HUC8').append('<option value="' + huc8Value + '">' + cleanNames + '</option>');
+					var hucs = [];
+					$.each(results.features,lang.hitch(this, function(i,v){
+						hucs.push(v.attributes)
 					}));
+					hucs.sort(function(a,b) {return (a.clean_names > b.clean_names) ? 1 : ((b.clean_names > a.clean_names) ? -1 : 0);} ); 
+					this.huc8s = hucs;
+					$('#' + this.id + 'ch-HUC8').empty();
+					$('#' + this.id + 'ch-HUC8').append("<option value=''></option>")
+					$('#' + this.id + 'ch-HUC8').append("<option value='fullExtent'>Zoom to Full Extent</option>")
+					$.each(this.huc8s, lang.hitch(this, function(i,v){
+						$('#' + this.id + 'ch-HUC8').append("<option value='" + v.Abbr + "'>" + v.clean_names + "</option>")
+					})); 
 					$('#' + this.id + 'ch-HUC8').trigger("chosen:updated");
 				}));
-
 
 // SET SYMBOLOGY /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 				// HUC12 Symbol
@@ -300,8 +303,8 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 // FEATURE LAYERS /////////////////////////////////////////////////////////////////////////////////////////////////////////
 				// set all feature layers and set selection symbols
 				// huc8
-				this.huc8 = new FeatureLayer(this.obj.url + "/2", { mode: esri.layers.FeatureLayer.MODE_SELECTION, outFields: "*"});
-				this.huc8_click = new FeatureLayer(this.obj.url + "/2", { mode: esri.layers.FeatureLayer.MODE_SELECTION, outFields: "*"});
+				this.huc8 = new FeatureLayer(this.obj.url + "/0", { mode: esri.layers.FeatureLayer.MODE_SELECTION, outFields: "*"});
+				this.huc8_click = new FeatureLayer(this.obj.url + "/0", { mode: esri.layers.FeatureLayer.MODE_SELECTION, outFields: "*"});
 				this.huc8.setSelectionSymbol(this.huc8highlightSymbol);
 				// impaired watershed
 				this.impWater = new FeatureLayer(this.obj.url + "/3", { mode: esri.layers.FeatureLayer.MODE_SELECTION, outFields: "*"});
@@ -309,18 +312,18 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				// huc 12 layer
 				this.huc12 = new FeatureLayer(this.obj.url + "/1", { mode: esri.layers.FeatureLayer.MODE_SELECTION, outFields: "*"});
 				// soils data
-				this.soils = new FeatureLayer(this.obj.url + "/10000", { mode: esri.layers.FeatureLayer.MODE_SELECTION, outFields: "*"});
+				this.soils = new FeatureLayer(this.obj.url + "/7", { mode: esri.layers.FeatureLayer.MODE_SELECTION, outFields: "*"});
 				this.soils.setSelectionSymbol(this.soilsSym);
 				// streams layer
-				this.streams = new FeatureLayer(this.obj.url + "/10000", { mode: esri.layers.FeatureLayer.MODE_SELECTION, outFields: "*"});
+				this.streams = new FeatureLayer(this.obj.url + "/6", { mode: esri.layers.FeatureLayer.MODE_SELECTION, outFields: "*"});
 				this.streams.setSelectionSymbol(this.huc8highlightSymbol);
 				// land cover data
-				this.land = new FeatureLayer(this.obj.url + "/10", { mode: esri.layers.FeatureLayer.MODE_SELECTION, outFields: "*"}); ;
+				this.land = new FeatureLayer(this.obj.url + "/10000", { mode: esri.layers.FeatureLayer.MODE_SELECTION, outFields: "*"}); ;
 				// sample points layer
 				this.samplePoints = new FeatureLayer(this.obj.url + "/4", { mode: esri.layers.FeatureLayer.MODE_SNAPSHOT, outFields: "*"});
 				this.samplePoints.setRenderer(new SimpleRenderer(this.pntSym));
 				//sampling stations layer
-				this.samplingStations = new FeatureLayer(this.obj.url + "/0", { mode: esri.layers.FeatureLayer.MODE_ONDEMAND, outFields: "*"});
+				this.samplingStations = new FeatureLayer(this.obj.url + "/2", { mode: esri.layers.FeatureLayer.MODE_ONDEMAND, outFields: "*"});
 				this.sSelected = 'map';
 
 // MAP CLICKS/SELECTION COMPLETE //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -471,7 +474,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					// create supData array on load of app
 					this.supDataArray = [];
 					$.each(this.layersArray, lang.hitch(this,function(i,v){
-						if(v.name.includes('Soils') == true || v.name.includes('NLCD') == true || v.name.includes('Streams') == true ||v.name.includes('HUC 12') == true || v.name.includes('Banks') == true){
+						if(v.name.includes('Soils') == true || v.name.includes('Land Cover') == true || v.name.includes('Streams') == true ||v.name.includes('HUC12') == true || v.name.includes('Banks') == true){
 							this.supDataArray.push(v.id)
 						}
 					}));
