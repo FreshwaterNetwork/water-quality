@@ -168,21 +168,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 // ENABLE TABLESORTER FUNCTION /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 				// Enable jquery plugin 'tablesorter'
 				require(["jquery", "plugins/water-quality/js/tablesorter"],lang.hitch(this,function($) {
-					// $("#" + this.id + "impTable").tablesorter({
-						// widthFixed : true,
-						// headerTemplate : '{content} {icon}', // Add icon for various themes
-
-						// widgets: [ 'zebra', 'stickyHeaders'],
-						// theme: 'blue',
-
-						// widgetOptions: {
-							//jQuery selector or object to attach sticky header to
-							// stickyHeaders_attachTo : '.impWaterWrapper',
-							// stickyHeaders_includeCaption: false // or $('.wrapper')
-						// }
-					// });
-
-
 					$("#" + this.appDiv.id + "impTable").tablesorter({
 						widthFixed : true,
 						headerTemplate : '{content}', // Add icon for various themes
@@ -244,10 +229,10 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 						new Color([100,100,0,1]), 2),
 						new Color([100,100,0,0.3]));
 						// soil symbol
-				this.streamsSym = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
+				this.streamsSym =
 						new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
-						new Color([100,100,0,1]), 2),
-						new Color([100,100,0,0.3]));
+						new Color([0,46,115,0.5]),5);
+						
 				// sample points symbol
 				this.pntSym = new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_CIRCLE, 11,
 						new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
@@ -314,6 +299,9 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				// soils data
 				this.soils = new FeatureLayer(this.obj.url + "/7", { mode: esri.layers.FeatureLayer.MODE_SELECTION, outFields: "*"});
 				this.soils.setSelectionSymbol(this.soilsSym);
+				// bank data
+				this.bank = new FeatureLayer(this.obj.url + "/5", { mode: esri.layers.FeatureLayer.MODE_SELECTION, outFields: "*"});
+				this.bank.setSelectionSymbol(this.bankSym);
 				// streams layer
 				this.streams = new FeatureLayer(this.obj.url + "/6", { mode: esri.layers.FeatureLayer.MODE_SELECTION, outFields: "*"});
 				this.streams.setSelectionSymbol(this.huc8highlightSymbol);
@@ -355,9 +343,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				}));
 				// on selection complete for huc 12.
 				this.huc12.on("selection-complete", lang.hitch(this,function(f){
-					this.mapClicks.huc12SelComplete(f,this);
 					this.obj.huc12ID = f.features[0].attributes.HUC_12;
-					//this.supportingData.supDataFunction(f, this);
 				}));
 				// on selection complete of impaired watersheds
 				this.impWater.on("selection-complete", lang.hitch(this,function(f){

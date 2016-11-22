@@ -19,10 +19,10 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				t.hQuery = new esri.tasks.Query();
 				t.hQuery.geometry = pnt;
 				if (t.obj.sel == 'tm' && t.sSelected == 'map'){
-					t.supportingData.supDataFunction(t);
+					t.supportingData.supDataFunction(evt,t);
 				}
 				if (t.obj.sel == 'sp'){
-					t.supportingData.supDataFunction(t);
+					t.supportingData.supDataFunction(evt,t);
 				}
 				if (t.obj.sel == 'imp'){
 					// select features from the imp water layer.
@@ -50,41 +50,9 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				} else{
 				}
 			},
-			huc12SelComplete: function(f,t){
-				console.log(f)
-				if(f.features.length > 0){
-					$('#' + t.id + 'clickHuc12').show();
-					var acres = numberWithCommas(f.features[0].attributes.ACRES);
-					var c = "<div class='supDataText' style='padding:6px;'><b>HUC 12: </b>${HUC_12}<br><b>Acres: </b>" + acres + "<br><b>Subwatershed: </b>${SUBWATERSHED}</div>";
-					var content = esriLang.substitute(f.features[0].attributes,c);
-					$('#' + t.id + 'clickHuc12').html(content);
-				}else{
-					var query = new esri.tasks.Query();
-					query.geometry = t.hQuery.geometry;
-					t.huc8_click.selectFeatures(query,esri.layers.FeatureLayer.SELECTION_NEW);
-				}
-			},
 			impSelectionComplete: function(f,t,l){
-				
 				$('#' + t.id + 'impStartText').hide();
 				t.obj.impStateID = f.features[0].attributes.SUBSEGMENT;
-				// imp watershed selection symbol
-				// var impWaterShedSelectionN = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
-						// new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
-						// new Color([53, 154, 0]), 3),
-						// new Color([236,239,222,.15]));
-				// var impWaterShedSelectionL = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
-						// new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
-						// new Color([216,216,0]), 3),
-						// new Color([236,239,222,.15]));
-				// var impWaterShedSelectionM = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
-						// new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
-						// new Color([	216,144,0]), 3),
-						// new Color([236,239,222,.15]));
-				// var impWaterShedSelectionH = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
-						// new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
-						// new Color([216,0,0]), 3),
-						// new Color([236,239,222,.15]));
 				if (t.obj.sel == 'imp'){
 					var waterName = f.features[0].attributes.NAME;
 					var waterDesc = f.features[0].attributes.DESCRIPTIO;

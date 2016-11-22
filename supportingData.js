@@ -77,20 +77,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					t.dynamicLayer.setLayerDefinitions(t.obj.layerDefs);
 					
 					$('#' + t.id + 'bottomDiv').show();
-					
-					var streamsURL  = t.obj.url + '/6';
-					t.streams = new FeatureLayer(streamsURL, { mode: esri.layers.FeatureLayer.MODE_SNAPSHOT, outFields: "*"}); 
-					t.map.addLayer(t.streams);
-					t.streams.on('mouse-over', lang.hitch(t,function(evt){
-						t.map.graphics.clear();
-						var streamGraphic = new Graphic(evt.graphic.geometry,t.huc8highlightSymbol);
-						t.map.graphics.add(streamGraphic);
-						$('#' + t.id + 'clickStreams').show();
-						var val = evt.graphic.attributes.GNIS_Name
-						var c = "<div class='supDataText' style='padding:6px;'><b>Name : </b>" + val + "</div>";
-						$('#' + t.id + 'clickStreams').html(c);
-					}));
-					
 				}
 				if (c.currentTarget.value == "Bank"){
 					t.bankChecked = 'yes';
@@ -102,30 +88,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					if (t.obj.visibleLayers.length < 2 ){
 						$('#' + t.id + 'bottomDiv').hide();
 					}
-				
-					/* $.each(t.layersArray, lang.hitch(t,function(i,v){
-						if (t.obj.huc8Selected[0] + ' Mitigation Banks' == v.name){
-							t.obj.bankID = v.id;
-							t.obj.spatialLayerArray.push(t.obj.bankID);
-							t.obj.visibleLayers.push(t.obj.bankID);
-							return false;
-						}
-					})); */
 					$('#' + t.id + 'bottomDiv').show();
-					
-					var bankURL  = t.obj.url + '/5';
-					t.bank = new FeatureLayer(bankURL, { mode: esri.layers.FeatureLayer.MODE_SNAPSHOT, outFields: "*"}); 
-					//t.bank.setSelectionSymbol(t.streamsSym);
-					t.map.addLayer(t.bank);
-					t.bank.on('click', lang.hitch(t,function(evt){
-						t.map.graphics.clear();
-						var bankGraphic = new Graphic(evt.graphic.geometry,t.bankSym);
-						t.map.graphics.add(bankGraphic);
-						$('#' + t.id + 'clickBank').show();
-						var val = evt.graphic.attributes.Name
-						var c = "<div class='supDataText' style='padding:6px;'><b>Name : </b>" + val + "</div>";
-						$('#' + t.id + 'clickBank').html(c);
-					}));
 				}
 				
 				if (c.currentTarget.value == "Land Cover"){
@@ -147,27 +110,76 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 						$('#' + t.id + 'bottomDiv').hide();
 					}
 				}
+				console.log(t.obj.visibleLayers);
 				t.dynamicLayer.setVisibleLayers(t.obj.visibleLayers);
-				
 			},
-			supDataFunction: function(t, f){
+			supDataFunction: function(evt,t){
 				var id = t.id;
 				t.soils.clear();
 				t.huc12.clear();
-				if(t.obj.supLayer == 'none' || t.obj.supLayer == 'cb-land' || t.obj.supLayer == 'cb-bank' || t.obj.supLayer == 'cb-streams' ){
+				t.bank.clear();
+				t.streams.clear()
+				t.map.graphics.clear();
+				
+				if(t.obj.supLayer == 'none' || t.obj.supLayer == 'cb-land' || t.obj.supLayer == 'cb-streams' ){
 					t.huc8_click.selectFeatures(t.hQuery,esri.layers.FeatureLayer.SELECTION_NEW);
-					t.map.removeLayer(t.streams);
+					//t.map.removeLayer(t.streams);
 				}
+				if(t.obj.supLayer == 'cb-bank'){
+					var bankURL  = t.obj.url + '/5';
+					t.bank = new FeatureLayer(bankURL, { mode: esri.layers.FeatureLayer.MODE_SELECTION, outFields: "*"}); 
+					t.bank.setSelectionSymbol(t.bankSym);
+					t.map.addLayer(t.bank);
+					
+					var centerPoint = new esri.geometry.Point(evt.mapPoint.x,evt.mapPoint.y,evt.mapPoint.spatialReference);
+					var mapWidth = t.map.extent.getWidth();
+					var mapWidthPixels = t.map.width;
+					var pixelWidth = mapWidth/mapWidthPixels;
+					var tolerance = 20 * pixelWidth;
+					var pnt = evt.mapPoint;
+					var ext = new esri.geometry.Extent(1,1, tolerance, tolerance, evt.mapPoint.spatialReference);
+					var q = new Query();
+					q.geometry = ext.centerAt(centerPoint);
+					t.bank.selectFeatures(q,esri.layers.FeatureLayer.SELECTION_NEW);
+					
+					// handle the on selection complete here after the add layer for bank
+					t.bank.on("selection-complete", lang.hitch(t,function(f){
+						console.log('sel comp banks')
+						if (f.features.length > 0){
+							$('#' + id + 'clickBank').show();
+							var c = "<div class='supDataText' style='padding:6px;'><b>Bank Name: </b>${Name}</div>";
+							var content = esriLang.substitute(f.features[0].attributes,c);
+							$('#' + id + 'clickBank').html(content);
+						}else{
+							var query = new esri.tasks.Query();
+							query.geometry = t.hQuery.geometry;
+							t.huc8_click.selectFeatures(query,esri.layers.FeatureLayer.SELECTION_NEW);
+						}
+					}));
+				};
+				
 				if(t.obj.supLayer == 'cb-streams'){
 					var streamsURL  = t.obj.url + "/6";
 					t.streams = new FeatureLayer(streamsURL, { mode: esri.layers.FeatureLayer.MODE_SELECTION, outFields: "*"}); 
 					t.streams.setSelectionSymbol(t.streamsSym);
 					t.map.addLayer(t.streams);
-					t.streams.selectFeatures(t.hQuery, { mode: esri.layers.FeatureLayer.MODE_SELECTION, outFields: "*"});
+					var centerPoint = new esri.geometry.Point(evt.mapPoint.x,evt.mapPoint.y,evt.mapPoint.spatialReference);
+					var mapWidth = t.map.extent.getWidth();
+					var mapWidthPixels = t.map.width;
+					var pixelWidth = mapWidth/mapWidthPixels;
+					var tolerance = 10 * pixelWidth;
+					var pnt = evt.mapPoint;
+					var ext = new esri.geometry.Extent(1,1, tolerance, tolerance, evt.mapPoint.spatialReference);
+					var q = new Query();
+					q.geometry = ext.centerAt(centerPoint);
+					t.streams.selectFeatures(q,esri.layers.FeatureLayer.SELECTION_NEW);
+					
+					//t.streams.selectFeatures(t.hQuery, { mode: esri.layers.FeatureLayer.MODE_SELECTION, outFields: "*"});
 					t.streams.on("selection-complete", lang.hitch(t,function(f){
+						console.log('sel comp streams');
 						if (f.features.length > 0){
 							$('#' + id + 'clickStreams').show();
-							var c = "<div class='supDataText' style='padding:6px;'><b>Soil Type: </b>${GNIS_Name}</div>";
+							var c = "<div class='supDataText' style='padding:6px;'><b>Stream Name: </b>${GNIS_Name}</div>";
 							var content = esriLang.substitute(f.features[0].attributes,c);
 							$('#' + id + 'clickStreams').html(content);
 						}else{
@@ -181,6 +193,20 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				if (t.obj.supLayer == 'cb-huc12'){
 					t.hQuery.where = "huc8_abbr = '" + t.huc8Choosen + "'";
 					t.huc12.selectFeatures(t.hQuery,esri.layers.FeatureLayer.SELECTION_NEW);
+					t.huc12.on("selection-complete", lang.hitch(t,function(f){
+						if(f.features.length > 0){
+							$('#' + t.id + 'clickHuc12').show();
+							var acres = numberWithCommas(f.features[0].attributes.ACRES);
+							var c = "<div class='supDataText' style='padding:6px;'><b>HUC 12: </b>${HUC_12}<br><b>Acres: </b>" + acres + "<br><b>Subwatershed: </b>${SUBWATERSHED}</div>";
+							var content = esriLang.substitute(f.features[0].attributes,c);
+							$('#' + t.id + 'clickHuc12').html(content);
+						}else{
+							var query = new esri.tasks.Query();
+							query.geometry = t.hQuery.geometry;
+							t.huc8_click.selectFeatures(query,esri.layers.FeatureLayer.SELECTION_NEW);
+						}
+					}));
+					
 				}
 				if (t.obj.supLayer == 'cb-soils'){
 					var soilsUrl = t.obj.url + "/7";
@@ -190,6 +216,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					t.soils.selectFeatures(t.hQuery,esri.layers.FeatureLayer.SELECTION_NEW);
 					// handle the on selection complete here after the add layer
 					t.soils.on("selection-complete", lang.hitch(t,function(f){
+						console.log('sel comp soils')
 						if (f.features.length > 0){
 							$('#' + id + 'clickSoils').show();
 							var c = "<div class='supDataText' style='padding:6px;'><b>Soil Type: </b>${map_unit_n}</div>";

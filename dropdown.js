@@ -35,8 +35,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 							t.huc8CleanName = v.clean_names
 						}
 					}));
-					
-					
 					// build the trait dropdown
 					$.each(c.currentTarget, lang.hitch(this, function(i,v){
 						if(v.selected === true){
@@ -169,25 +167,8 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					var layerDefinitions = [];
 					layerDefinitions[t.lyrID] = "Watershed = '" + t.huc8Choosen + "' AND Year ='" + t.year + "'";
 					t.dynamicLayer.setLayerDefinitions(layerDefinitions);
-					t.dynamicLayer.setVisibleLayers([0,t.lyrID]);
-					
-					
-					
-					// remove a raster layer if it already exists in the layers array. this keeps the rasters from stacking on each other
-					// var index = t.obj.spatialLayerArray.indexOf(Number(t.obj.yearSelected));
-					// if(index > -1){
-						// t.obj.spatialLayerArray.splice(index,1);
-					// }
-					// var index = t.obj.visibleLayers.indexOf(Number(t.obj.yearSelected));
-					// if(index > -1){
-						// t.obj.visibleLayers.splice(index,1);
-					// }
-					
-					// t.obj.yearSelected = $('#' + t.id + 'ch-years').val();
-					// t.obj.spatialLayerArray.push(Number(t.obj.yearSelected));
-					// t.obj.visibleLayers.push(Number(t.obj.yearSelected));
-					// t.dynamicLayer.setVisibleLayers(unique(t.obj.visibleLayers));
-					
+					t.obj.visibleLayers = [0,t.lyrID]
+					t.dynamicLayer.setVisibleLayers(t.obj.visibleLayers);
 					// 
 					var lyrName = '';
 					$.each(t.layersArray, lang.hitch(t,function(i,v){
@@ -200,14 +181,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					// sample points div slide down
 					$('#' + t.id + 'ch-pointsDiv').slideDown();
 				} else{
-					// var index = t.obj.spatialLayerArray.indexOf(Number(t.obj.yearSelected));
-					// if(index > -1){
-						// t.obj.spatialLayerArray.splice(index,1);
-					// }
-					// var index = t.obj.visibleLayers.indexOf(Number(t.obj.yearSelected));
-					// if(index > -1){
-						// t.obj.visibleLayers.splice(index,1);
-					// }
 					//$('#' + t.id + 'ch-years').empty();
 					$('#' + t.id + 'ch-years').val('').trigger('chosen:updated');
 					$('#' + t.id + 'ch-pointsDiv').hide();
