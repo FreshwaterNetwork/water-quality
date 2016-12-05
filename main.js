@@ -26,6 +26,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 // INITIALIZE FUNCTION /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			// First function called when the user clicks the pluging icon.
 			initialize: function (frameworkParameters) {
+				console.log('initialize')
 				// Access framework parameters
 				declare.safeMixin(this, frameworkParameters);
 				// Set initial app size based on split screen state
@@ -41,11 +42,13 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				// Define object to access global variables from JSON object. Only add variables to varObject.json that are needed by Save and Share.
 				this.obj = dojo.eval("[" + config + "]")[0];
 			},
+			
 // HIBERNATE FUNCTION /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			// Called after initialize at plugin startup (why all the tests for undefined). Also called after deactivate when user closes app by clicking X.
 			hibernate: function () {
+				console.log('hibernate')
 				//$('.legend').removeClass("hideLegend");
-				this.map.__proto__._params.maxZoom = 23;
+				// this.map.__proto__._params.maxZoom = 23;
 				if (this.appDiv != undefined){
 					$('#' + this.id + 'ch-HUC8').val('').trigger('chosen:updated');
 					$('#' + this.id + 'ch-HUC8').trigger('change');
@@ -56,9 +59,10 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 // ACTIVATE FUNCTION /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			// Called after hibernate at app startup. Calls the render function which builds the plugins elements and functions.
 			activate: function () {
+				console.log('activate')
 				// Hide framework default legend
 				//$('.legend').addClass("hideLegend");
-				//this.map.__proto__._params.maxZoom = 19;
+				// this.map.__proto__._params.maxZoom = 19;
 				if (this.rendered == false) {
 					this.rendered = true;
 					this.render();
@@ -77,7 +81,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 			// Called when user hits the minimize '_' icon on the pluging. Also called before hibernate when users closes app by clicking 'X'.
 			deactivate: function () {
 
-
+				console.log('deactivate')
 			},
 // GET STATE FUNCTION /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			// Called when user hits 'Save and Share' button. This creates the url that builds the app at a given state using JSON.
@@ -144,8 +148,9 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				this.dropdown = new dropdown();
 				this.mapClicks = new mapClicks();
 				this.saveState = new saveState();
+
 // DEFINE CONTENT ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-					// Define Content Pane
+				// Define Content Pane
 				this.appDiv = new ContentPane({style:'padding:8px 8px 8px 8px'});
 				this.id = this.appDiv.id;
 				dom.byId(this.container).appendChild(this.appDiv.domNode);
@@ -164,7 +169,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					active: false,
 					heightStyle: "content"
 				});
-
 // ENABLE TABLESORTER FUNCTION /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 				// Enable jquery plugin 'tablesorter'
 				require(["jquery", "plugins/water-quality/js/tablesorter"],lang.hitch(this,function($) {
@@ -296,9 +300,12 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 
 				// huc 12 layer
 				this.huc12 = new FeatureLayer(this.obj.url + "/1", { mode: esri.layers.FeatureLayer.MODE_SELECTION, outFields: "*"});
-				// soils data
-				this.soils = new FeatureLayer(this.obj.url + "/7", { mode: esri.layers.FeatureLayer.MODE_SELECTION, outFields: "*"});
+				//soils data
+				var soilsUrl = this.obj.url + "/7";
+				this.soils = new FeatureLayer(soilsUrl, { mode: esri.layers.FeatureLayer.MODE_SELECTION, outFields: "*"});
 				this.soils.setSelectionSymbol(this.soilsSym);
+				this.map.addLayer(this.soils);
+				
 				// bank data
 				this.bank = new FeatureLayer(this.obj.url + "/5", { mode: esri.layers.FeatureLayer.MODE_SELECTION, outFields: "*"});
 				this.bank.setSelectionSymbol(this.bankSym);
@@ -341,10 +348,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				this.huc8_click.on("selection-complete", lang.hitch(this,function(f){
 					this.mapClicks.huc8ClickSelComplete(f,this);
 				}));
-				// on selection complete for huc 12.
-				this.huc12.on("selection-complete", lang.hitch(this,function(f){
-					this.obj.huc12ID = f.features[0].attributes.HUC_12;
-				}));
 				// on selection complete of impaired watersheds
 				this.impWater.on("selection-complete", lang.hitch(this,function(f){
 					// call the impSelectionComplete function below.
@@ -368,7 +371,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				this.samplingStations.on('selection-complete', lang.hitch(this,function(f){
 					var atts =  f.features[0];
 					this.graphClicks.samplingStationSaveShare(atts,this);
-					//$('#' + this.id + 'traitBar').find('#'+ this.obj.temp).trigger('click');
 					$('#'+ this.obj.traitBarSelected).trigger('click');
 					$('#'+ this.obj.slTextSelected).trigger('click');
 					if(this.obj.graphHideBtn == 'yes'){
@@ -460,11 +462,30 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					// create supData array on load of app
 					this.supDataArray = [];
 					$.each(this.layersArray, lang.hitch(this,function(i,v){
-						if(v.name.includes('Soils') == true || v.name.includes('Land Cover') == true || v.name.includes('Streams') == true ||v.name.includes('HUC12') == true || v.name.includes('Banks') == true){
+						if(v.name.search('Soils') > -1 || v.name.search('Land Cover') > -1 || v.name.search('Streams') > -1 ||v.name.search('HUC12') > -1 || v.name.search('Banks') > -1){
 							this.supDataArray.push(v.id)
 						}
 					}));
+					
+// Create sup data and trait object to see what sup data and trait data to show when huc8 is clicked ///////////////////////////////////////////////////
+					
+					this.supDataObject = {};
+					this.huc12SupArray = [];
+					// create query task on the huc 8 table at app startup
 
+					var queryTask = new QueryTask(this.obj.url + "/1")
+					var query = new Query();
+					query.returnGeometry = false;
+					query.outFields = ["huc8_abbr", "huc8_clean_names"];
+					query.where = "OBJECTID > -1"
+					queryTask.execute(query, lang.hitch(this, function(results){
+						$.each(results.features,lang.hitch(this, function(i,v){
+							this.huc12SupArray.push(v.attributes.huc8_abbr);
+						}));
+					}));
+
+					this.huc12SupArray = unique(this.huc12SupArray);
+					
 // Set State Logic ///////////////////////////////////////////////////////////////////////////////////////////////////
 					require(["jquery", "plugins/water-quality/js/chosen.jquery"],lang.hitch(this,function($) {
 						if (this.obj.stateSet == 'yes'){
@@ -503,6 +524,11 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					var configCrs =  { '.chosen-crs' : {allow_single_deselect:true, width:"200px", disable_search:false}}
 					for (var selector in configCrs)  { $(selector).chosen(configCrs[selector]); }
 				}));
+				
+				
+
+
+
 // DROPDOWN MENUS //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 				// Use selections on chosen menus
 				require(["jquery", "plugins/water-quality/js/chosen.jquery"],lang.hitch(this,function($) {
@@ -553,11 +579,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				$('#' + this.id + 'supDataDiv input:radio').on('click', lang.hitch(this,function(c){
 					this.supportingData.supRadioClick(this, c);
 				}));
-
-
-				// $('#' + this.id + 'cb-huc12').trigger("click");
-				//$('#' + this.id + 'supDataDiv input:radio').val().trigger('click');
-
 
 				this.rendered = true;
 			}, // end of render function.

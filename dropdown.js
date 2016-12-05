@@ -60,7 +60,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					var val = $('#' + t.id + 'ch-HUC8').val();
 					$('#' + t.id + 'ch-traitsDiv').show();
 					t.obj.huc8Selected = c.currentTarget.value.split("_");
-					console.log(t.obj.huc8Selected, 'huc 8 sel');
 					if(t.obj.huc8Sel == c.currentTarget.value){
 						t.obj.inHuc8 = 'yes';
 					}else{
@@ -116,6 +115,11 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 						$('#' + v.id).hide();
 					}));
 				}
+				// dropdown trait menu but change the value to say there is not traits.
+				if($('#' + t.id + 'ch-traits' + '> option').length == 1){
+					$('#' + t.id + 'ch-traits').append("<option value='Nada' selected>No Traits for this Watershed</option>")
+					$('#' + t.id + 'ch-traits').trigger("chosen:updated");
+				}
 			},
 			traitsSelect: function(c,d,t){
 				var traitVal = $('#' + t.id + 'ch-traits').val();
@@ -163,13 +167,13 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				if(v || t.stateYear == 'yes'){
 					// selected year
 					t.year = c.currentTarget.value;
-					// set layer defs
-					var layerDefinitions = [];
-					layerDefinitions[t.lyrID] = "Watershed = '" + t.huc8Choosen + "' AND Year ='" + t.year + "'";
-					t.dynamicLayer.setLayerDefinitions(layerDefinitions);
+					//set layer defs
+					t.layerDefinitions = [];
+					t.layerDefinitions[t.lyrID] = "Watershed = '" + t.huc8Choosen + "' AND Year ='" + t.year + "'";
+					t.dynamicLayer.setLayerDefinitions(t.layerDefinitions);
 					t.obj.visibleLayers = [0,t.lyrID]
 					t.dynamicLayer.setVisibleLayers(t.obj.visibleLayers);
-					// 
+					
 					var lyrName = '';
 					$.each(t.layersArray, lang.hitch(t,function(i,v){
 						if(v.id == t.obj.yearSelected){
@@ -181,11 +185,12 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					// sample points div slide down
 					$('#' + t.id + 'ch-pointsDiv').slideDown();
 				} else{
-					//$('#' + t.id + 'ch-years').empty();
 					$('#' + t.id + 'ch-years').val('').trigger('chosen:updated');
 					$('#' + t.id + 'ch-pointsDiv').hide();
 					$('#' + t.id + 'sampleValue').hide();
-					//t.obj.yearSelected = undefined;
+					
+					var index = $.inArray(t.lyrID, t.obj.visibleLayers);
+					t.obj.visibleLayers.splice(index,1);
 					t.dynamicLayer.setVisibleLayers(t.obj.visibleLayers);
 					$('#' + t.id + 'ch-points').prop( "checked", false ).trigger('change');
 

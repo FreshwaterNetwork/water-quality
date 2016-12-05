@@ -26,7 +26,8 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				$('#' + t.id + 'graphHide, #' + t.id + 'graphShow').hide();
 				$('#' + t.id + 'spatialWrapper').show();
 				// remove water quality sample station points when click on internal spatial.
-				var index = t.obj.spatialLayerArray.indexOf(2);
+				//var index = t.obj.spatialLayerArray.indexOf(2);
+				var index = $.inArray(2, t.obj.spatialLayerArray);
 				if(index > -1){
 					t.obj.spatialLayerArray.splice(index,1);
 				}
@@ -38,7 +39,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				}
 				t.obj.spatialLayerArray = unique(t.obj.spatialLayerArray);
 				t.obj.visibleLayers = t.obj.spatialLayerArray;
-				console.log(t.obj.visibleLayers);
 				t.dynamicLayer.setVisibleLayers(t.obj.visibleLayers);
 				// show and hide elements
 				$('#' + t.id + 'graphHide').trigger('click');
@@ -67,10 +67,8 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				// remove spatial raster layer when internal temporal button is clicked
 				var stationIndex = t.obj.visibleLayers.indexOf(0);
 				// if there is a huc 8 selected. show water quality sample points.
-				console.log(t.obj.huc8Selected.length);
 				if(t.obj.huc8Selected.length > 0){
 					//t.obj.visibleLayers.push(0)
-					console.log('inside temp')
 					t.map.addLayer(t.samplingStations);
 				}
 				var yearIndex = t.obj.visibleLayers.indexOf(Number(t.lyrID));

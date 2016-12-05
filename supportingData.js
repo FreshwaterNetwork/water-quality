@@ -33,18 +33,21 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				t.soils.clear();
 				t.huc12.clear();
 				t.map.removeLayer(t.streams);
+				
+				
 				// make an array to loop through sup data layers and clear on each radio click
 				$.each(t.supDataArray, lang.hitch(t, function(i,v){
-					var index = t.obj.spatialLayerArray.indexOf(v);
-					if(index > -1){
-						t.obj.spatialLayerArray.splice(index,1);
+					
+					var index2 = $.inArray(v, t.obj.spatialLayerArray);
+					var index3 = $.inArray(v, t.obj.visibleLayers);
+
+					if(index2 > -1){
+						t.obj.spatialLayerArray.splice(index2,1);
 					}
-					var index = t.obj.visibleLayers.indexOf(v);
-					if(index > -1){
-						t.obj.visibleLayers.splice(index,1);
+					if(index3 > -1){
+						t.obj.visibleLayers.splice(index3,1);
 					}
 				}));
-				
 				// if value is Huc 12 set the layer to on
 				if (c.currentTarget.value == "HUC 12s"){
 					t.obj.spatialLayerArray.push(1);
@@ -110,7 +113,14 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 						$('#' + t.id + 'bottomDiv').hide();
 					}
 				}
-				console.log(t.obj.visibleLayers);
+				// reset the raster layer def in the sup data area.
+				if (t.obj.sel == 'sp'){
+					t.layerDefinitions = [];
+					t.obj.layerDefs[t.lyrID] = "Watershed = '" + t.huc8Choosen + "' AND Year ='" + t.year + "'";
+					t.dynamicLayer.setLayerDefinitions(t.obj.layerDefs);
+					t.obj.visibleLayers.push(t.lyrID);
+				}
+				t.obj.visibleLayers = unique(t.obj.visibleLayers);
 				t.dynamicLayer.setVisibleLayers(t.obj.visibleLayers);
 			},
 			supDataFunction: function(evt,t){
@@ -144,7 +154,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					
 					// handle the on selection complete here after the add layer for bank
 					t.bank.on("selection-complete", lang.hitch(t,function(f){
-						console.log('sel comp banks')
 						if (f.features.length > 0){
 							$('#' + id + 'clickBank').show();
 							var c = "<div class='supDataText' style='padding:6px;'><b>Bank Name: </b>${Name}</div>";
@@ -176,7 +185,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					
 					//t.streams.selectFeatures(t.hQuery, { mode: esri.layers.FeatureLayer.MODE_SELECTION, outFields: "*"});
 					t.streams.on("selection-complete", lang.hitch(t,function(f){
-						console.log('sel comp streams');
 						if (f.features.length > 0){
 							$('#' + id + 'clickStreams').show();
 							var c = "<div class='supDataText' style='padding:6px;'><b>Stream Name: </b>${GNIS_Name}</div>";
@@ -213,10 +221,10 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					t.soils = new FeatureLayer(soilsUrl, { mode: esri.layers.FeatureLayer.MODE_SELECTION, outFields: "*"});
 					t.soils.setSelectionSymbol(t.soilsSym);
 					t.map.addLayer(t.soils);
+					t.hQuery.where = "Watershed = '" + t.huc8Choosen + "'";
 					t.soils.selectFeatures(t.hQuery,esri.layers.FeatureLayer.SELECTION_NEW);
 					// handle the on selection complete here after the add layer
 					t.soils.on("selection-complete", lang.hitch(t,function(f){
-						console.log('sel comp soils')
 						if (f.features.length > 0){
 							$('#' + id + 'clickSoils').show();
 							var c = "<div class='supDataText' style='padding:6px;'><b>Soil Type: </b>${map_unit_n}</div>";
