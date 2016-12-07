@@ -148,7 +148,8 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				$('#' + t.id + 'cb-none, #' + t.id + 'graphHide').trigger("click");
 				$('#' + t.id + 'graphShow').hide();
 				$('#' + t.id + 'ch-traitsDiv, #' + t.id + 'ch-yearsDiv').slideUp();
-				t.map.setExtent(t.dynamicLayer.initialExtent, true);
+				//t.map.setExtent(t.dynamicLayer.initialExtent, true);
+				t.map.setExtent(t.extent, true);
 				// just keep the Huc 8 displayed
 				t.obj.sel = "";
 				$('#' + t.id + 'ch-HUC8').val('').trigger('chosen:updated').trigger('change');
@@ -163,7 +164,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				t.map.removeLayer(t.huc8);
 				t.map.removeLayer(t.huc8_click);
 				t.map.removeLayer(t.impWater);
-				t.map.removeLayer(t.samplePoints);
+				t.map.removeLayer(t.sampPoint);
 				t.obj.visibleLayers = []
 				t.dynamicLayer.setVisibleLayers(t.obj.visibleLayers);
 				$(t.con).animate({ height: '250px', width: '350px' }, 250,

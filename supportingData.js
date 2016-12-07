@@ -17,6 +17,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
             doTest: function(t) {
             },
 			supRadioClick: function(t, c){
+				console.log(c);
 				if(t.bankChecked == 'yes'){
 					t.map.removeLayer(t.bank);
 				}
@@ -113,6 +114,37 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 						$('#' + t.id + 'bottomDiv').hide();
 					}
 				}
+				
+				// if (c.currentTarget.value == "Show Sample Points"){
+					// console.log('now we can click on sample points')
+					////t.obj.supLayer = 'sampPoint';
+					// if(c.currentTarget.checked == true){
+						// t.obj.spatialLayerArray.push(4);
+						// t.obj.visibleLayers.push(4);
+						// t.obj.layerDefs[4] = "Watershed = '" + t.huc8Choosen +"'";
+						
+						
+					// }else{
+						
+					// }
+				// }
+				// samplePointClick: function(v,t){
+					// console.log('test')
+					 // if(v.currentTarget.checked == true){
+						// t.obj.spatialLayerArray.push(4);
+						// t.obj.visibleLayers.push(4);
+						////t.obj.supLayer = "cb-huc12";
+						// console.log(t.huc8Choosen);
+						// t.obj.layerDefs[4] = "Watershed = '" + t.huc8Choosen +"'";
+						// t.dynamicLayer.setLayerDefinitions(t.obj.layerDefs);
+						// console.log(t.obj.visibleLayers);
+						
+						// if (t.obj.visibleLayers.length < 2 ){
+							// $('#' + t.id + 'bottomDiv').hide();
+						// }
+					 // }
+				// }
+				
 				// reset the raster layer def in the sup data area.
 				if (t.obj.sel == 'sp'){
 					t.layerDefinitions = [];
@@ -238,8 +270,34 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 						t.obj.soilStateID = f.features[0].attributes.OBJECTID;
 					}));
 				}
-			}
-			
+			},
+			sampPointClick: function(c, t){
+				// t.map.graphics.clear();
+				// t.sampPoint.clear();
+				
+				if (c.currentTarget.checked == true){
+					var sampURL  = t.obj.url + '/4';
+					t.sampPoint = new FeatureLayer(sampURL, { mode: esri.layers.FeatureLayer.MODE_ONDEMAND, outFields: "*"}); 
+					// t.sampPoint.setSelectionSymbol(t.bankSym);
+					t.sampPoint.setDefinitionExpression("Watershed = '" + t.huc8Choosen + "'" + ' AND ' + "Year = '" + t.year + "'" + ' AND ' + "Trait = '" + t.traitClean + "'");
+					t.map.addLayer(t.sampPoint);
+				}else{
+					//t.sampPoint.clear();
+					t.map.removeLayer(t.sampPoint);
+				}
+				
+				t.sampPoint.on("click", lang.hitch(this,function(evt){
+					console.log('test')
+					// t.map.graphics.clear();
+					var sampleGraphic = new Graphic(evt.graphic.geometry,t.sampleSym);
+					t.map.graphics.add(sampleGraphic);
+					var val = evt.graphic.attributes.value_mean.toFixed(2)
+					$('#' + t.id + 'sampleValue').show();
+					var c = "<div style='padding:6px; font-size:16px;'><b>Station Value: </b>" + val + "</div>";
+					//var content = esriLang.substitute(f.features[0].attributes,c);
+					$('#' + t.id + 'sampleValue').html(c);
+				}));
+			} 
         });
     }
 );

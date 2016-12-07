@@ -52,7 +52,8 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					t.dynamicLayer.setVisibleLayers(t.obj.visibleLayers);
 					
 					// remove and uncheck sample points checkbox
-					t.map.removeLayer(t.samplePoints);
+					//t.map.removeLayer(t.sampPoints);
+					
 					$('#' + t.id + 'ch-points').prop( "checked", false ).trigger('change');
 					// trigger traits menu to empy val
 					$('#' + t.id + 'ch-traits').val('').trigger('chosen:updated');
@@ -90,15 +91,16 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					t.huc8.selectFeatures(t.selectHuc8, FeatureLayer.SELECTION_NEW);
 
 				} else{
+					t.huc8.clear();
 					//$('#' + t.id + 'noDataText').hide();
 					t.map.removeLayer(t.land);
 					t.map.removeLayer(t.soils);
 					t.map.removeLayer(t.samplingStations);
-					t.map.removeLayer(t.huc8);
 					t.map.removeLayer(t.streams);
 					t.map.removeLayer(t.huc8_click);
+					t.map.removeLayer(t.huc8);
 					t.map.removeLayer(t.impWater);
-					t.map.removeLayer(t.samplePoints);
+					t.map.removeLayer(t.sampPoint);
 					if(t.bankChecked == 'yes'){
 						t.map.removeLayer(t.bank);
 					}
@@ -108,7 +110,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					$('#' + t.id + 'sampleValue').hide();
 					t.obj.visibleLayers = [0]
 					t.dynamicLayer.setVisibleLayers(t.obj.visibleLayers);
-					t.map.setExtent(t.dynamicLayer.initialExtent, true);
+					t.map.setExtent(t.extent, true);
 					$('#' + t.id + 'supData').slideUp();
 					var ch = $('#' + t.id + 'spatialWrapper').find('.ch-divs');
 					$.each(ch, lang.hitch(t, function(i, v){
@@ -132,13 +134,14 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					$('#' + t.id + 'ch-years').append('<option value=""></option>');
 					//t.obj.traitSelected = t.obj.huc8Selected[0] + " - " + traitTest + " -";
 					/* t.obj.traitSelected = traitVal + " - " + t.obj.huc8Selected[0]; */
-					
 					t.obj.trait = c.currentTarget.value;
+					console.log(t.obj.trait);
 					$.each(c.currentTarget, lang.hitch(t, function(i,v){
 						if (v.selected === true){
 							t.traitClean = $(v).html();	
 						}	
 					}));
+					console.log(t.traitClean);
 					// loop through layers array
 					$.each(t.layersArray, lang.hitch(t,function(i,v){
 						if(v.name == t.traitClean + " - " + t.hucClean){
@@ -181,32 +184,22 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 							return false;
 						}
 					}));
-					t.samplePoints.setDefinitionExpression("raster = '" + lyrName + "'");
+					//t.samplePoints.setDefinitionExpression("raster = '" + lyrName + "'");
 					// sample points div slide down
 					$('#' + t.id + 'ch-pointsDiv').slideDown();
+					$('#' + t.id + 'ch-points').prop( "checked", false ).trigger('change');
 				} else{
 					$('#' + t.id + 'ch-years').val('').trigger('chosen:updated');
 					$('#' + t.id + 'ch-pointsDiv').hide();
 					$('#' + t.id + 'sampleValue').hide();
-					
 					var index = $.inArray(t.lyrID, t.obj.visibleLayers);
-					t.obj.visibleLayers.splice(index,1);
+					if(index > -1){
+						t.obj.visibleLayers.splice(index,1);
+					}
 					t.dynamicLayer.setVisibleLayers(t.obj.visibleLayers);
 					$('#' + t.id + 'ch-points').prop( "checked", false ).trigger('change');
-
 				}
 			},
-			samplePointClick: function(v,t){
-				var lyrName = '';
-				if(v.currentTarget.checked == true){
-					t.obj.samplePointChecked = 'yes';
-					t.map.addLayer(t.samplePoints);
-				}else{
-					$('#' + t.id + 'sampleValue').hide();
-					t.map.removeLayer(t.samplePoints);
-				}
-			},
-
 
 			traitPopulate: function(t){
 				$('#' + t.id + 'ch-traits').empty();

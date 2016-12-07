@@ -23,6 +23,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				}
 				if (t.obj.sel == 'sp'){
 					t.supportingData.supDataFunction(evt,t);
+					//t.supportingData.sampPointClick(evt,t);
 				}
 				if (t.obj.sel == 'imp'){
 					// select features from the imp water layer.

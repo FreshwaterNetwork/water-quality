@@ -22,11 +22,10 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 			hasCustomPrint: true, usePrintPreviewMap: true, previewMapSize: [1000, 550], height:"250", width:"350",
 			// Comment out the infoGraphic property below to make that annoying popup go away when you start the app
 			infoGraphic: "plugins/water-quality/images/infoGraphic.jpg",
-
+			// 
 // INITIALIZE FUNCTION /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			// First function called when the user clicks the pluging icon.
 			initialize: function (frameworkParameters) {
-				console.log('initialize')
 				// Access framework parameters
 				declare.safeMixin(this, frameworkParameters);
 				// Set initial app size based on split screen state
@@ -46,7 +45,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 // HIBERNATE FUNCTION /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			// Called after initialize at plugin startup (why all the tests for undefined). Also called after deactivate when user closes app by clicking X.
 			hibernate: function () {
-				console.log('hibernate')
 				//$('.legend').removeClass("hideLegend");
 				// this.map.__proto__._params.maxZoom = 23;
 				if (this.appDiv != undefined){
@@ -59,7 +57,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 // ACTIVATE FUNCTION /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			// Called after hibernate at app startup. Calls the render function which builds the plugins elements and functions.
 			activate: function () {
-				console.log('activate')
 				// Hide framework default legend
 				//$('.legend').addClass("hideLegend");
 				// this.map.__proto__._params.maxZoom = 19;
@@ -81,7 +78,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 			// Called when user hits the minimize '_' icon on the pluging. Also called before hibernate when users closes app by clicking 'X'.
 			deactivate: function () {
 
-				console.log('deactivate')
 			},
 // GET STATE FUNCTION /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			// Called when user hits 'Save and Share' button. This creates the url that builds the app at a given state using JSON.
@@ -140,6 +136,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 			},
 // START OF THE RENDER FUNCTION ////////////////////////////////////////////////////////////////////////////////////////////////////////
 			render: function() {
+				this.obj.extent = this.map.geographicExtent;
 // BRING IN OTHER JS FILES ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 				// set variables for all other js files
 				this.graphClicks = new graphClicks();
@@ -233,8 +230,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 						new Color([100,100,0,1]), 2),
 						new Color([100,100,0,0.3]));
 						// soil symbol
-				this.streamsSym =
-						new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
+				this.streamsSym = new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
 						new Color([0,46,115,0.5]),5);
 						
 				// sample points symbol
@@ -315,8 +311,8 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				// land cover data
 				this.land = new FeatureLayer(this.obj.url + "/10000", { mode: esri.layers.FeatureLayer.MODE_SELECTION, outFields: "*"}); ;
 				// sample points layer
-				this.samplePoints = new FeatureLayer(this.obj.url + "/4", { mode: esri.layers.FeatureLayer.MODE_SNAPSHOT, outFields: "*"});
-				this.samplePoints.setRenderer(new SimpleRenderer(this.pntSym));
+				this.sampPoint = new FeatureLayer(this.obj.url + "/4", { mode: esri.layers.FeatureLayer.MODE_SELECTION, outFields: "*"});
+				this.sampPoint.setRenderer(new SimpleRenderer(this.pntSym));
 				//sampling stations layer
 				this.samplingStations = new FeatureLayer(this.obj.url + "/2", { mode: esri.layers.FeatureLayer.MODE_ONDEMAND, outFields: "*"});
 				this.sSelected = 'map';
@@ -340,7 +336,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				}));
 				// on selection complete of the huc8
 				this.huc8.on("selection-complete", lang.hitch(this,function(f){
-
 					this.mapClicks.huc8SelComplete(f,this);
 				}));
 				// build the secend huc 8 selection complete here
@@ -445,12 +440,13 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				// Add dynamic map service
 				this.dynamicLayer = new ArcGISDynamicMapServiceLayer(this.obj.url, {opacity: 1 - this.obj.sliderVal/10});
 				this.map.addLayer(this.dynamicLayer);
+				this.extent = new Extent(this.obj.extent.xmin, this.obj.extent.ymin, this.obj.extent.xmax, this.obj.extent.ymax, new SpatialReference({ wkid:4326 }))
 				this.dynamicLayer.on("load", lang.hitch(this, function () {
 					if (this.obj.extent == ""){
 						//this.map.setExtent(this.dynamicLayer.initialExtent, true);
 					}else{
-						var extent = new Extent(this.obj.extent.xmin, this.obj.extent.ymin, this.obj.extent.xmax, this.obj.extent.ymax, new SpatialReference({ wkid:4326 }))
-						this.map.setExtent(extent, true);
+						this.extent = new Extent(this.obj.extent.xmin, this.obj.extent.ymin, this.obj.extent.xmax, this.obj.extent.ymax, new SpatialReference({ wkid:4326 }))
+						this.map.setExtent(this.extent, true);
 						this.obj.extent = "";
 					}
 					if (this.obj.visibleLayers.length > 0){
@@ -549,12 +545,14 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					}));
 					// work with sample points checkbox
 					this.map = this.map
-					$('#' + this.id + 'ch-points').on('change',lang.hitch(this,function(v){
-						this.dropdown.samplePointClick(v,this);
+					$('#' + this.id + 'ch-points').on('change',lang.hitch(this,function(c){
 						this.map.graphics.clear();
+						this.supportingData.sampPointClick(c, this);
+						
 					}));
-					this.samplePoints.on("click", lang.hitch(this,function(evt){
-						this.map.graphics.clear();
+					/* this.sampPoint.on("click", lang.hitch(this,function(evt){
+						console.log('test')
+						// t.map.graphics.clear();
 						var sampleGraphic = new Graphic(evt.graphic.geometry,this.sampleSym);
 						this.map.graphics.add(sampleGraphic);
 						var val = evt.graphic.attributes.value_mean.toFixed(2)
@@ -562,8 +560,10 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 						var c = "<div style='padding:6px; font-size:16px;'><b>Station Value: </b>" + val + "</div>";
 						//var content = esriLang.substitute(f.features[0].attributes,c);
 						$('#' + this.id + 'sampleValue').html(c);
-
-					}));
+					})); */
+					
+					
+					
 					// this function removes duplicates from any list, used above on the traitArray
 					function unique(list){
 						var result = [];
