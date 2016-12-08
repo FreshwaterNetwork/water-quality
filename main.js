@@ -551,7 +551,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 						
 					}));
 					/* this.sampPoint.on("click", lang.hitch(this,function(evt){
-						console.log('test')
 						// t.map.graphics.clear();
 						var sampleGraphic = new Graphic(evt.graphic.geometry,this.sampleSym);
 						this.map.graphics.add(sampleGraphic);

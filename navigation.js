@@ -26,7 +26,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				$('#' + t.id + 'graphHide, #' + t.id + 'graphShow').hide();
 				$('#' + t.id + 'spatialWrapper').show();
 				// remove water quality sample station points when click on internal spatial.
-				//var index = t.obj.spatialLayerArray.indexOf(2);
 				var index = $.inArray(2, t.obj.spatialLayerArray);
 				if(index > -1){
 					t.obj.spatialLayerArray.splice(index,1);
@@ -56,7 +55,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				);
 			},
 			internalTemporalClick: function(t){
-				//$('#' + t.id + 'noDataText').hide();
+				$('#' + t.id + 'ch-points').trigger("click");
 				// update css to show that it is clicked
 				$('#' + t.id + 'temBtn').addClass('navBtnSel');
 				$('#' + t.id + 'spaBtn').removeClass('navBtnSel');
@@ -68,12 +67,10 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				var stationIndex = t.obj.visibleLayers.indexOf(0);
 				// if there is a huc 8 selected. show water quality sample points.
 				if(t.obj.huc8Selected.length > 0){
-					//t.obj.visibleLayers.push(0)
 					t.map.addLayer(t.samplingStations);
 				}
 				var yearIndex = t.obj.visibleLayers.indexOf(Number(t.lyrID));
 				if(yearIndex > -1){
-					// t.obj.visibleLayers = [2,0];
 					t.obj.visibleLayers.splice(yearIndex,1, 0);
 				}
 				t.dynamicLayer.setVisibleLayers(t.obj.visibleLayers);
@@ -84,6 +81,8 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				);
 			},
 			spatialClick: function(t){
+				t.map.addLayer(t.huc8)
+				t.map.addLayer(t.huc8_click)
 				t.obj.graphOpen = '';
 				// update css to show that it is clicked
 				$('#' + t.id + 'spaBtn').addClass('navBtnSel');
@@ -93,7 +92,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				$('#' + t.id + 'graphHide, #' + t.id + 'graphShow').hide();
 				$('#' + t.id + 'home').slideUp();
 				$('#' + t.id + 'topWrapper, #' + t.id + 'hucWrapper, #' + t.id + 'huc8Wrapper').slideDown();
-				//t.addHuc8();
 				t.obj.visibleLayers = [0];
 				t.dynamicLayer.setVisibleLayers(t.obj.visibleLayers);
 				$(t.con).animate({ height: '565px', width: '350px' }, 250,
@@ -103,6 +101,8 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				);
 			},
 			temporalClick: function(t){
+				t.map.addLayer(t.huc8)
+				t.map.addLayer(t.huc8_click)
 				//update css to show that it is clicked
 				$('#' + t.id + 'temBtn').addClass('navBtnSel');
 				$('#' + t.id + 'spaBtn').removeClass('navBtnSel');
@@ -148,8 +148,8 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				$('#' + t.id + 'cb-none, #' + t.id + 'graphHide').trigger("click");
 				$('#' + t.id + 'graphShow').hide();
 				$('#' + t.id + 'ch-traitsDiv, #' + t.id + 'ch-yearsDiv').slideUp();
-				//t.map.setExtent(t.dynamicLayer.initialExtent, true);
 				t.map.setExtent(t.extent, true);
+				
 				// just keep the Huc 8 displayed
 				t.obj.sel = "";
 				$('#' + t.id + 'ch-HUC8').val('').trigger('chosen:updated').trigger('change');

@@ -17,7 +17,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
             doTest: function(t) {
             },
 			supRadioClick: function(t, c){
-				console.log(c);
 				if(t.bankChecked == 'yes'){
 					t.map.removeLayer(t.bank);
 				}
@@ -116,7 +115,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				}
 				
 				// if (c.currentTarget.value == "Show Sample Points"){
-					// console.log('now we can click on sample points')
 					////t.obj.supLayer = 'sampPoint';
 					// if(c.currentTarget.checked == true){
 						// t.obj.spatialLayerArray.push(4);
@@ -129,15 +127,12 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					// }
 				// }
 				// samplePointClick: function(v,t){
-					// console.log('test')
 					 // if(v.currentTarget.checked == true){
 						// t.obj.spatialLayerArray.push(4);
 						// t.obj.visibleLayers.push(4);
 						////t.obj.supLayer = "cb-huc12";
-						// console.log(t.huc8Choosen);
 						// t.obj.layerDefs[4] = "Watershed = '" + t.huc8Choosen +"'";
 						// t.dynamicLayer.setLayerDefinitions(t.obj.layerDefs);
-						// console.log(t.obj.visibleLayers);
 						
 						// if (t.obj.visibleLayers.length < 2 ){
 							// $('#' + t.id + 'bottomDiv').hide();
@@ -146,7 +141,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				// }
 				
 				// reset the raster layer def in the sup data area.
-				if (t.obj.sel == 'sp'){
+				if (t.obj.sel == 'sp' && t.year.length > -1){
 					t.layerDefinitions = [];
 					t.obj.layerDefs[t.lyrID] = "Watershed = '" + t.huc8Choosen + "' AND Year ='" + t.year + "'";
 					t.dynamicLayer.setLayerDefinitions(t.obj.layerDefs);
@@ -284,10 +279,10 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				}else{
 					//t.sampPoint.clear();
 					t.map.removeLayer(t.sampPoint);
+					$('#' + t.id + 'sampleValue').slideUp();
 				}
 				
 				t.sampPoint.on("click", lang.hitch(this,function(evt){
-					console.log('test')
 					// t.map.graphics.clear();
 					var sampleGraphic = new Graphic(evt.graphic.geometry,t.sampleSym);
 					t.map.graphics.add(sampleGraphic);

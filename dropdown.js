@@ -17,6 +17,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
             doTest: function(t) {
             },
 			huc8Select: function(c, p, t){
+				t.year = '';
 				// clear traits value if huc 8 dropdown menu was cleared
 				p = $('#' + t.id + 'ch-HUC8').val()
 				t.obj.huc8Selected[0] = '';
@@ -30,6 +31,8 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				$('#' + t.id + 'ch-traits').empty();
 				// if something was selected in the huc 8 dropdown
 				if(p || t.obj.stateSet == 'yes'){
+					t.map.addLayer(t.huc8)
+					t.map.addLayer(t.huc8_click)
 					$.each(t.huc8s, lang.hitch(t, function(i,v){
 						if(p == v.Abbr){
 							t.huc8CleanName = v.clean_names
@@ -135,13 +138,11 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					//t.obj.traitSelected = t.obj.huc8Selected[0] + " - " + traitTest + " -";
 					/* t.obj.traitSelected = traitVal + " - " + t.obj.huc8Selected[0]; */
 					t.obj.trait = c.currentTarget.value;
-					console.log(t.obj.trait);
 					$.each(c.currentTarget, lang.hitch(t, function(i,v){
 						if (v.selected === true){
 							t.traitClean = $(v).html();	
 						}	
 					}));
-					console.log(t.traitClean);
 					// loop through layers array
 					$.each(t.layersArray, lang.hitch(t,function(i,v){
 						if(v.name == t.traitClean + " - " + t.hucClean){
@@ -188,7 +189,9 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					// sample points div slide down
 					$('#' + t.id + 'ch-pointsDiv').slideDown();
 					$('#' + t.id + 'ch-points').prop( "checked", false ).trigger('change');
+					
 				} else{
+					t.year = '';
 					$('#' + t.id + 'ch-years').val('').trigger('chosen:updated');
 					$('#' + t.id + 'ch-pointsDiv').hide();
 					$('#' + t.id + 'sampleValue').hide();
@@ -197,6 +200,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 						t.obj.visibleLayers.splice(index,1);
 					}
 					t.dynamicLayer.setVisibleLayers(t.obj.visibleLayers);
+					
 					$('#' + t.id + 'ch-points').prop( "checked", false ).trigger('change');
 				}
 			},
