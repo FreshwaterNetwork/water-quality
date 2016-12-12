@@ -15,15 +15,18 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 
         return declare(null, {
 			mapClick: function(evt, t){
+				console.log('map click')
+				console.log(t.obj.sel)
+				console.log(t.sSelected);
 				var pnt = evt.mapPoint;
 				t.hQuery = new esri.tasks.Query();
 				t.hQuery.geometry = pnt;
 				if (t.obj.sel == 'tm' && t.sSelected == 'map'){
 					t.supportingData.supDataFunction(evt,t);
 				}
-				if (t.obj.sel == 'sp'){
+				if (t.obj.sel == 'sp' && t.sSelected == 'map'){
+					console.log('yes')
 					t.supportingData.supDataFunction(evt,t);
-					//t.supportingData.sampPointClick(evt,t);
 				}
 				if (t.obj.sel == 'imp'){
 					// select features from the imp water layer.
@@ -31,7 +34,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				}
 				t.sSelected = 'map';
 			},
-			
+			// huc8 sel complete 
 			huc8SelComplete: function(f,t){
 				if(f.features.length > 0){
 					var huc8Extent = f.features[0].geometry.getExtent().expand(1);

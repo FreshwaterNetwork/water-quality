@@ -14,11 +14,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
         "use strict";
 
         return declare(null, {
-            // doTest: function(t) {
-				// t.wx = 'after';
-				// t.test1 = new test1();
-				// t.test1.doTest1();
-            // },
 			impWaterClick: function(t, l) {
 				$('#' + t.id + 'chartHeader').text("Click on an Impaired Watershed");
 				t.obj.sel = 'imp';

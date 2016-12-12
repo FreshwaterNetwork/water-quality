@@ -17,6 +17,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
             doTest: function(t) {
             },
 			supRadioClick: function(t, c){
+				console.log(c,'c 2');
 				if(t.bankChecked == 'yes'){
 					t.map.removeLayer(t.bank);
 				}
@@ -33,14 +34,10 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				t.soils.clear();
 				t.huc12.clear();
 				t.map.removeLayer(t.streams);
-				
-				
 				// make an array to loop through sup data layers and clear on each radio click
 				$.each(t.supDataArray, lang.hitch(t, function(i,v){
-					
 					var index2 = $.inArray(v, t.obj.spatialLayerArray);
 					var index3 = $.inArray(v, t.obj.visibleLayers);
-
 					if(index2 > -1){
 						t.obj.spatialLayerArray.splice(index2,1);
 					}
@@ -49,7 +46,8 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					}
 				}));
 				// if value is Huc 12 set the layer to on
-				if (c.currentTarget.value == "HUC 12s"){
+				if (c.currentTarget.value == "cb-huc12"){
+					console.log('huc 12 area')
 					t.obj.spatialLayerArray.push(1);
 					t.obj.visibleLayers.push(1);
 					t.obj.supLayer = "cb-huc12";
@@ -60,7 +58,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					}
 				}
 				// if value is soils set the layer to on
-				if (c.currentTarget.value == "Soils Data"){
+				if (c.currentTarget.value == "cb-soils"){
 					t.obj.spatialLayerArray.push(7);
 					t.obj.visibleLayers.push(7);
 					t.obj.supLayer = "cb-soils"
@@ -70,7 +68,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 						$('#' + t.id + 'bottomDiv').hide();
 					}
 				}
-				if (c.currentTarget.value == "Streams"){
+				if (c.currentTarget.value == "cb-streams"){
 					t.streamsChecked = 'yes'
 					t.obj.supLayer = 'cb-streams';
 					t.obj.spatialLayerArray.push(6);
@@ -78,10 +76,22 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					t.obj.supLayer = "cb-streams"
 					t.obj.layerDefs[6] = "Watershed = '" + t.huc8Choosen +"'";
 					t.dynamicLayer.setLayerDefinitions(t.obj.layerDefs);
-					
 					$('#' + t.id + 'bottomDiv').show();
 				}
-				if (c.currentTarget.value == "Bank"){
+				if (c.currentTarget.value == "cb-bank"){
+					// get count for mitigation banks
+					var query = new Query();
+					var queryTask = new QueryTask(t.obj.url + '/5');
+					query.where =  "Watershed = '" + t.huc8Choosen +"'";
+					console.log('before bank count')
+					queryTask.executeForCount(query,function(count){
+						if(count <= 0){
+							$('#' + t.id + 'clickBank').show();
+							var c = "<div class='supDataText' style='padding:6px;'>There are no mitigation banks for this watershed</div>";
+							$('#' + t.id + 'clickBank').html(c);
+						}	
+					});
+					
 					t.bankChecked = 'yes';
 					t.obj.supLayer = 'cb-bank';
 					t.obj.spatialLayerArray.push(5);
@@ -94,7 +104,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					$('#' + t.id + 'bottomDiv').show();
 				}
 				
-				if (c.currentTarget.value == "Land Cover"){
+				if (c.currentTarget.value == "cb-land"){
 					t.obj.supLayer = 'cb-land';
 					var landID = '';
 					$.each(t.layersArray, lang.hitch(t,function(i,v){
@@ -107,46 +117,23 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					}));
 					$('#' + t.id + 'bottomDiv').show();
 				}
-				if (c.currentTarget.value == "None"){
-					t.obj.supLayer = 'none';
+				if (c.currentTarget.value == "cb-none"){
+					t.obj.supLayer = 'cb-none';
 					if (t.obj.visibleLayers.length < 2 ){
 						$('#' + t.id + 'bottomDiv').hide();
 					}
 				}
 				
-				// if (c.currentTarget.value == "Show Sample Points"){
-					////t.obj.supLayer = 'sampPoint';
-					// if(c.currentTarget.checked == true){
-						// t.obj.spatialLayerArray.push(4);
-						// t.obj.visibleLayers.push(4);
-						// t.obj.layerDefs[4] = "Watershed = '" + t.huc8Choosen +"'";
-						
-						
-					// }else{
-						
-					// }
-				// }
-				// samplePointClick: function(v,t){
-					 // if(v.currentTarget.checked == true){
-						// t.obj.spatialLayerArray.push(4);
-						// t.obj.visibleLayers.push(4);
-						////t.obj.supLayer = "cb-huc12";
-						// t.obj.layerDefs[4] = "Watershed = '" + t.huc8Choosen +"'";
-						// t.dynamicLayer.setLayerDefinitions(t.obj.layerDefs);
-						
-						// if (t.obj.visibleLayers.length < 2 ){
-							// $('#' + t.id + 'bottomDiv').hide();
-						// }
-					 // }
-				// }
-				
 				// reset the raster layer def in the sup data area.
-				if (t.obj.sel == 'sp' && t.year.length > -1){
+				if (t.obj.sel == 'sp' && t.obj.year.length > -1){
 					t.layerDefinitions = [];
-					t.obj.layerDefs[t.lyrID] = "Watershed = '" + t.huc8Choosen + "' AND Year ='" + t.year + "'";
+					t.obj.layerDefs[t.lyrID] = "Watershed = '" + t.huc8Choosen + "' AND Year ='" + t.obj.year + "'";
 					t.dynamicLayer.setLayerDefinitions(t.obj.layerDefs);
 					t.obj.visibleLayers.push(t.lyrID);
 				}
+				
+				// console.log(t.obj.visibleLayers, '2');
+				
 				t.obj.visibleLayers = unique(t.obj.visibleLayers);
 				t.dynamicLayer.setVisibleLayers(t.obj.visibleLayers);
 			},
@@ -155,12 +142,11 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				t.soils.clear();
 				t.huc12.clear();
 				t.bank.clear();
-				t.streams.clear()
+				t.streams.clear();
 				t.map.graphics.clear();
 				
-				if(t.obj.supLayer == 'none' || t.obj.supLayer == 'cb-land' || t.obj.supLayer == 'cb-streams' ){
+				if(t.obj.supLayer == 'cb-none' || t.obj.supLayer == 'cb-land'){
 					t.huc8_click.selectFeatures(t.hQuery,esri.layers.FeatureLayer.SELECTION_NEW);
-					//t.map.removeLayer(t.streams);
 				}
 				if(t.obj.supLayer == 'cb-bank'){
 					var bankURL  = t.obj.url + '/5';
@@ -178,6 +164,8 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					var q = new Query();
 					q.geometry = ext.centerAt(centerPoint);
 					t.bank.selectFeatures(q,esri.layers.FeatureLayer.SELECTION_NEW);
+					
+						
 					
 					// handle the on selection complete here after the add layer for bank
 					t.bank.on("selection-complete", lang.hitch(t,function(f){
@@ -266,33 +254,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					}));
 				}
 			},
-			sampPointClick: function(c, t){
-				// t.map.graphics.clear();
-				// t.sampPoint.clear();
-				
-				if (c.currentTarget.checked == true){
-					var sampURL  = t.obj.url + '/4';
-					t.sampPoint = new FeatureLayer(sampURL, { mode: esri.layers.FeatureLayer.MODE_ONDEMAND, outFields: "*"}); 
-					// t.sampPoint.setSelectionSymbol(t.bankSym);
-					t.sampPoint.setDefinitionExpression("Watershed = '" + t.huc8Choosen + "'" + ' AND ' + "Year = '" + t.year + "'" + ' AND ' + "Trait = '" + t.traitClean + "'");
-					t.map.addLayer(t.sampPoint);
-				}else{
-					//t.sampPoint.clear();
-					t.map.removeLayer(t.sampPoint);
-					$('#' + t.id + 'sampleValue').slideUp();
-				}
-				
-				t.sampPoint.on("click", lang.hitch(this,function(evt){
-					// t.map.graphics.clear();
-					var sampleGraphic = new Graphic(evt.graphic.geometry,t.sampleSym);
-					t.map.graphics.add(sampleGraphic);
-					var val = evt.graphic.attributes.value_mean.toFixed(2)
-					$('#' + t.id + 'sampleValue').show();
-					var c = "<div style='padding:6px; font-size:16px;'><b>Station Value: </b>" + val + "</div>";
-					//var content = esriLang.substitute(f.features[0].attributes,c);
-					$('#' + t.id + 'sampleValue').html(c);
-				}));
-			} 
         });
     }
 );

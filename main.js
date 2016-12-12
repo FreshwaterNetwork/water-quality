@@ -26,6 +26,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 // INITIALIZE FUNCTION /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			// First function called when the user clicks the pluging icon.
 			initialize: function (frameworkParameters) {
+				this.tt = 'yes';
 				// Access framework parameters
 				declare.safeMixin(this, frameworkParameters);
 				// Set initial app size based on split screen state
@@ -45,31 +46,39 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 // HIBERNATE FUNCTION /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			// Called after initialize at plugin startup (why all the tests for undefined). Also called after deactivate when user closes app by clicking X.
 			hibernate: function () {
-				//$('.legend').removeClass("hideLegend");
-				// this.map.__proto__._params.maxZoom = 23;
 				if (this.appDiv != undefined){
-					$('#' + this.id + 'ch-HUC8').val('').trigger('chosen:updated');
-					$('#' + this.id + 'ch-HUC8').trigger('change');
+					this.obj.sel = '';
+					this.map.graphics.clear();
+					this.map.removeLayer(this.land);
+					this.map.removeLayer(this.dynamicLayer);
+					this.map.removeLayer(this.streams);
+					this.map.removeLayer(this.huc12);
+					this.map.removeLayer(this.soils);
+					this.map.removeLayer(this.samplingStations);
+					this.map.removeLayer(this.huc8);
+					this.map.removeLayer(this.huc8_click);
+					this.map.removeLayer(this.impWater);
+					this.map.removeLayer(this.sampPoint);
+					this.obj.visibleLayers = []
+					this.dynamicLayer.setVisibleLayers(this.obj.visibleLayers);
+					$(this.container).empty();
+					this.rendered = false;
 				}
-				// trigger clear button to remove all huc 8's when closing app
-				$('#' + this.id + 'clearBtn').trigger('click');
 			},
 // ACTIVATE FUNCTION /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			// Called after hibernate at app startup. Calls the render function which builds the plugins elements and functions.
 			activate: function () {
 				// Hide framework default legend
-				//$('.legend').addClass("hideLegend");
-				// this.map.__proto__._params.maxZoom = 19;
-				if (this.rendered == false) {
+				if (this.rendered == false){
 					this.rendered = true;
 					this.render();
 					// Hide the print button until a hex has been selected
 					$(this.printButton).hide();
 					this.dynamicLayer.setVisibility(true);
-				} else {
-					if (this.dynamicLayer != undefined)  {
+				}else{
+					if (this.dynamicLayer != undefined){
 						this.dynamicLayer.setVisibility(true);
-						if ( this.map.getZoom() > 12 ){
+						if (this.map.getZoom() > 12 ){
 							this.map.setLevel(12)
 						}
 					}
@@ -77,7 +86,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 			},
 			// Called when user hits the minimize '_' icon on the pluging. Also called before hibernate when users closes app by clicking 'X'.
 			deactivate: function () {
-
+				
 			},
 // GET STATE FUNCTION /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			// Called when user hits 'Save and Share' button. This creates the url that builds the app at a given state using JSON.
@@ -510,20 +519,19 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				this.resize();
 				// Setup hover window for 20 largest parcels (as points)
 				this.map.infoWindow.resize(225,125);
-        		this.dialog = new TooltipDialog({
-				  id: "tooltipDialog",
-				  style: "position: absolute; width: 230px; font: normal normal normal 10pt Helvetica;z-index:100"
-				});
-				this.dialog.startup();
+				if(this.tt == 'yes'){
+					this.dialog = new TooltipDialog({
+					  id: "tooltipDialog",
+					  style: "position: absolute; width: 230px; font: normal normal normal 10pt Helvetica;z-index:100"
+					});
+					this.dialog.startup();
+					this.tt = 'no';
+				}
 				// Enable jquery plugin 'chosen'
 				require(["jquery", "plugins/water-quality/js/chosen.jquery"],lang.hitch(this,function($) {
 					var configCrs =  { '.chosen-crs' : {allow_single_deselect:true, width:"200px", disable_search:false}}
 					for (var selector in configCrs)  { $(selector).chosen(configCrs[selector]); }
 				}));
-				
-				
-
-
 
 // DROPDOWN MENUS //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 				// Use selections on chosen menus
@@ -547,21 +555,45 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					this.map = this.map
 					$('#' + this.id + 'ch-points').on('change',lang.hitch(this,function(c){
 						this.map.graphics.clear();
-						this.supportingData.sampPointClick(c, this);
-						
+						if (c.currentTarget.checked == true){
+							var sampURL  = this.obj.url + '/4';
+							this.sampPoint = new FeatureLayer(sampURL, { mode: esri.layers.FeatureLayer.MODE_ONDEMAND, outFields: "*"}); 
+							this.sampPoint.setDefinitionExpression("Watershed = '" + this.huc8Choosen + "'" + ' AND ' + "Year = '" + this.obj.year + "'" + ' AND ' + "Trait = '" + this.traitClean + "'");
+							this.map.addLayer(this.sampPoint);
+						}else{
+							this.map.removeLayer(this.sampPoint);
+							$('#' + this.id + 'sampleValue').slideUp();
+						}
+						this.sampPoint.on("click", lang.hitch(this,function(evt){
+							this.sSelected = 'sp';
+							this.map.graphics.clear();
+							var sampleGraphic = new Graphic(evt.graphic.geometry,this.sampleSym);
+							this.map.graphics.add(sampleGraphic);
+							var val = evt.graphic.attributes.value_mean.toFixed(2)
+							$('#' + this.id + 'sampleValue').show();
+							var c = "<div style='padding:6px; font-size:16px;'><b>Station Value: </b>" + val + "</div>";
+							$('#' + this.id + 'sampleValue').html(c);
+							
+						}));
 					}));
-					/* this.sampPoint.on("click", lang.hitch(this,function(evt){
-						// t.map.graphics.clear();
-						var sampleGraphic = new Graphic(evt.graphic.geometry,this.sampleSym);
-						this.map.graphics.add(sampleGraphic);
-						var val = evt.graphic.attributes.value_mean.toFixed(2)
-						$('#' + this.id + 'sampleValue').show();
-						var c = "<div style='padding:6px; font-size:16px;'><b>Station Value: </b>" + val + "</div>";
-						//var content = esriLang.substitute(f.features[0].attributes,c);
-						$('#' + this.id + 'sampleValue').html(c);
-					})); */
 					
-					
+					// when the infographic is opened during the use of the app use click below to determine the size the content pane should become
+					 $('#' + this.id).parent().next().children('span').on('click', lang.hitch(this, function(){
+						if(this.obj.sel == 'sp'){
+							$(this.con).animate({ height: '565px', width: '350px' }, 250,
+								lang.hitch(this,function(){
+									this.resize();
+								})
+							);
+						}
+						if(this.obj.sel == 'tm'){
+							$(this.con).animate({ height: '485px', width: '350px' }, 250,
+								lang.hitch(this,function(){
+									this.resize();
+								})
+							);
+						}
+					}));
 					
 					// this function removes duplicates from any list, used above on the traitArray
 					function unique(list){

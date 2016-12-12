@@ -33,7 +33,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				// remove sampling stations when internal spatial is clicked.
 				t.map.removeLayer(t.samplingStations);
 				// push year is to spatial array if year has been selected.
-				if (t.obj.yearSelected != undefined){
+				if (t.obj.year != ''){
 					t.obj.spatialLayerArray.push(Number(t.lyrID));
 				}
 				t.obj.spatialLayerArray = unique(t.obj.spatialLayerArray);
@@ -55,7 +55,10 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				);
 			},
 			internalTemporalClick: function(t){
-				$('#' + t.id + 'ch-points').trigger("click");
+				if($('#' + t.id + 'ch-points').prop("checked") == true){
+					$('#' + t.id + 'ch-points').trigger("click");
+				}
+				
 				// update css to show that it is clicked
 				$('#' + t.id + 'temBtn').addClass('navBtnSel');
 				$('#' + t.id + 'spaBtn').removeClass('navBtnSel');
@@ -151,7 +154,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				t.map.setExtent(t.extent, true);
 				
 				// just keep the Huc 8 displayed
-				t.obj.sel = "";
+				t.obj.sel = '';
 				$('#' + t.id + 'ch-HUC8').val('').trigger('chosen:updated').trigger('change');
 				$('#' + t.id + 'topWrapper, #' + t.id + 'supData, #' + t.id + 'temporalWrapper, #' + t.id + 'hucWrapper').slideUp();
 				$('#' + t.id + 'bottomDiv').hide();
