@@ -143,12 +143,14 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 			},
 			
 			homeButtonClick: function(t){
+				console.log('home button click')
 				t.obj.graphOpen = '';
 				t.map.setMapCursor('default');
 				// remove graphics when clearing
 				t.map.graphics.clear();
 				t.huc8.clear();
 				t.soils.clear();
+				t.map.removeLayer(t.soils);
 				t.huc12.clear();
 				t.streams.clear();
 				t.map.graphics.clear();
@@ -166,13 +168,15 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				$('#' + t.id + 'sampleValue').hide();
 				t.obj.traitSelected = '';
 				t.map.removeLayer(t.land);
-				t.map.removeLayer(t.soils);
+				
 				t.map.removeLayer(t.samplingStations);
 				t.map.removeLayer(t.huc8);
 				t.map.removeLayer(t.huc8_click);
 				t.map.removeLayer(t.impWater);
 				t.map.removeLayer(t.sampPoint);
 				t.obj.visibleLayers = []
+				t.map.removeLayer(t.soils);
+				t.map.graphics.clear();
 				t.dynamicLayer.setVisibleLayers(t.obj.visibleLayers);
 				$(t.con).animate({ height: '250px', width: '350px' }, 250,
 					lang.hitch(t,function(){

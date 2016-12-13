@@ -34,6 +34,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				t.soils.clear();
 				t.huc12.clear();
 				t.map.removeLayer(t.streams);
+				t.map.removeLayer(t.soils);
 				// make an array to loop through sup data layers and clear on each radio click
 				$.each(t.supDataArray, lang.hitch(t, function(i,v){
 					var index2 = $.inArray(v, t.obj.spatialLayerArray);
