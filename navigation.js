@@ -72,10 +72,13 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				if(t.obj.huc8Selected.length > 0){
 					t.map.addLayer(t.samplingStations);
 				}
-				var yearIndex = t.obj.visibleLayers.indexOf(Number(t.lyrID));
+				
+				
+				var yearIndex = $.inArray(Number(t.lyrID), t.obj.visibleLayers);
 				if(yearIndex > -1){
-					t.obj.visibleLayers.splice(yearIndex,1, 0);
+					t.obj.visibleLayers.splice(yearIndex,1);
 				}
+				t.obj.visibleLayers.push(2)
 				t.dynamicLayer.setVisibleLayers(t.obj.visibleLayers);
 				$(t.con).animate({ height: '485px', width: '350px' }, 250,
 					lang.hitch(t,function(){
@@ -148,6 +151,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				t.soils.clear();
 				t.huc12.clear();
 				t.streams.clear();
+				t.map.graphics.clear();
 				$('#' + t.id + 'cb-none, #' + t.id + 'graphHide').trigger("click");
 				$('#' + t.id + 'graphShow').hide();
 				$('#' + t.id + 'ch-traitsDiv, #' + t.id + 'ch-yearsDiv').slideUp();

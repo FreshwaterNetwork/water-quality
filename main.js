@@ -46,6 +46,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 // HIBERNATE FUNCTION /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			// Called after initialize at plugin startup (why all the tests for undefined). Also called after deactivate when user closes app by clicking X.
 			hibernate: function () {
+				console.log('look here')
 				if (this.appDiv != undefined){
 					this.obj.sel = '';
 					this.map.graphics.clear();
@@ -54,6 +55,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					this.map.removeLayer(this.streams);
 					this.map.removeLayer(this.huc12);
 					this.map.removeLayer(this.soils);
+					console.log('soils clear')
 					this.map.removeLayer(this.samplingStations);
 					this.map.removeLayer(this.huc8);
 					this.map.removeLayer(this.huc8_click);
@@ -70,6 +72,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 			activate: function () {
 				// Hide framework default legend
 				if (this.rendered == false){
+					console.log('this is false')
 					this.rendered = true;
 					this.render();
 					// Hide the print button until a hex has been selected
