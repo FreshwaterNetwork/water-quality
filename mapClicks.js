@@ -15,9 +15,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 
         return declare(null, {
 			mapClick: function(evt, t){
-				console.log('map click')
-				console.log(t.obj.sel)
-				console.log(t.sSelected);
 				var pnt = evt.mapPoint;
 				t.hQuery = new esri.tasks.Query();
 				t.hQuery.geometry = pnt;
@@ -25,7 +22,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					t.supportingData.supDataFunction(evt,t);
 				}
 				if (t.obj.sel == 'sp' && t.sSelected == 'map'){
-					console.log('yes')
 					t.supportingData.supDataFunction(evt,t);
 				}
 				if (t.obj.sel == 'imp'){

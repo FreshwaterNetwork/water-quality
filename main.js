@@ -26,7 +26,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 // INITIALIZE FUNCTION /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			// First function called when the user clicks the pluging icon.
 			initialize: function (frameworkParameters) {
-				console.log('init')
 				this.tt = 'yes';
 				// Access framework parameters
 				declare.safeMixin(this, frameworkParameters);
@@ -47,8 +46,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 // HIBERNATE FUNCTION /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			// Called after initialize at plugin startup (why all the tests for undefined). Also called after deactivate when user closes app by clicking X.
 			hibernate: function () {
-				console.log('look here')
-				console.log(this.appDiv);
 				if (this.appDiv != undefined){
 					$('#' + this.id + 'clearBtn').trigger('click')
 					// this.obj.sel = '';
@@ -58,7 +55,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					// this.map.removeLayer(this.streams);
 					// this.map.removeLayer(this.huc12);
 					// this.map.removeLayer(this.soils);
-					// console.log('soils clear')
 					// this.map.removeLayer(this.samplingStations);
 					// this.map.removeLayer(this.huc8);
 					// this.map.removeLayer(this.huc8_click);
@@ -76,15 +72,11 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 			activate: function () {
 				// Hide framework default legend
 				if (this.rendered == false){
-					console.log('this is false')
 					this.rendered = true;
 					this.render();
-					console.log('rendered')
 					// Hide the print button until a hex has been selected
 					$(this.printButton).hide();
-					console.log('2')
 					this.dynamicLayer.setVisibility(true);
-					console.log('3')
 				}else{
 					if (this.dynamicLayer != undefined){
 						this.dynamicLayer.setVisibility(true);
@@ -96,7 +88,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 			},
 			// Called when user hits the minimize '_' icon on the pluging. Also called before hibernate when users closes app by clicking 'X'.
 			deactivate: function () {
-				console.log('4');
 			},
 // GET STATE FUNCTION /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			// Called when user hits 'Save and Share' button. This creates the url that builds the app at a given state using JSON.
@@ -154,7 +145,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 			},
 // START OF THE RENDER FUNCTION ////////////////////////////////////////////////////////////////////////////////////////////////////////
 			render: function() {
-				console.log('render 2')
 				this.obj.extent = this.map.geographicExtent;
 // BRING IN OTHER JS FILES ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 				// set variables for all other js files
@@ -313,6 +303,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 
 				// huc 12 layer
 				this.huc12 = new FeatureLayer(this.obj.url + "/1", { mode: esri.layers.FeatureLayer.MODE_SELECTION, outFields: "*"});
+				
 				//soils data
 				var soilsUrl = this.obj.url + "/7";
 				this.soils = new FeatureLayer(soilsUrl, { mode: esri.layers.FeatureLayer.MODE_SELECTION, outFields: "*"});

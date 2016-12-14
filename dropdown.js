@@ -173,7 +173,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					t.obj.year = c.currentTarget.value;
 					$.each($('#' + t.id + 'supDataDiv input'), lang.hitch(this,function(i,v){
 						if(v.checked == true){
-							// console.log(v);
 							var c = v;
 							$('#' + t.id + c.value).trigger("click");
 						}

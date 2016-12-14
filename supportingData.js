@@ -17,7 +17,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
             doTest: function(t) {
             },
 			supRadioClick: function(t, c){
-				console.log(c,'c 2');
 				if(t.bankChecked == 'yes'){
 					t.map.removeLayer(t.bank);
 				}
@@ -48,7 +47,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				}));
 				// if value is Huc 12 set the layer to on
 				if (c.currentTarget.value == "cb-huc12"){
-					console.log('huc 12 area')
 					t.obj.spatialLayerArray.push(1);
 					t.obj.visibleLayers.push(1);
 					t.obj.supLayer = "cb-huc12";
@@ -84,7 +82,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					var query = new Query();
 					var queryTask = new QueryTask(t.obj.url + '/5');
 					query.where =  "Watershed = '" + t.huc8Choosen +"'";
-					console.log('before bank count')
 					queryTask.executeForCount(query,function(count){
 						if(count <= 0){
 							$('#' + t.id + 'clickBank').show();
@@ -132,9 +129,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					t.dynamicLayer.setLayerDefinitions(t.obj.layerDefs);
 					t.obj.visibleLayers.push(t.lyrID);
 				}
-				
-				// console.log(t.obj.visibleLayers, '2');
-				
 				t.obj.visibleLayers = unique(t.obj.visibleLayers);
 				t.dynamicLayer.setVisibleLayers(t.obj.visibleLayers);
 			},
