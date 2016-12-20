@@ -47,6 +47,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 			// Called after initialize at plugin startup (why all the tests for undefined). Also called after deactivate when user closes app by clicking X.
 			hibernate: function () {
 				if (this.appDiv != undefined){
+					$('#' + this.id + 'cb-none').trigger('click');
 					$('#' + this.id + 'clearBtn').trigger('click')
 					// this.obj.sel = '';
 					// this.map.graphics.clear();
