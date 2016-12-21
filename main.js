@@ -47,7 +47,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 			// Called after initialize at plugin startup (why all the tests for undefined). Also called after deactivate when user closes app by clicking X.
 			hibernate: function () {
 				if (this.appDiv != undefined){
-					$('#' + this.id + 'cb-none').trigger('click');
+					//$('#' + this.id + 'cb-none').trigger('click');
 					$('#' + this.id + 'clearBtn').trigger('click')
 					// this.obj.sel = '';
 					// this.map.graphics.clear();
@@ -64,8 +64,8 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					// this.map.graphics.clear();
 					// this.obj.visibleLayers = []
 					// this.dynamicLayer.setVisibleLayers(this.obj.visibleLayers);
-					$(this.container).empty();
-					this.rendered = false;
+					// $(this.container).empty();
+					// this.rendered = false;
 				}
 			},
 // ACTIVATE FUNCTION /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -80,6 +80,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					this.dynamicLayer.setVisibility(true);
 				}else{
 					if (this.dynamicLayer != undefined){
+						$('.plugin-infographic a').trigger('click');
 						this.dynamicLayer.setVisibility(true);
 						if (this.map.getZoom() > 12 ){
 							this.map.setLevel(12)

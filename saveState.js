@@ -17,6 +17,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
             doTest: function(t) {
             },
 			saveStateFunc: function(t){
+				console.log('look here')
 				//start of handleState.js
 				if(t.obj.sel == 'sp'){
 					$('#' + t.id + 'spatial').trigger('click');

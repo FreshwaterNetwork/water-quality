@@ -168,7 +168,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				$('#' + t.id + 'sampleValue').hide();
 				t.obj.traitSelected = '';
 				t.map.removeLayer(t.land);
-				
 				t.map.removeLayer(t.samplingStations);
 				t.map.removeLayer(t.huc8);
 				t.map.removeLayer(t.huc8_click);
