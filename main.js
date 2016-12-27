@@ -47,25 +47,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 			// Called after initialize at plugin startup (why all the tests for undefined). Also called after deactivate when user closes app by clicking X.
 			hibernate: function () {
 				if (this.appDiv != undefined){
-					//$('#' + this.id + 'cb-none').trigger('click');
 					$('#' + this.id + 'clearBtn').trigger('click')
-					// this.obj.sel = '';
-					// this.map.graphics.clear();
-					// this.map.removeLayer(this.land);
-					// this.map.removeLayer(this.dynamicLayer);
-					// this.map.removeLayer(this.streams);
-					// this.map.removeLayer(this.huc12);
-					// this.map.removeLayer(this.soils);
-					// this.map.removeLayer(this.samplingStations);
-					// this.map.removeLayer(this.huc8);
-					// this.map.removeLayer(this.huc8_click);
-					// this.map.removeLayer(this.impWater);
-					// this.map.removeLayer(this.sampPoint);
-					// this.map.graphics.clear();
-					// this.obj.visibleLayers = []
-					// this.dynamicLayer.setVisibleLayers(this.obj.visibleLayers);
-					// $(this.container).empty();
-					// this.rendered = false;
 				}
 			},
 // ACTIVATE FUNCTION /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
