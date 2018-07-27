@@ -5,6 +5,7 @@
 		"plugins/water-quality/css/prism.css",
 		"plugins/water-quality/css/chosen.css",
 		"plugins/water-quality/chartist/chartist.min.css",
+		"plugins/water-quality/css/theme.tablesorter.css",
 		"plugins/water-quality/css/main.css"
     ],
     "use": {

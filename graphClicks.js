@@ -15,26 +15,30 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 
         return declare(null, {
             doTest: function(t) {
-                console.log('graph clicks');
             },
 			samplingStationClick: function(evt, t){
-				console.log('samp station click');
 				var x = String(evt.target.attributes[10]);
 				t.sSelected = 'ss';
 				t.map.graphics.clear();
-				t.obj.spAtts = evt.graphic.attributes;
-				$('#' + t.id + 'chartHeader').text("Station ID " + t.obj.spAtts.generated_stations_old_ID);
-				t.graphClicks.checkTraits(t.obj.spAtts, t);
-				if(evt.target.attributes[10].nodeValue == "4"){
+				t.spAtts = evt.graphic.attributes;
+				if (t.spAtts.SITE_NAME == null){
+					$('#' + t.id + 'chartHeader').text("Station ID: " + t.spAtts.Station_ID);
+				}else{
+					$('#' + t.id + 'chartHeader').text("Station ID: " + t.spAtts.SITE_NAME);
+				}
+				t.graphClicks.checkTraits(t.spAtts, t);
+				var val = evt.target.attributes[0].ownerElement.r.animVal.valueAsString;
+				if(val == "4"){
+
 					var spHlGraphic = new Graphic(evt.graphic.geometry,t.hlStationPointS);
 				}
-				if(evt.target.attributes[10].nodeValue == "6"){
+				if(val == "6"){
 					var spHlGraphic = new Graphic(evt.graphic.geometry,t.hlStationPointM);
 				}
-				if(evt.target.attributes[10].nodeValue == "8"){
+				if(val == "7.33333"){
 					var spHlGraphic = new Graphic(evt.graphic.geometry,t.hlStationPointL);
 				}
-				if(evt.target.attributes[10].nodeValue == "10"){
+				if(val == "10.6667"){
 					var spHlGraphic = new Graphic(evt.graphic.geometry,t.hlStationPointXL);
 				}
 				t.map.graphics.add(spHlGraphic);
@@ -46,16 +50,46 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 						$('#' + t.id + 'graphHide' ).show();
 					})
 				);
-				
-				
 			},
-			
+			samplingStationSaveShare: function(evt, t){
+				t.sSelected = 'ss';
+				t.map.graphics.clear();
+				t.spAtts = evt.attributes;
+				$('#' + t.id + 'chartHeader').text("Station ID " + t.spAtts.Station_ID);
+				t.graphClicks.checkTraits(t.spAtts, t);
+
+				var val = evt.target.attributes[0].ownerElement.r.animVal.valueAsString;
+				if(val == "4"){
+
+					var spHlGraphic = new Graphic(evt.graphic.geometry,t.hlStationPointS);
+				}
+				if(val == "6"){
+					var spHlGraphic = new Graphic(evt.graphic.geometry,t.hlStationPointM);
+				}
+				if(val == "8"){
+					var spHlGraphic = new Graphic(evt.graphic.geometry,t.hlStationPointL);
+				}
+				if(val == "10"){
+					var spHlGraphic = new Graphic(evt.graphic.geometry,t.hlStationPointXL);
+				}
+
+				t.map.graphics.add(spHlGraphic);
+				$('#' + t.id + 'graphShow, #' + t.id + 'showGraphText, #' + t.id + 'supData, #' + t.id + 'huc8Wrapper, #'  + t.id + 'bottomDiv').hide();
+				$('#' + t.id + 'graphDiv').slideDown('slow');
+				$(t.con).animate({ height: '520px', width: '630px' }, 250,
+					lang.hitch(t,function(){
+						t.resize();
+						$('#' + t.id + 'graphHide' ).show();
+					})
+				);
+			},
+
 			graphShow: function(e, t, lang) {
-				console.log('graph show function')
+				t.obj.graphHideBtn = 'no';
 				$('#' + t.id + 'graphDiv').show();
 				$('#' + t.id + 'graphShow').hide();
 				$('#' + t.id + 'ch-HUC8, #' + t.id + 'supData, #' + t.id + 'huc8Wrapper, #' + t.id + 'bottomDiv').hide();
-				$('#' + t.id + 'chartHeader').text("Station ID: " + t.obj.spAtts.generated_stations_old_ID);
+				$('#' + t.id + 'chartHeader').text("Station ID: " + t.spAtts.Station_ID);
 				$(t.con).animate({ height: '520px', width: '630px' }, 250,
 					lang.hitch(t,function(){
 						t.resize();
@@ -64,11 +98,11 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				);
 			},
 			graphHide: function(e, t, lang) {
-				console.log('graph show function');
+				t.obj.graphHideBtn = 'yes';
 				$('#' + t.id + 'chartHeader').text("Please choose or click on a HUC8");
-				$('#' + t.id + 'graphDiv, #' + t.id + 'impWaterWrapper, #' + t.id + 'waterAttributes').hide();
+				$('#' + t.id + 'graphDiv, #' + t.id + 'impWaterWrapper, #' + t.id + 'waterAttributes, #' + t.id + "graphHide").hide();
 				// write an if statement to see if anything has been selected.
-				if (t.obj.huc8Selected[0] == undefined || t.obj.huc8Selected[0] == ''){
+				if (t.obj.huc8Selected == undefined || t.obj.huc8Selected == ''){
 				} else{
 					$('#' + t.id + 'supData').slideDown();
 				}
@@ -78,27 +112,41 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					$(t.con).animate({ height: '460px', width: '350px' }, 250,
 						lang.hitch(t,function(){
 							t.resize();
+							$('#' + t.id + 'graphHide').hide();
 						})
 					);
 				}
 			},
 			traitBarClick: function(e, t, lang) {
-				console.log('trait bar click');
 				var btnch = $('#' + t.id + 'traitBar').find('.buttonBar__button');
 				$.each(btnch, function(i,v){
 					$('#' + v.id).removeClass('buttonBar__selected')
 				})
-				var temp = e.target.id
-				$('#' + temp).addClass('buttonBar__selected');
-				t.obj.tid = temp.split("-").pop();
+				t.obj.traitBarSelected = e.target.id
+				$('#' + t.obj.traitBarSelected).addClass('buttonBar__selected');
+				t.obj.tid = t.obj.traitBarSelected.split("-").pop();
 				var val = t.obj.tid.slice(0,-4) + "value"
-				t.obj.mean = JSON.parse(t.obj.spAtts[t.obj.tid])
-				t.obj.val = JSON.parse(t.obj.spAtts[val])
+				
+				var str  = t.spAtts[t.obj.tid]
+				str = str.replace('[', '');
+				str = str.replace('  ', '');
+				str = str.replace(' ', '');
+				str = str.replace(']', '');
+				str = str.split(',');
+				
+				var l = [];
+				$.each(str, lang.hitch(t, function(i,v){
+					v = parseFloat(v); 
+					l.push(v);
+				}));
+				//t.mean = JSON.parse(t.spAtts[t.obj.tid])
+				t.mean = l;
+				t.obj.val = JSON.parse(t.spAtts[val])
 				t.obj.a = t.graphClicks.massageArray(t)
 				t.graphClicks.updateChart(t, t.obj.a)
 			},
 			slTextClick: function(e, t, lang) {
-				console.log('sl text click');
+				t.obj.slTextSelected = e.target.id;
 				if ($(e.target).parent('.dis').length == 0){
 					var c = $('#' + t.id + 'smLabelDiv').find('.slText')
 					$.each(c, lang.hitch(t,function(i,v){
@@ -118,7 +166,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				}
 			},
 			meanBarClicks: function(e, t, lang){
-				console.log('mean bar clicks');
 				if ($('#' + e.target.id).height() > 0){
 					//add and remove classes
 					var c = $('#' + t.id + 'meanBarDiv').find('.meanBars')
@@ -148,9 +195,9 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					$('#' + v.id).removeClass('selBar');
 				});
 
-				var ta = ["generated_stations_DOmean", "generated_stations_Nmean", "generated_stations_Pmean",
-				"generated_stations_TDSmean", "generated_stations_TSSmean", "generated_stations_TURmean",
-				"generated_stations_PHOmean", "generated_stations_IONmean", "generated_stations_AMMmean", "generated_stations_NITmean"]
+				var ta = ["DOmean", "Nmean", "Pmean",
+				"TDSmean", "TSSmean", "TURmean",
+				"PHOmean", "IONmean", "AMMmean", "NITmean"]
 				var taIn = []
 				$.each(ta, lang.hitch(t,function(i,v){
 					a = JSON.parse(atts[v])
@@ -176,8 +223,8 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					t.obj.tid = taIn[0]
 				}
 				var val = t.obj.tid.slice(0,-4) + "value"
-				t.obj.mean = JSON.parse(t.obj.spAtts[t.obj.tid])
-				t.obj.val = JSON.parse(t.obj.spAtts[val])
+				t.mean = JSON.parse(t.spAtts[t.obj.tid])
+				t.obj.val = JSON.parse(t.spAtts[val])
 				var a = t.graphClicks.massageArray(t)
 				t.graphClicks.updateChart(t, a)
 				var btnch = $('#' + t.id + 'traitBar').find('.buttonBar__button');
@@ -190,8 +237,8 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				var a = []
 				var num = 1
 				t.obj.rangeNum = 0
-				var lar = Math.max.apply(Math, t.obj.mean);
-				if (t.obj.tid == "generated_stations_DOmean"){
+				var lar = Math.max.apply(Math, t.mean);
+				if (t.obj.tid == "DOmean"){
 					num = 12
 					t.obj.rangeNum = 12
 					$('#' + t.id + 'hLbl').html('12mg/L')
@@ -199,7 +246,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					$('#' + t.id + 'lLbl').html('6mg/L')
 					$('#' + t.id + 'uLbl').html('3mg/L')
 				}
-				if (t.obj.tid == "generated_stations_Nmean"){
+				if (t.obj.tid == "Nmean"){
 					num = 6
 					t.obj.rangeNum = 6
 					$('#' + t.id + 'hLbl').html('6mg/L')
@@ -207,7 +254,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					$('#' + t.id + 'lLbl').html('3mg/L')
 					$('#' + t.id + 'uLbl').html('1.5mg/L')
 				}
-				if (t.obj.tid == "generated_stations_Pmean"){
+				if (t.obj.tid == "Pmean"){
 					num = 0.8
 					t.obj.rangeNum = 0.8
 					$('#' + t.id + 'hLbl').html('0.8mg/L')
@@ -215,7 +262,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					$('#' + t.id + 'lLbl').html('0.4mg/L')
 					$('#' + t.id + 'uLbl').html('0.2mg/L')
 				}
-				if (t.obj.tid == "generated_stations_TDSmean"){
+				if (t.obj.tid == "TDSmean"){
 					num = 20000
 					t.obj.rangeNum = 20000
 					$('#' + t.id + 'hLbl').html('20,000mg/L')
@@ -223,7 +270,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					$('#' + t.id + 'lLbl').html('10,000mg/L')
 					$('#' + t.id + 'uLbl').html('5,000mg/L')
 				}
-				if (t.obj.tid == "generated_stations_TSSmean"){
+				if (t.obj.tid == "TSSmean"){
 					num = 200
 					t.obj.rangeNum = 200
 					$('#' + t.id + 'hLbl').html('200mg/L')
@@ -231,7 +278,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					$('#' + t.id + 'lLbl').html('100mg/L')
 					$('#' + t.id + 'uLbl').html('50mg/L')
 				}
-				if (t.obj.tid == "generated_stations_TURmean"){
+				if (t.obj.tid == "TURmean"){
 					num = 500
 					t.obj.rangeNum = 500
 					$('#' + t.id + 'hLbl').html('500 NTU')
@@ -239,7 +286,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					$('#' + t.id + 'lLbl').html('250 NTU')
 					$('#' + t.id + 'uLbl').html('125 NTU')
 				}
-				if (t.obj.tid == "generated_stations_PHOmean"){
+				if (t.obj.tid == "PHOmean"){
 					num = 200
 					t.obj.rangeNum = 200
 					$('#' + t.id + 'hLbl').html('1mg/L')
@@ -247,7 +294,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					$('#' + t.id + 'lLbl').html('.50mg/L')
 					$('#' + t.id + 'uLbl').html('.25mg/L')
 				}
-				if (t.obj.tid == "generated_stations_IONmean"){
+				if (t.obj.tid == "IONmean"){
 					num = 6
 					t.obj.rangeNum = 6
 					$('#' + t.id + 'hLbl').html('6mg/L')
@@ -255,7 +302,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					$('#' + t.id + 'lLbl').html('3mg/L')
 					$('#' + t.id + 'uLbl').html('1.5mg/L')
 				}
-				if (t.obj.tid == "generated_stations_AMMmean"){
+				if (t.obj.tid == "AMMmean"){
 					num = 3
 					t.obj.rangeNum = 3
 					$('#' + t.id + 'hLbl').html('3mg/L')
@@ -263,7 +310,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					$('#' + t.id + 'lLbl').html('1.5mg/L')
 					$('#' + t.id + 'uLbl').html('.75mg/L')
 				}
-				if (t.obj.tid == "generated_stations_NITmean"){
+				if (t.obj.tid == "NITmean"){
 					num = 2
 					t.obj.rangeNum = 2
 					$('#' + t.id + 'hLbl').html('2mg/L')
@@ -271,7 +318,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					$('#' + t.id + 'lLbl').html('1mg/L')
 					$('#' + t.id + 'uLbl').html('.5mg/L')
 				}
-				$.each(t.obj.mean, function(i, v) {
+				$.each(t.mean, function(i, v) {
 					if (v == -99){
 						a.push(0)
 					}else{
@@ -383,14 +430,15 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				  width: 580,
 				  height: 145
 				};
+				// this line is causing the problems in IE.
 				new Chartist.Line('#' + t.id + 'lineChart', data, options);
 				var units = "(mg/L)"
-				if (t.obj.tid == "generated_stations_TURmean"){
+				if (t.obj.tid == "TURmean"){
 					units = "(NTU)"
 				}
 				$('#' + t.id + 'lineChartTitle').html("Monthly Readings Taken in " + t.obj.year + " " + units)
 			},
-			
+
         });
     }
 );

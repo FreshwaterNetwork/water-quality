@@ -15,24 +15,52 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 
         return declare(null, {
             doTest: function(t) {
-                console.log('graph clicks');
             },
 			huc8Select: function(c, p, t){
-				console.log('t huc 8 dropdown');
+				t.obj.year = '';
 				// clear traits value if huc 8 dropdown menu was cleared
 				p = $('#' + t.id + 'ch-HUC8').val()
-				t.obj.traitSelected = undefined;
 				t.obj.huc8Selected[0] = '';
 				//t.obj.traitArray = [];
 				$('#' + t.id + 'ch-traits').val('').trigger('chosen:updated').trigger('change');
-				$('#' + t.id + 'cb-none').trigger("click");
+				if(t.obj.stateSet == 'no'){
+					$('#' + t.id + 'cb-none').trigger("click");
+					t.obj.traitSelected = '';
+				}
+
 				$('#' + t.id + 'ch-traits').empty();
 				// if something was selected in the huc 8 dropdown
-				if(p){
-					t.obj.spatialLayerArray = [2];
-					t.obj.visibleLayers = [2];
+				if(p || t.obj.stateSet == 'yes'){
+					t.map.addLayer(t.huc8)
+					t.map.addLayer(t.huc8_click)
+					$.each(t.huc8s, lang.hitch(t, function(i,v){
+						if(p == v.Abbr){
+							t.huc8CleanName = v.clean_names
+						}
+					}));
+					// build the trait dropdown
+					$.each(c.currentTarget, lang.hitch(this, function(i,v){
+						if(v.selected === true){
+							t.hucClean = $(v).html();
+						}
+					}));
+					t.huc8Choosen = c.currentTarget.value;
+					
+					if (t.streamsChecked == 'yes'){
+						t.map.removeLayer(t.streams);
+					}
+					// set and update vis layers
+					t.obj.spatialLayerArray = [0];
+					t.obj.visibleLayers = [0];
 					t.dynamicLayer.setVisibleLayers(t.obj.visibleLayers);
+					
+					// remove and uncheck sample points checkbox
+					//t.map.removeLayer(t.sampPoints);
+					
+					$('#' + t.id + 'ch-points').prop( "checked", false ).trigger('change');
+					// trigger traits menu to empy val
 					$('#' + t.id + 'ch-traits').val('').trigger('chosen:updated');
+					
 					var val = $('#' + t.id + 'ch-HUC8').val();
 					$('#' + t.id + 'ch-traitsDiv').show();
 					t.obj.huc8Selected = c.currentTarget.value.split("_");
@@ -41,6 +69,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					}else{
 						t.obj.inHuc8 = 'no';
 					}
+
 					t.obj.huc8Sel = c.currentTarget.value;
 					// if we are in the spatial side
 					if(t.obj.sel == "sp"){
@@ -53,145 +82,158 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					if(t.obj.sel == "tm"){
 						t.dropdown.traitPopulate(t);
 						$('#' + t.id + "supData").slideDown();
-						t.obj.visibleLayers = [2];
+						t.obj.visibleLayers = [0,2];
 						t.dynamicLayer.setVisibleLayers(t.obj.visibleLayers);
 						t.map.addLayer(t.samplingStations);
 					}
+					
+					// query for huc 8 select
 					t.selectHuc8 = new Query();
-					t.selectHuc8.where = "HUC_8 = '" + t.obj.huc8Selected[1] + "'";
+					t.huc8Abbr = c.currentTarget.value;
+					t.selectHuc8.where = "Abbr = '" + t.huc8Abbr + "'";
 					t.huc8.selectFeatures(t.selectHuc8, FeatureLayer.SELECTION_NEW);
+
 				} else{
-					t.map.setExtent(t.dynamicLayer.initialExtent, true);
+					t.huc8.clear();
+					//$('#' + t.id + 'noDataText').hide();
+					t.map.removeLayer(t.land);
+					t.map.removeLayer(t.soils);
+					t.map.removeLayer(t.samplingStations);
+					t.map.removeLayer(t.streams);
+					t.map.removeLayer(t.huc8_click);
+					t.map.removeLayer(t.huc8);
+					t.map.removeLayer(t.impWater);
+					t.map.removeLayer(t.sampPoint);
+					if(t.bankChecked == 'yes'){
+						t.map.removeLayer(t.bank);
+					}
+					if (t.streamsChecked == 'yes'){
+						t.map.removeLayer(t.streams);
+					}
+					$('#' + t.id + 'sampleValue').hide();
+					t.obj.visibleLayers = [0]
+					t.dynamicLayer.setVisibleLayers(t.obj.visibleLayers);
+					t.map.setExtent(t.extent, true);
 					$('#' + t.id + 'supData').slideUp();
 					var ch = $('#' + t.id + 'spatialWrapper').find('.ch-divs');
 					$.each(ch, lang.hitch(t, function(i, v){
 						$('#' + v.id).hide();
 					}));
 				}
+				// dropdown trait menu but change the value to say there is not traits.
+				if($('#' + t.id + 'ch-traits' + '> option').length == 1){
+					$('#' + t.id + 'ch-traits').append("<option value='Nada' selected>No Traits for this Watershed</option>")
+					$('#' + t.id + 'ch-traits').trigger("chosen:updated");
+				}
 			},
 			traitsSelect: function(c,d,t){
-				console.log(c, d, t, 'look here');
-				console.log('traits select');
+				var traitVal = $('#' + t.id + 'ch-traits').val();
+				$('#' + t.id + 'ch-years').empty();
 				// clear years value if traits dropdown menu was cleared
 				$('#' + t.id + 'ch-years').val('').trigger('chosen:updated').trigger('change');
 				// something was selected from traits dropdown.
-				if(d) {
-					console.log('trait selected');
+				if(d || t.stateTraits == 'yes'){
 					// append empty option as first value
 					$('#' + t.id + 'ch-years').append('<option value=""></option>');
-					t.obj.traitSelected = t.obj.huc8Selected[0] + "_" + d.selected;
+					//t.obj.traitSelected = t.obj.huc8Selected[0] + " - " + traitTest + " -";
+					/* t.obj.traitSelected = traitVal + " - " + t.obj.huc8Selected[0]; */
+					t.obj.trait = c.currentTarget.value;
+					$.each(c.currentTarget, lang.hitch(t, function(i,v){
+						if (v.selected === true){
+							t.traitClean = $(v).html();	
+						}	
+					}));
 					// loop through layers array
 					$.each(t.layersArray, lang.hitch(t,function(i,v){
-						var wn = v.name
-						var n = wn.substring(0, wn.length - 5)
-						if (n == t.obj.traitSelected){
-							var y = wn.slice(-4)
-							$('#' + t.id + 'ch-years').append('<option value="' + v.id + '">' + y + '</option>');
+						if(v.name == t.traitClean + " - " + t.hucClean){
+							t.lyrID = v.id;
 						}
 					}));
+					// build the years dropdown
+					$.each(t.huc8s, lang.hitch(t,function(i,v){
+						if(t.huc8Choosen == v.Abbr){
+							var years = JSON.parse(v[t.obj.trait]).sort()
+							$.each(years, lang.hitch(t,function(i,y){
+								$('#' + t.id + 'ch-years').append(("<option value='" + y + "'>" + y + "</option>"))
+							}));
+						}
+					}));
+					
 					$('#' + t.id + 'ch-years').trigger("chosen:updated");
 					$('#' + t.id + 'ch-yearsDiv').slideDown();
 				} else{
-					console.log('no trait selected');
 					$('#' + t.id + 'ch-years').val('').trigger("chosen:updated");
 					$('#' + t.id + 'ch-yearsDiv').slideUp();
+					$('#' + t.id + 'sampleValue').hide();
 				};
 			},
 			yearsSelect: function(c,v,t){
-				console.log('years select');
-				if(v){
-					$('#' + t.id + 'ch-pointsDiv').slideDown();
-					t.obj.yearSelected = v.selected;
-					t.obj.spatialLayerArray.push(t.obj.yearSelected);
-					t.obj.visibleLayers.push(t.obj.yearSelected);
-					t.dynamicLayer.setVisibleLayers(t.obj.visibleLayers);
-					console.log('years click')
-					var lyrName = '';
-					$.each(t.layersArray, lang.hitch(t,function(i,v){
-						if(v.id == t.obj.yearSelected){
-							lyrName = v.name;
-							return false;
+				if(v || t.stateYear == 'yes'){
+					// selected year
+					t.obj.year = c.currentTarget.value;
+					$.each($('#' + t.id + 'supDataDiv input'), lang.hitch(this,function(i,v){
+						if(v.checked == true){
+							var c = v;
+							$('#' + t.id + c.value).trigger("click");
 						}
 					}));
-					t.samplePoints.setDefinitionExpression("raster = '" + lyrName + "'");
+					// sample points div slide down
+					$('#' + t.id + 'ch-pointsDiv').slideDown();
+					$('#' + t.id + 'ch-points').prop( "checked", false ).trigger('change');
+					
 				} else{
-					$('#' + t.id + 'ch-years').empty();
+					t.obj.year = '';
+					$('#' + t.id + 'ch-years').val('').trigger('chosen:updated');
 					$('#' + t.id + 'ch-pointsDiv').hide();
-					var index = t.obj.spatialLayerArray.indexOf(t.obj.yearSelected);
-					if(index > -1){
-						t.obj.spatialLayerArray.splice(index,1);
-					}
-					var index = t.obj.visibleLayers.indexOf(t.obj.yearSelected);
+					$('#' + t.id + 'sampleValue').hide();
+					var index = $.inArray(t.lyrID, t.obj.visibleLayers);
 					if(index > -1){
 						t.obj.visibleLayers.splice(index,1);
 					}
-					t.obj.yearSelected = undefined;
 					t.dynamicLayer.setVisibleLayers(t.obj.visibleLayers);
+					
 					$('#' + t.id + 'ch-points').prop( "checked", false ).trigger('change');
+				}
+			},
 
-				}
-			},
-			samplePointClick: function(v,t){
-				var lyrName = '';
-				if(v.currentTarget.checked == true){
-					t.map.addLayer(t.samplePoints);
-				}else{
-					t.map.removeLayer(t.samplePoints);
-				}
-			},
 			traitPopulate: function(t){
-				console.log('trait populate');
-				t.obj.traitArray = [];
-				// something was selected
-				$.each(t.layersArray, lang.hitch(t,function(i,v){
-					var splitStr = v.name.split("_");
-					if (t.obj.huc8Selected[0] == splitStr[0]){
-						t.obj.traitArray.push(splitStr[1]);
+				$('#' + t.id + 'ch-traits').empty();
+				$('#' + t.id + 'ch-traits').append("<option value=''></option>")
+				// Determine which traits exist for selected HUC8
+				$.each(t.huc8s,function(i,v){
+					if (t.huc8Choosen == v.Abbr){
+						if (v.Ammonia){
+							$('#' + t.id + 'ch-traits').append("<option value='Ammonia'>Ammonia</option>")
+						}
+						if (v.DissolvedOxygen){
+							$('#' + t.id + 'ch-traits').append("<option value='DissolvedOxygen'>Dissolved Oxygen</option>")
+						}
+						if (v.InorganicNitrogen){
+							$('#' + t.id + 'ch-traits').append("<option value='InorganicNitrogen'>Inorganic Nitrogen</option>")
+						}
+						if (v.Nitrate){
+							$('#' + t.id + 'ch-traits').append("<option value='Nitrate'>Nitrate</option>")
+						}
+						if (v.Phosphorus){
+							$('#' + t.id + 'ch-traits').append("<option value='Phosphorus'>Phosphorus</option>")
+						}
+						if (v.TotalDissolvedSolids){
+							$('#' + t.id + 'ch-traits').append("<option value='TotalDissolvedSolids'>Total Dissolved Solids</option>")
+						}
+						if (v.TotalNitrogen){
+							$('#' + t.id + 'ch-traits').append("<option value='TotalNitrogen'>Total Nitrogen</option>")
+						}
+						if (v.TotalSuspendedSolids){
+							$('#' + t.id + 'ch-traits').append("<option value='TotalSuspendedSolids'>Total Suspended Solids</option>")
+						}
+						if (v.Turbidity){
+							$('#' + t.id + 'ch-traits').append("<option value='Turbidity'>Turbidity</option>")
+						}
+						$('#' + t.id + 'ch-traits').trigger("chosen:updated");
 					}
-				}));
-				//clear the text varmap
-				t.obj.traitArray = unique(t.obj.traitArray);
-				//append intital empty option
-				$('#' + t.id + 'ch-traits').append('<option value=""></option>');
-				//use lang.hitch so the 't' object is available for the append
-				$.each(t.obj.traitArray, lang.hitch(t, function(i,v){
-					var traitText = '';
-					if (v == "TUR"){
-						traitText = "Turbitity";
-					}
-					if (v == "TSS"){
-						traitText = "Total Suspended Solids";
-					}
-					if (v == "TDS"){
-						traitText = "Total Dissolved Solids";
-					}
-					if (v == "P"){
-						traitText = "Phosphorus";
-					}
-					if (v == "N"){
-						traitText = "Nitrogen";
-					}
-					if(v == "Phos"){
-						traitText = "Phosphate";
-					}
-					if(v == "NNN"){
-						traitText = "Nitrate";
-					}
-					if(v == "AMM"){
-						traitText = "Ammonia";
-					}
-					if(v == "ION"){
-						traitText = "Inorganic Nitrogen";
-					}
-					if (traitText != ''){
-						//you have to use t.id to get the element (won't work without lang.hitch above
-						$('#' + t.id + 'ch-traits').append('<option value="' + v + '">' + traitText + '</option>');
-					}
-				}));
-				//after the loop trigger an update to the select menu
-				$('#' + t.id + 'ch-traits').trigger("chosen:updated");
+				})
 			}
-			
+
         });
     }
 );
