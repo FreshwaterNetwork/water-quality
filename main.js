@@ -19,7 +19,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 		return declare(PluginBase, {
 			// The height and width are set here when an infographic is defined. When the user click Continue it rebuilds the app window with whatever you put in.
 			toolbarName: "Water Quality Resource Inventory", showServiceLayersInLegend: true, allowIdentifyWhenActive: false, rendered: false, resizable: false,
-			hasCustomPrint: true, usePrintPreviewMap: true, previewMapSize: [1000, 550], height:"250", width:"350",
+			hasCustomPrint: true, usePrintPreviewMap: true, previewMapSize: [1000, 550], width:"small",
 			// Comment out the infoGraphic property below to make that annoying popup go away when you start the app
 			infoGraphic: "plugins/water-quality/images/infoGraphic.jpg",
 			// 
@@ -29,16 +29,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				this.tt = 'yes';
 				// Access framework parameters
 				declare.safeMixin(this, frameworkParameters);
-				// Set initial app size based on split screen state
-				this.con = dom.byId('plugins/water-quality-0');
-				this.con1 = dom.byId('plugins/water-quality-1');
-				if (this.con1 != undefined){
-					domStyle.set(this.con1, "width", "350px");
-					domStyle.set(this.con1, "height", "250px");
-				}else{
-					domStyle.set(this.con, "width", "350px");
-					domStyle.set(this.con, "height", "250px");
-				}
 				// Define object to access global variables from JSON object. Only add variables to varObject.json that are needed by Save and Share.
 				this.obj = dojo.eval("[" + config + "]")[0];
 			},
@@ -59,7 +49,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					this.render();
 					// Hide the print button until a hex has been selected
 					$(this.printButton).hide();
-					this.dynamicLayer.setVisibility(true);
+					//this.dynamicLayer.setVisibility(true);
 				}else{
 					if (this.dynamicLayer != undefined){
 						$('.plugin-infographic a').trigger('click');
@@ -159,6 +149,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					active: false,
 					heightStyle: "content"
 				});
+				this.cnt = $( dom.byId(this.container) ).parent();
 // ENABLE TABLESORTER FUNCTION /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 				// Enable jquery plugin 'tablesorter'
 				require(["jquery", "plugins/water-quality/js/tablesorter"],lang.hitch(this,function($) {
@@ -177,7 +168,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 // ENABLE CHOOSEN FUNCTION /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 				// Enable jquery plugin 'chosen'
 				require(["jquery", "plugins/water-quality/js/chosen.jquery"],lang.hitch(this,function($) {
-					var configCrs =  { '.chosen-crs' : {allow_single_deselect:true, width:"200px", disable_search:false}}
+					var configCrs =  { '.chosen-crs' : {allow_single_deselect:true, width:"90%", disable_search:false}}
 					for (var selector in configCrs)  { $(selector).chosen(configCrs[selector]); }
 				}));
 
@@ -354,6 +345,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					this.obj.ssOID = evt.graphic.attributes.OBJECTID;
 					this.obj.graphOpen = 'yes';
 					this.graphClicks.samplingStationClick(evt,this);
+					$(this.cnt).animate({width:"610px"})
 				}));
 				this.samplingStations.on('selection-complete', lang.hitch(this,function(f){
 					var atts =  f.features[0];
@@ -368,10 +360,12 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				// handle clicks on the graph show button
 				$('#' + this.id + 'graphShow').on('click',lang.hitch(this,function(e){
 					this.graphClicks.graphShow(e, this, lang);
+					$(this.cnt).animate({width:"610px"})
 				}));
 				// handle clicks on the graph hide button
 				$('#' + this.id + 'graphHide').on('click',lang.hitch(this,function(e){
 					this.graphClicks.graphHide(e, this, lang);
+					$(this.cnt).animate({width:"350px"})
 				}));
 				//trait bar chart clicks
 				$('#' + this.id + 'traitBar').on('click',lang.hitch(this,function(e){
@@ -394,16 +388,18 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 
 // INTERNAL NAVIGATION ////////////////////////////////////////////////////////////////////////////////////////////////////
 				// handle clicks on internal spatial button
-				$('#' + this.id + 'spaBtn').on('click',lang.hitch(this,function(){
+				$("#" + this.id + "topWrapper input[value='spaBtn']").on('click',lang.hitch(this,function(){
 					this.navigation.internalSpatialClick(this);
+					$(this.cnt).animate({width:"350px"})
 				}));
 				// handle clicks on internal temporal button
-				$('#' + this.id + 'temBtn').on('click',lang.hitch(this,function(){
+				$("#" + this.id + "topWrapper input[value='temBtn']").on('click',lang.hitch(this,function(){
 					this.navigation.internalTemporalClick(this);
 				}));
 				// clear button clicks
-				$('#' + this.id + 'clearBtn').on('click',lang.hitch(this,function(){
+				$("#" + this.id + "topWrapper input[value='clearBtn']").on('click',lang.hitch(this,function(){
 					this.navigation.homeButtonClick(this);
+					$(this.cnt).animate({width:"350px"})
 				}));
 				// clear impaired watersheds table
 				$('#' + this.id + 'clearWaterBtn').on('click',lang.hitch(this,function(){
@@ -413,10 +409,12 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				// Handle clicks on spatial button
 				$('#' + this.id + 'spatial').on('click',lang.hitch(this,function(){
 					this.navigation.spatialClick(this);
+					$("#" + this.id + "topWrapper input[value='spaBtn']").prop("checked",true);
 				}));
 				// Handle clicks on temporal button
 				$('#' + this.id + 'temporal').on('click',lang.hitch(this,function(){
 					this.navigation.temporalClick(this);
+					$("#" + this.id + "topWrapper input[value='temBtn']").prop("checked",true);
 				}));
 				// handle clicks on Impaired watersheds button
 				$('#' + this.id + 'impWaterButton').on('click',lang.hitch(this,function(){
@@ -431,6 +429,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 // DYNAMIC MAP SERVICE  ////////////////////////////////////////////////
 				// Add dynamic map service
 				this.dynamicLayer = new ArcGISDynamicMapServiceLayer(this.obj.url, {opacity: 1 - this.obj.sliderVal/10});
+				this.dynamicLayer.setVisibleLayers([-1])
 				this.map.addLayer(this.dynamicLayer);
 				this.extent = new Extent(this.obj.extent.xmin, this.obj.extent.ymin, this.obj.extent.xmax, this.obj.extent.ymax, new SpatialReference({ wkid:4326 }))
 				this.dynamicLayer.on("load", lang.hitch(this, function () {
@@ -510,11 +509,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					this.dialog.startup();
 					this.tt = 'no';
 				}
-				// Enable jquery plugin 'chosen'
-				require(["jquery", "plugins/water-quality/js/chosen.jquery"],lang.hitch(this,function($) {
-					var configCrs =  { '.chosen-crs' : {allow_single_deselect:true, width:"200px", disable_search:false}}
-					for (var selector in configCrs)  { $(selector).chosen(configCrs[selector]); }
-				}));
 
 // DROPDOWN MENUS //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 				// Use selections on chosen menus
@@ -536,7 +530,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					}));
 					// work with sample points checkbox
 					this.map = this.map
-					$('#' + this.id + 'ch-points').on('change',lang.hitch(this,function(c){
+					$("#" + this.id + "ch-pointsDiv input[id='ch-points']").on('change',lang.hitch(this,function(c){
 						this.map.graphics.clear();
 						if (c.currentTarget.checked == true){
 							var sampURL  = this.obj.url + '/4';
@@ -554,7 +548,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 							this.map.graphics.add(sampleGraphic);
 							var val = evt.graphic.attributes.value_mean.toFixed(2)
 							$('#' + this.id + 'sampleValue').show();
-							var c = "<div style='padding:6px; font-size:16px;'><b>Station Value: </b>" + val + "</div>";
+							var c = "<div><b>Station Value: </b>" + val + "</div>";
 							$('#' + this.id + 'sampleValue').html(c);
 							
 						}));

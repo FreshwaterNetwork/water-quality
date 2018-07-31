@@ -55,8 +55,8 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				);
 			},
 			internalTemporalClick: function(t){
-				if($('#' + t.id + 'ch-points').prop("checked") == true){
-					$('#' + t.id + 'ch-points').trigger("click");
+				if($("#" + t.id + "ch-pointsDiv input[id='ch-points']").prop("checked") == true){
+					$("#" + t.id + "ch-pointsDiv input[id='ch-points']").trigger("click");
 				}
 				
 				// update css to show that it is clicked

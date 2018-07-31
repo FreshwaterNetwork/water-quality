@@ -57,7 +57,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					// remove and uncheck sample points checkbox
 					//t.map.removeLayer(t.sampPoints);
 					
-					$('#' + t.id + 'ch-points').prop( "checked", false ).trigger('change');
+					$("#" + t.id + "ch-pointsDiv input[id='ch-points']").prop( "checked", false ).trigger('change');
 					// trigger traits menu to empy val
 					$('#' + t.id + 'ch-traits').val('').trigger('chosen:updated');
 					
@@ -179,7 +179,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					}));
 					// sample points div slide down
 					$('#' + t.id + 'ch-pointsDiv').slideDown();
-					$('#' + t.id + 'ch-points').prop( "checked", false ).trigger('change');
+					$("#" + t.id + "ch-pointsDiv input[id='ch-points']").prop( "checked", false ).trigger('change');
 					
 				} else{
 					t.obj.year = '';
@@ -192,7 +192,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 					}
 					t.dynamicLayer.setVisibleLayers(t.obj.visibleLayers);
 					
-					$('#' + t.id + 'ch-points').prop( "checked", false ).trigger('change');
+					$("#" + t.id + "ch-pointsDiv input[id='ch-points']").prop( "checked", false ).trigger('change');
 				}
 			},
 

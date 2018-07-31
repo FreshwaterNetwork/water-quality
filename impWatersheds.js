@@ -22,11 +22,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				$('#' + t.id + 'home, #' + t.id + 'spatialWrapper, #' + t.id + 'huc8Wrapper').slideUp();
 				$('#' + t.id + 'clearWrapper, #' + t.id + 'hucWrapper').slideDown();
 				$('#' + t.id + 'bottomDiv').show();
-				$(t.con).animate({ height: '470px', width: '350px' }, 250,
-					l.hitch(t,function(){
-						t.resize();
-					})
-				);
 			},
 			impSelectionComplete: function(f,t,l){
 				//imp watershed selection symbol

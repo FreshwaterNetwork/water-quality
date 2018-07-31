@@ -1,32 +1,58 @@
 body.waiting * {
     cursor: progress;
 }
-/* Opening buttons - what do you want to do? */
-.homeHeader{
-	font-size:16pt; font-weight:100; margin-left:5px; margin-bottom:5px;
+.home h3{
+	margin-top:0.5rem;
+}
+.home .button-default{
+	width:100%; font-size:15px;
+}
+.home section:not(:last-child) {
+    border-bottom:1px solid #457545 !important; padding-bottom:10px; margin-bottom:18px;
 }	
-.startButton{
-	padding:5px 10px; text-decoration:none; -moz-border-radius:1px; -webkit-border-radius:1px; border-radius:1px; -moz-box-shadow: 0 1px 3px rgba(0,0,0,0.5);
-	-webkit-box-shadow: 0 1px 3px rgba(0,0,0,0.5); box-shadow: 0 1px 3px rgba(0,0,0,0.5); border-bottom: 1px solid rgba(0,0,0,0.25); outline:none; position:relative; 
-	font-size: 16pt; margin:5px; 
- }
-.ready{
-	background-color: #7FB0F0; color: #FFF; text-shadow:0 -1px 1px rgba(0,0,0,0.25); font-weight:100; 
-}
-.ready:hover{
-	background-color: #29658C; cursor:pointer; 
-}
-.ready:active{
-	box-shadow: 1px 0px 3px rgba(0,0,0,0.5); text-shadow: 0 1px 1px rgba(0,0,0,0.25);
-}
-.sampleValue{
+.topWrapper{ 
 	display:none;
-	padding: 6px;
-    font-size: 13pt;
-    margin-left: 3px;
-    margin-bottom: -15px;
-    margin-top: -22px;
-    color: #29658C;
+}
+.mainDivWrapper h4{
+	margin-bottom: 0.5rem;
+}
+.supData{
+	display:none; 
+}
+.supDataDiv span, .ch-divs span{
+	margin-left:5px;
+}
+.supDataText{
+	margin-left:18px; margin-top:-10px; color:#29658C;
+}
+.mainDivWrapper{
+	display:none; 
+}
+.clickAttributes{
+	display:none;
+}
+.samplePoints{
+	display:none; 
+}
+.ch-pointsDiv .form-component{
+	margin-bottom:0px;
+}
+.graphToggle{
+	position:absolute; top:65px; right:14px;
+}
+.temporalWrapper .button-default {
+	padding:1px 5px;
+}
+.clearWrapper{ 
+	display:none; margin-bottom:-1rem; margin-top:0.5rem;
+}
+.ui-slider-horizontal .ui-slider-handle {
+    top: -0.2em !important;
+ }  
+
+
+.sampleValue{
+	display:none; margin-left:23px; color:#29658C;
 }
 .noDataText{
 	display:none; margin-top:10px; color:#8c2130;
@@ -81,12 +107,8 @@ body.waiting * {
 	display:none !important;
 }
 /* wrapper for top section of app */
-.topWrapper{ 
-	position:absolute; left:0px; top:30px; width:100%; height:45px; background-color:#fff; z-index:21; display:none; text-align:center;
-}
-.clearWrapper{ 
-	position:absolute; left:0px; top:30px; width:100%; height:45px; background-color:#fff; z-index:21; display:none; text-align:right;
-}
+
+
 /*  styling for the impaired watersheds table*/
 
 .impWaterWrapper{
@@ -132,24 +154,7 @@ body.waiting * {
 .topHeader{
 	font-size:14pt; width:290px; margin-top:3px; margin-left:10px; color:#21658c; font-weight:bold; 
 }
-.mainDivWrapper{
-	display:none; 
-}
-.supData{
-	display:none; position:relative; top:54px;
-}
-.supDataDiv{
-	margin: 10px;
-}
-.supDataText{
-	padding:6px; font-size:9.5pt; margin-left:12px; margin-bottom:4px; margin-top:-5px; color:#29658C;
-}
-.clickAttributes{
-	display:none;
-}
-.samplePoints{
-	display:none; position:relative; margin: 10px;
-}
+
 .chartDiv{
 	padding-top:10px; padding-left:0; padding-bottom:0px; padding-right:0px; margin-bottom:-10px;
 }
@@ -480,27 +485,15 @@ button:focus{
 	display:inline-block; font-size:8pt;
 }	
 /* Chosen select menu elements */
-.chosen-container-single .chosen-single{
+/*.chosen-container-single .chosen-single{
 	padding: 0 0 0 4px; font-weight:bold; font-size:12pt;
 }
 .chosen-container-single .chosen-default, .chosen-container-multi .chosen-choices li.search-field input[type="text"]{
 	color:#444;
-}	
-.chosen-container-single .chosen-single abbr{
-	right:16px;
-}	
-.chosen-container-single .chosen-single span{
-	margin-right:20px;
-}
-.chosen-container-single .chosen-single-with-deselect span{
-	margin-right:20px;
-}
-.chosen-container ul.chosen-results li.highlighted {
-  background-color: #29658C; background-image: none; color:#fff; font-size:12pt; text-shadow:0 -1px 1px rgba(0,0,0,0.25); font-weight:100;
-}
-.active-result{
+}*/	
+/*.active-result{
 	font-size:12pt; 
-}	
+}*/	
 abbr.search-choice-close {
   cursor: pointer;
 }

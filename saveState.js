@@ -34,7 +34,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 								$('#' + t.id + 'ch-years').val(t.obj.yearSelected).trigger('chosen:updated').trigger('change', p);
 								t.stateYear = 'no';
 								if(t.obj.samplePointChecked == 'yes'){
-									$('#' + t.id + 'ch-points').trigger('click');
+									$("#" + t.id + "ch-pointsDiv input[id='ch-points']").trigger('click');
 								}
 							}
 						}

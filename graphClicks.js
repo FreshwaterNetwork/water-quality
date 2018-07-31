@@ -44,12 +44,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				t.map.graphics.add(spHlGraphic);
 				$('#' + t.id + 'graphShow, #' + t.id + 'showGraphText, #' + t.id + 'supData, #' + t.id + 'huc8Wrapper, #'  + t.id + 'bottomDiv').hide();
 				$('#' + t.id + 'graphDiv').slideDown('slow');
-				$(t.con).animate({ height: '520px', width: '630px' }, 250,
-					lang.hitch(t,function(){
-						t.resize();
-						$('#' + t.id + 'graphHide' ).show();
-					})
-				);
+				$('#' + t.id + 'graphHide' ).show();
 			},
 			samplingStationSaveShare: function(evt, t){
 				t.sSelected = 'ss';
@@ -76,12 +71,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				t.map.graphics.add(spHlGraphic);
 				$('#' + t.id + 'graphShow, #' + t.id + 'showGraphText, #' + t.id + 'supData, #' + t.id + 'huc8Wrapper, #'  + t.id + 'bottomDiv').hide();
 				$('#' + t.id + 'graphDiv').slideDown('slow');
-				$(t.con).animate({ height: '520px', width: '630px' }, 250,
-					lang.hitch(t,function(){
-						t.resize();
-						$('#' + t.id + 'graphHide' ).show();
-					})
-				);
+				$('#' + t.id + 'graphHide' ).show();
 			},
 
 			graphShow: function(e, t, lang) {
@@ -90,12 +80,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				$('#' + t.id + 'graphShow').hide();
 				$('#' + t.id + 'ch-HUC8, #' + t.id + 'supData, #' + t.id + 'huc8Wrapper, #' + t.id + 'bottomDiv').hide();
 				$('#' + t.id + 'chartHeader').text("Station ID: " + t.spAtts.Station_ID);
-				$(t.con).animate({ height: '520px', width: '630px' }, 250,
-					lang.hitch(t,function(){
-						t.resize();
-						$('#' + t.id + 'graphHide').show();
-					})
-				);
+				$('#' + t.id + 'graphHide').show();
 			},
 			graphHide: function(e, t, lang) {
 				t.obj.graphHideBtn = 'yes';
@@ -109,12 +94,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				$('#' + t.id + 'huc8Wrapper, #' + t.id + 'bottomDiv').show();
 				$('#' + t.id + 'temporalWrapper').find('.graphToggle').toggle();
 				if(t.obj.sel == 'tm'){
-					$(t.con).animate({ height: '460px', width: '350px' }, 250,
-						lang.hitch(t,function(){
-							t.resize();
-							$('#' + t.id + 'graphHide').hide();
-						})
-					);
+					$('#' + t.id + 'graphHide').hide();
 				}
 			},
 			traitBarClick: function(e, t, lang) {

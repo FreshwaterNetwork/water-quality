@@ -22,61 +22,67 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
 </table>
 <!--Opening view of the app. Give a little background and instructions to get started-->
 <div class='home' id='home'>
-	<div class='homeHeader'>What would you like to do?</div>
-	<div class='startButton ready' id='spatial'>Explore Spatial Concentrations</div>
-	<div class='startButton ready' id='temporal'>Explore Temporal Trends</div>
-	<hr class='hrLine'>
-	<div class='startButton ready' id='impWaterButton'>Explore Impaired Watersheds</div>
-	<hr class='hrLine'>
-	<div class='startButton ready' id='learnMore'>Learn More About This App</div>
+	<h3>What would you like to do?</h3>
+	<section>
+	<button id='spatial' class="button button-default">Explore Spatial Concentrations</button>
+	<button id='temporal' class="button button-default">Explore Temporal Trends</button>
+	</section>
+	<section>
+	<button id='impWaterButton' class="button button-default">Explore Impaired Watersheds</button>
+	</section>
+	<section>
+	<button id='learnMore' class="button button-default">Learn More About This App</button>
+	</section>
 </div>
 <div class='topWrapper' id='topWrapper'> 
-
-	<div class='navBtn bbar bbarL intNavBtn' id='spaBtn'>Spatial</div>
-	<div class='navBtn bbar bbarR intNavBtn' id='temBtn'>Temporal</div> 
-	<div class='navBtn bbar bbarR intNavBtn' id='clearBtn'>Home</div>
-	<div class='borderDiv'></div>	
+	<div class="toggle-btn">
+		<input type="radio" id="spaBtn" name="nb" value="spaBtn"/>
+		<label for="spaBtn">Spatial</label>
+		<input type="radio" id="temBtn" name="nb" value="temBtn"/>
+		<label for="temBtn">Temporal</label>
+		<input type="radio" id="clearBtn" name="nb" value="clearBtn"/>
+		<label for="clearBtn">Home</label>
+	</div>
 </div>
 <div class='clearWrapper' id='clearWrapper'> 
-	<div class='navBtn bbar bbarR intNavBtn' id='clearWaterBtn'>Home</div>
-	<div class='borderDiv'></div>	
+	<button id='clearWaterBtn' class="button button-default">Home</button>
 </div>
 <!-- The main wrapper that contains all the data besides sup data -->
-<div class='mainDivWrapper selectDivs topPad' id='hucWrapper'>
+<div class='mainDivWrapper selectDivs' id='hucWrapper'>
 	<!-- Hold the Shift key while dragging your mouse over the map to zoom to your area of interest. -->
-	<div id='chartHeader' class='fakeAccordHeader bottomRightSm'>
-		Please choose or click on a HUC8
-	</div>
-	<div id='selectDivs' class='selectDivs1 bottomRightSm'>
+	<h4>Please choose or click on a HUC8</h4>
+	<div id='selectDivs' class='selectDivs1'>
 		<!--The value of each option refers to the layer name and the text is what is used for the layers definition query-->
-		<div id='huc8Wrapper'>
-			<select id='ch-HUC8' data-placeholder="Select a HUC8" class="chosen-crs" tabindex="16">
+		<div id='huc8Wrapper' class="chosen-wrap">
+			<select id='ch-HUC8' data-placeholder="Select a HUC8" class="chosen chosen-crs" tabindex="16">
 				<option value=""></option>
 			</select>
 		</div>
 		<!-- <div id='noDataText' class='noDataText'>Heatmaps unavailable for this watershed.</div> -->
 		<div id='spatialWrapper'>
 			<!--The value of each option refers to the layer name and the text is what is used for the layers definition query-->
-			<div id='ch-traitsDiv' class='ch-divs'>
-				<select id='ch-traits' data-placeholder="Select a water quality trait" class="chosen-crs" tabindex="16">
+			<div id='ch-traitsDiv' class='ch-divs chosen-wrap'>
+				<select id='ch-traits' data-placeholder="Select a water quality trait" class="chosen chosen-crs" tabindex="16">
 					<option value=""></option>
 				</select>
 			</div>	
-			<div id='ch-yearsDiv' class='ch-divs'>
-				<select id='ch-years' data-placeholder="Show data by year" class="chosen-crs" tabindex="16">
+			<div id='ch-yearsDiv' class='ch-divs chosen-wrap'>
+				<select id='ch-years' data-placeholder="Show data by year" class="chosen chosen-crs" tabindex="16">
 					<option value=""></option>
 				</select>
 			</div>
-			<div id='ch-pointsDiv' class='ch-divs' >
-				<label class='radioLabels samplePoints'><input name='supDataRadio' type='checkbox' id='ch-points'  value='Show Sample Points'><span>Show Sample Points</span></label>
-			
+			<div id='ch-pointsDiv' class='ch-divs ch-pointsDiv'>
+				<label class="form-component disabled" for="ch-points">
+					<input type="checkbox" id="ch-points" name="supDataRadio" value="Show Sample Points">
+					<div class="check"></div><span class="form-text">Show Sample Points</span>
+				</label>
 			</div>
 			<div id='sampleValue' class='sampleValue'></div>
 		</div>
 		<div class='temporalWrapper' id='temporalWrapper'>
 			<div id='showGraphText'> Click on Water Quality Station to show graph</div>
-			<div id='graphShow' class='graphShow navBtn navBtnSmall graphToggle'>Show graph</div>
-			<div id='graphHide' class='graphHide navBtn navBtnSmall graphToggle'>Hide</div>
+			<button id='graphShow' class="button button-default graphToggle">Show graph</button>
+			<button id='graphHide' class="button button-default graphToggle">Hide graph</button>
 			<div id='graphDiv' class='graphDiv' >
 				<div id='chartContent' class='chartDiv'>
 					<div class='summaryDiv'>
@@ -215,24 +221,38 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
 
 <!--Supporting data-->
 <div id='supData' class='supData'>
-	<div class='dlAccord' id='dlAccord'>	
-		<h3 class='bottomRightSm'>Supporting Data</h3>
-		<div>
-			<div id='supDataDiv' class='supDataDiv'>
-				<label class='radioLabels'><input name='supDataRadio' type='radio' id='cb-huc12' value='cb-huc12'><span>HUC 12s</span></label>
-				<div id='clickHuc12' class='clickHuc12' style= "display:none;">test huc12</div>
-				<label class='radioLabels' id='soilsParent'><input name='supDataRadio' type='radio' id='cb-soils' value='cb-soils'><span>Soils Data</span></label>
-				<div id='clickSoils' class='clickSoils'></div>
-				<label class='radioLabels' id='streamParent'><input name='supDataRadio' type='radio' id='cb-streams' value='cb-streams'><span>Streams</span></label>
-				<div id='clickStreams' class='clickStreams'></div>
-				<label class='radioLabels' id='bankParent'><input name='supDataRadio' type='radio' id='cb-bank' value='cb-bank'><span>Mitigation Banks</span></label>
-				<div id='clickBank' class='clickBank'></div>
-				<label class='radioLabels'><input name='supDataRadio' type='radio' id='cb-land' value='cb-land'><span>Land Cover</span></label>
-				<label class='radioLabels'><input name='supDataRadio' type='radio' id='cb-none' value='cb-none' checked="checked"><span>None</span></label>
-			</div>
+	<h4>Supporting Data</h4>
+	<div>
+		<div id='supDataDiv' class='supDataDiv'>
+			<label class="form-component" for="cb-huc12">
+				<input checked type="radio" id="cb-huc12" value='cb-huc12' name="supDataRadio">
+				<div class="check"></div><span class="form-text">HUC 12s</span>
+			</label><br>
+			<div id='clickHuc12' class='clickHuc12' style= "display:none;">test huc12</div>
+			<label class="form-component" for="cb-soils">
+				<input checked type="radio" id="cb-soils" value='cb-soils' name="supDataRadio">
+				<div class="check"></div><span class="form-text">Soils Data</span>
+			</label><br>
 			<div id='clickSoils' class='clickSoils'></div>
+			<label class="form-component" for="cb-streams">
+				<input checked type="radio" id="cb-streams" value='cb-streams' name="supDataRadio">
+				<div class="check"></div><span class="form-text">Streams</span>
+			</label><br>
+			<div id='clickStreams' class='clickStreams'></div>
+			<label class="form-component" for="cb-bank">
+				<input checked type="radio" id="cb-bank" value='cb-bank' name="supDataRadio">
+				<div class="check"></div><span class="form-text">Mitigation Banks</span>
+			</label><br>
+			<div id='clickBank' class='clickBank'></div>
+			<label class="form-component" for="cb-land">
+				<input checked type="radio" id="cb-land" value='cb-land' name="supDataRadio">
+				<div class="check"></div><span class="form-text">Land Cover</span>
+			</label><br>
+			<label class="form-component" for="cb-none">
+				<input checked type="radio" id="cb-none" value='cb-none' name="supDataRadio">
+				<div class="check"></div><span class="form-text">None</span>
+			</label>
 		</div>
-		
 	</div>
 </div>
 
