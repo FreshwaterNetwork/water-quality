@@ -19,7 +19,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 		return declare(PluginBase, {
 			// The height and width are set here when an infographic is defined. When the user click Continue it rebuilds the app window with whatever you put in.
 			toolbarName: "Water Quality Resource Inventory", showServiceLayersInLegend: true, allowIdentifyWhenActive: false, rendered: false, resizable: false,
-			hasCustomPrint: true, usePrintPreviewMap: true, previewMapSize: [1000, 550], width:"small",
+			hasCustomPrint: true, usePrintPreviewMap: true, previewMapSize: [1000, 550], size:"small",
 			// Comment out the infoGraphic property below to make that annoying popup go away when you start the app
 			infoGraphic: "plugins/water-quality/images/infoGraphic.jpg",
 			// 
