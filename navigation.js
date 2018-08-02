@@ -48,11 +48,7 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 				t.map.graphics.clear();
 				t.map.removeLayer(t.samplingStations);
 
-				$(t.con).animate({ height: '565px', width: '350px' }, 250,
-					lang.hitch(t,function(){
-						t.resize();
-					})
-				);
+				
 			},
 			internalTemporalClick: function(t){
 				if($("#" + t.id + "ch-pointsDiv input[id='ch-points']").prop("checked") == true){
