@@ -1,5 +1,5 @@
 {
-    "url": "http://cirrus-web-adapter-241060755.us-west-1.elb.amazonaws.com/arcgis/rest/services/FN_Louisiana/la_waterQuality/MapServer",
+    "url": "https://cirrus-web-adapter-241060755.us-west-1.elb.amazonaws.com/arcgis/rest/services/FN_Louisiana/la_waterQuality/MapServer",
 	"visibleLayers": [10000],
 	"spatialLayerArray": [2],
 	"huc8Selected": [],
