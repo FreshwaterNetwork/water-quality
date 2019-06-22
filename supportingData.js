@@ -121,7 +121,6 @@ function ( ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, QueryT
 						$('#' + t.id + 'bottomDiv').hide();
 					}
 				}
-				
 				// reset the raster layer def in the sup data area.
 				if (t.obj.sel == 'sp' && t.obj.year.length > -1){
 					t.layerDefinitions = [];
